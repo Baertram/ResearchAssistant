@@ -38,12 +38,12 @@ function ResearchAssistantScanner:CreateItemPreferenceValue(itemLink, bagId, slo
 
     local where = 4
     if bagId == BAG_BACKPACK then
-    	where = 2
-	elseif bagId == BAG_BANK then
-		where = 1
-	elseif bagId == BAG_GUILDBANK then
-		where = 3
-	end
+        where = 2
+    elseif bagId == BAG_BANK or bagId == BAG_SUBSCRIBER_BANK then
+        where = 1
+    elseif bagId == BAG_GUILDBANK then
+        where = 3
+    end
 
     --wxxxyzzz
     --the lowest preference value is the "preferred" value
@@ -130,6 +130,7 @@ function ResearchAssistantScanner:RescanBags()
 
 	self:ScanBag(BAG_BACKPACK)
 	self:ScanBag(BAG_BANK)
+    self:ScanBag(BAG_SUBSCRIBER_BANK)
 
 	self:ScanKnownTraits()
 	self.settingsPtr:SetKnownTraits(self.ownedTraits)
