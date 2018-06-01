@@ -66,7 +66,10 @@ RA_Strings = {
             CL_CHAR_TOOLTIP = "Which character is your clothier character?",
 
             WW_CHAR_LABEL = "Woodworking Character",
-            WW_CHAR_TOOLTIP = "Which character is your woodworking character?"
+            WW_CHAR_TOOLTIP = "Which character is your woodworking character?",
+
+            JC_CHAR_LABEL = "Jewelry crafting Character",
+            JC_CHAR_TOOLTIP = "Which character is your jewelry crafting character?",
         },
         TOOLTIPS = {
             ornate = "Ornate",
@@ -143,7 +146,10 @@ RA_Strings = {
             LW_CHAR_TOOLTIP = "Welcher Charakter soll für Lederschneiderei verwendet werden?",
 
             WW_CHAR_LABEL = "Schreinerei",
-            WW_CHAR_TOOLTIP = "Welcher Charakter soll für Schreinerei verwendet werden?"
+            WW_CHAR_TOOLTIP = "Welcher Charakter soll für Schreinerei verwendet werden?",
+
+            JC_CHAR_LABEL = "Schmuck Handwerk",
+            JC_CHAR_TOOLTIP = "Welcher Charakter soll für Schmuck Handwerk verwendet werden?",
         },
         TOOLTIPS = {
             ornate = "Verkaufspreis",
