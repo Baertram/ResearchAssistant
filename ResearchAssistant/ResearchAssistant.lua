@@ -174,12 +174,12 @@ function RA.IsItemResearchableWithSettingsCharacter(bagId, slotIndex)
 
     --if we don't know it yet
     if bestTraitPreferenceScore ~= true then
+        isResearchableWithSettingsChar = true
         if thisItemScore > bestTraitPreferenceScore or stackSize > 1 then
             --Duplicate
             return isResearchableWithSettingsChar
         else
             --Researchable!
-            isResearchableWithSettingsChar = true
             return isResearchableWithSettingsChar
         end
     end
