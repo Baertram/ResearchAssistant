@@ -61,6 +61,51 @@ local researchMap = {
 	}
 }
 
+--Mapping of the itemTraitType to the traitIndex 1 ... 9
+--  itemTraitType                   traitIndex (1..9)   itemTraitTypeValue
+local ItemTraitType2TraitIndex = {
+    --Weapons
+    [ITEM_TRAIT_TYPE_WEAPON_POWERED]        = 1,        -- 1
+    [ITEM_TRAIT_TYPE_WEAPON_CHARGED]        = 2,        -- 2
+    [ITEM_TRAIT_TYPE_WEAPON_PRECISE]        = 3,        -- 3
+    [ITEM_TRAIT_TYPE_WEAPON_INFUSED]        = 4,        -- 4
+    [ITEM_TRAIT_TYPE_WEAPON_DEFENDING]      = 5,        -- 5
+    [ITEM_TRAIT_TYPE_WEAPON_TRAINING]       = 6,        -- 6
+    [ITEM_TRAIT_TYPE_WEAPON_SHARPENED]      = 7,        -- 7
+    [ITEM_TRAIT_TYPE_WEAPON_DECISIVE]       = 8,        -- 8
+    [ITEM_TRAIT_TYPE_WEAPON_WEIGHTED]       = 8,        -- 8
+    [ITEM_TRAIT_TYPE_WEAPON_NIRNHONED]      = 9,        -- 26
+    [ITEM_TRAIT_TYPE_WEAPON_INTRICATE]      = "Intricate",        -- 9
+    [ITEM_TRAIT_TYPE_WEAPON_ORNATE]         = "Ornate",        -- 10
+
+    --Armor
+    [ITEM_TRAIT_TYPE_ARMOR_STURDY]          = 1,        -- 11
+    [ITEM_TRAIT_TYPE_ARMOR_IMPENETRABLE]    = 2,        -- 12
+    [ITEM_TRAIT_TYPE_ARMOR_REINFORCED]      = 3,        -- 13
+    [ITEM_TRAIT_TYPE_ARMOR_WELL_FITTED]     = 4,        -- 14
+    [ITEM_TRAIT_TYPE_ARMOR_TRAINING]        = 5,        -- 15
+    [ITEM_TRAIT_TYPE_ARMOR_INFUSED]         = 6,        -- 16
+    [ITEM_TRAIT_TYPE_ARMOR_EXPLORATION]     = 7,        -- 17
+    [ITEM_TRAIT_TYPE_ARMOR_PROSPEROUS]      = 7,        -- 17
+    [ITEM_TRAIT_TYPE_ARMOR_DIVINES]         = 8,        -- 18
+    [ITEM_TRAIT_TYPE_ARMOR_NIRNHONED]       = 9,        -- 25
+    [ITEM_TRAIT_TYPE_ARMOR_INTRICATE]       = "Intricate",        -- 20
+    [ITEM_TRAIT_TYPE_ARMOR_ORNATE]          = "Ornate",        -- 19
+
+    --Jewelry
+    [ITEM_TRAIT_TYPE_JEWELRY_ARCANE]        = 1,        -- 22
+    [ITEM_TRAIT_TYPE_JEWELRY_HEALTHY]       = 2,        -- 21
+    [ITEM_TRAIT_TYPE_JEWELRY_ROBUST]        = 3,        -- 23
+    [ITEM_TRAIT_TYPE_JEWELRY_TRIUNE]        = 4,        -- 30
+    [ITEM_TRAIT_TYPE_JEWELRY_INFUSED]       = 5,        -- 33
+    [ITEM_TRAIT_TYPE_JEWELRY_PROTECTIVE]    = 6,        -- 32
+    [ITEM_TRAIT_TYPE_JEWELRY_SWIFT]         = 7,        -- 28
+    [ITEM_TRAIT_TYPE_JEWELRY_HARMONY]       = 8,        -- 29
+    [ITEM_TRAIT_TYPE_JEWELRY_BLOODTHIRSTY]  = 9,        -- 31
+    [ITEM_TRAIT_TYPE_JEWELRY_INTRICATE]     = "Intricate",        -- 27
+    [ITEM_TRAIT_TYPE_JEWELRY_ORNATE]        = "Ornate",        -- 24
+}
+
 --[[----------------------------------------------------------------------------
 	returns true if the character knows or is in the process of researching the
 	supplied trait; else returns false.
@@ -89,6 +134,8 @@ function libResearch:GetItemTraitResearchabilityInfo(itemLink)
 	end
 
 	local craftingSkillType, researchLineIndex, traitIndex = self:GetItemResearchInfo(itemLink)
+
+    local itemEquipType = GetItemLinkEquipType(itemLink)
 	-- do this first to catch jewelry
 	if traitIndex == "Ornate" or traitIndex == "Intricate" then
 		return 0, false, traitIndex
@@ -154,32 +201,13 @@ end
 	GetSmithingResearchLineTraitInfo() et. al. or returns -1 if no trait exists
 --]]----------------------------------------------------------------------------
 function libResearch:GetResearchTraitIndex(itemLink)
-	local traitIndex = GetItemLinkTraitInfo(itemLink)
-
-	if traitIndex == ITEM_TRAIT_TYPE_ARMOR_ORNATE or traitIndex == ITEM_TRAIT_TYPE_WEAPON_ORNATE
-      or traitIndex == ITEM_TRAIT_TYPE_JEWELRY_ORNATE then
-		return "Ornate"
-	elseif traitIndex == ITEM_TRAIT_TYPE_ARMOR_INTRICATE or traitIndex == ITEM_TRAIT_TYPE_WEAPON_INTRICATE
-	  or traitIndex == ITEM_TRAIT_TYPE_JEWELRY_INTRICATE then
-		return "Intricate"
-	end
-
-	if traitIndex == ITEM_TRAIT_TYPE_ARMOR_NIRNHONED or traitIndex == ITEM_TRAIT_TYPE_WEAPON_NIRNHONED then
-		return 9
-	end
-	--this used to be "if itemType == ITEMTYPE_ARMOR", but shields are not armor even though they are armor
-	if traitIndex > 10 then
-		traitIndex = traitIndex - 10
-    elseif traitIndex > 20 then
-        traitIndex = traitIndex - 20
-    elseif traitIndex > 30 then
-        traitIndex = traitIndex - 30
-	end
-
-	if not (traitIndex >= 1 and traitIndex <= 8) then
-		return -1
-	end
-
+	local itemTraitType = GetItemLinkTraitInfo(itemLink)
+    local traitIndex = ItemTraitType2TraitIndex[itemTraitType] or 0
+    if type(traitIndex) == "number" then
+        if not (traitIndex >= 1 and traitIndex <= 9) then
+            return -1
+        end
+    end
 	return traitIndex
 end
 
@@ -198,8 +226,9 @@ function libResearch:GetResearchLineIndex(itemLink)
 	end
 
 	local researchLineIndex
-	--if is armor
-	if armorType ~= ARMORTYPE_NONE or weaponType == WEAPONTYPE_SHIELD then
+	--if is armor (including shields and jewelry)
+	if     armorType ~= ARMORTYPE_NONE or weaponType == WEAPONTYPE_SHIELD
+        or equipType == EQUIP_TYPE_NECK or equipType == EQUIP_TYPE_RING then
         researchLineIndex = researchMap[craftingSkillType].ARMOR[equipType]
 		if armorType == ARMORTYPE_MEDIUM then
 			researchLineIndex = researchLineIndex + 7
