@@ -164,17 +164,19 @@ function libResearch:GetResearchTraitIndex(itemLink)
 		return "Intricate"
 	end
 
-    --[[
 	if traitIndex == ITEM_TRAIT_TYPE_ARMOR_NIRNHONED or traitIndex == ITEM_TRAIT_TYPE_WEAPON_NIRNHONED then
 		return 9
 	end
 	--this used to be "if itemType == ITEMTYPE_ARMOR", but shields are not armor even though they are armor
 	if traitIndex > 10 then
-		traitIndex = traitIndex - 10;
+		traitIndex = traitIndex - 10
+    elseif traitIndex > 20 then
+        traitIndex = traitIndex - 20
+    elseif traitIndex > 30 then
+        traitIndex = traitIndex - 30
 	end
-	]]
 
-	if not (traitIndex >= 1 and traitIndex <= ITEM_TRAIT_TYPE_MAX_VALUE) then
+	if not (traitIndex >= 1 and traitIndex <= 8) then
 		return -1
 	end
 
@@ -233,4 +235,3 @@ end
 function libResearch:GetResearchMap()
 	return researchMap
 end
-
