@@ -1,4 +1,4 @@
-local MAJOR, MINOR = "libResearch-2", 2
+local MAJOR, MINOR = "libResearch-2", 3
 local libResearch, oldminor = LibStub:NewLibrary(MAJOR, MINOR)
 if not libResearch then return end	--the same or newer version of this lib is already loaded into memory
 --thanks to Seerah for the previous lines and library
@@ -6,6 +6,7 @@ if not libResearch then return end	--the same or newer version of this lib is al
 local BLACKSMITH = CRAFTING_TYPE_BLACKSMITHING
 local CLOTHIER = CRAFTING_TYPE_CLOTHIER
 local WOODWORK = CRAFTING_TYPE_WOODWORKING
+local JEWELRY_CRAFTING = CRAFTING_TYPE_JEWELRYCRAFTING
 
 local researchMap = {
 	[BLACKSMITH] = {
@@ -52,6 +53,12 @@ local researchMap = {
 			[EQUIP_TYPE_OFF_HAND] = 6,
 		},
 	},
+	[JEWELRY_CRAFTING] = {
+        ARMOR = {
+            [EQUIP_TYPE_NECK] = 1,
+            [EQUIP_TYPE_RING] = 2,
+        },
+	}
 }
 
 --[[----------------------------------------------------------------------------
@@ -105,20 +112,25 @@ end
 
 --[[----------------------------------------------------------------------------
 	returns the global enums CRAFTING_TYPE_BLACKSMITHING,
-	CRAFTING_TYPE_CLOTHIER, or CRAFTING_TYPE_WOODWORKING if applicable. else
-	return -1
+	CRAFTING_TYPE_CLOTHIER, CRAFTING_TYPE_WOODWORKING or CRAFTING_TYPE_JEWELRYCRAFTING
+	if applicable. else return -1
 --]]----------------------------------------------------------------------------
 function libResearch:GetItemCraftingSkill(itemLink)
 	local itemType = GetItemLinkItemType(itemLink)
 	if itemType == ITEMTYPE_ARMOR then
-		local armorType = GetItemLinkArmorType(itemLink)
-		if armorType == ARMORTYPE_HEAVY then
-			return BLACKSMITH
-		elseif armorType == ARMORTYPE_LIGHT or armorType == ARMORTYPE_MEDIUM then
-			return CLOTHIER
-		else
-			return -1
-		end
+        local equipType = GetItemLinkEquipType(itemLink)
+        if equipType == EQUIP_TYPE_NECK or equipType == EQUIP_TYPE_RING then
+            return JEWELRY_CRAFTING
+        else
+            local armorType = GetItemLinkArmorType(itemLink)
+            if armorType == ARMORTYPE_HEAVY then
+                return BLACKSMITH
+            elseif armorType == ARMORTYPE_LIGHT or armorType == ARMORTYPE_MEDIUM then
+                return CLOTHIER
+            else
+                return -1
+            end
+        end
 	elseif itemType == ITEMTYPE_WEAPON then
 		local weaponType = GetItemLinkWeaponType(itemLink)
 		if weaponType == WEAPONTYPE_BOW
@@ -139,7 +151,7 @@ end
 
 --[[----------------------------------------------------------------------------
 	returns a trait index suitable for feeding to the global functions
-	GetSmithingLineTraitInfo() et. al. or returns -1 if no trait exists
+	GetSmithingResearchLineTraitInfo() et. al. or returns -1 if no trait exists
 --]]----------------------------------------------------------------------------
 function libResearch:GetResearchTraitIndex(itemLink)
 	local traitIndex = GetItemLinkTraitInfo(itemLink)
@@ -152,6 +164,7 @@ function libResearch:GetResearchTraitIndex(itemLink)
 		return "Intricate"
 	end
 
+    --[[
 	if traitIndex == ITEM_TRAIT_TYPE_ARMOR_NIRNHONED or traitIndex == ITEM_TRAIT_TYPE_WEAPON_NIRNHONED then
 		return 9
 	end
@@ -159,8 +172,9 @@ function libResearch:GetResearchTraitIndex(itemLink)
 	if traitIndex > 10 then
 		traitIndex = traitIndex - 10;
 	end
+	]]
 
-	if not (traitIndex >= 1 and traitIndex <=8) then
+	if not (traitIndex >= 1 and traitIndex <= ITEM_TRAIT_TYPE_MAX_VALUE) then
 		return -1
 	end
 
@@ -177,14 +191,14 @@ function libResearch:GetResearchLineIndex(itemLink)
 	local equipType = GetItemLinkEquipType(itemLink)
 	local weaponType = GetItemLinkWeaponType(itemLink)
 
-	if craftingSkillType ~= BLACKSMITH and craftingSkillType ~= WOODWORK and craftingSkillType ~= CLOTHIER then
+	if craftingSkillType ~= BLACKSMITH and craftingSkillType ~= WOODWORK and craftingSkillType ~= CLOTHIER and craftingSkillType ~= JEWELRY_CRAFTING then
 		return -1
 	end
 
 	local researchLineIndex
 	--if is armor
 	if armorType ~= ARMORTYPE_NONE or weaponType == WEAPONTYPE_SHIELD then
-		researchLineIndex = researchMap[craftingSkillType].ARMOR[equipType]
+        researchLineIndex = researchMap[craftingSkillType].ARMOR[equipType]
 		if armorType == ARMORTYPE_MEDIUM then
 			researchLineIndex = researchLineIndex + 7
 		end
@@ -219,3 +233,4 @@ end
 function libResearch:GetResearchMap()
 	return researchMap
 end
+
