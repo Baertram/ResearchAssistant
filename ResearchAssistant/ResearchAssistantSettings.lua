@@ -124,7 +124,7 @@ function ResearchAssistantSettings:Initialize()
         settings.leatherworkerCharacter[charName] = settings.clothierCharacter[charName]
     end
     if (not settings.jewelryCraftingCharacter[charName]) then
-        settings.jewelryCraftingCharacter[charName] = settings.jewelryCraftingCharacter[charName]
+        settings.jewelryCraftingCharacter[charName] = charName
     end
     if (not settings.acquiredTraits[charName]) then
         settings.acquiredTraits[charName] = { }
