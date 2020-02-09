@@ -7,10 +7,7 @@ RA.version 	= "0.9.4.8"
 RA.author   = "ingeniousclown, katkat42, Randactyl, Baertram"
 RA.website	= "https://www.esoui.com/downloads/info111-ResearchAssistant.html"
 
-local BACKPACK = ZO_PlayerInventoryBackpack
-local BANK = ZO_PlayerBankBackpack
-local GUILD_BANK = ZO_GuildBankBackpack
-local DECONSTRUCTION = ZO_SmithingTopLevelDeconstructionPanelInventoryBackpack
+local DECONSTRUCTION	= ZO_SmithingTopLevelDeconstructionPanelInventoryBackpack
 
 local ORNATE_TEXTURE = [[/esoui/art/tradinghouse/tradinghouse_sell_tabicon_disabled.dds]]
 local ornateTextureSizeMax = 28
@@ -436,10 +433,6 @@ local function AddResearchIndicatorToSlot(control, linkFunction)
 	end
 end
 
-local function AreAllHidden()
-	return BANK:IsHidden() and BACKPACK:IsHidden() and GUILD_BANK:IsHidden() and DECONSTRUCTION:IsHidden()
-end
-
 --[[----------------------------------------------------------------------------
 	a simple event buffer to make sure that the scan doesn't happen more than
 	once in a single instance, as EVENT_INVENTORY_SINGLE_SLOT_UPDATE is very
@@ -527,7 +520,6 @@ local function ResearchAssistant_Loaded(eventCode, addOnName)
 	end
 
 	local function RA_EnableBankScan(bankBag)
-d("[RA]RA_EnableBankScan-bankBag: " ..tostring(bankBag))
 		if IsHouseBankBag(bankBag) == true then
 			--Scan the house bank on first open automatically!
 			RAScanner:SetHouseBankScanEnabled(true, true)
