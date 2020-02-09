@@ -16,6 +16,8 @@ local LIBRESEARCH_REASON_INTRICATE 			= "Intricate"
 local LIBRESEARCH_REASON_TRAITLESS 			= "Traitless"
 ]]
 
+local maxHouseBankBag = BAG_HOUSE_BANK_TEN
+
 --Class ResearchAssistantScanner
 ResearchAssistantScanner = ZO_Object:Subclass()
 
@@ -89,7 +91,7 @@ function ResearchAssistantScanner:CreateItemPreferenceValue(itemLink, bagId, slo
 		[BAG_BACKPACK] 			= 2,
 		[BAG_GUILDBANK] 		= 3,
 	}
-	for bagHouseBank = BAG_HOUSE_BANK_ONE, BAG_HOUSE_BANK_TEN, 1 do
+	for bagHouseBank = BAG_HOUSE_BANK_ONE, maxHouseBankBag, 1 do
 		bagToWhere[bagHouseBank] = 1
 	end
 	local where = bagToWhere[bagId] or 1
@@ -143,7 +145,7 @@ end
 function ResearchAssistantScanner:JoinCachedOwnedTraits(traits)
 	if not traits then return end
 	for traitKey, value in pairs(traits) do
-		if value or value < (self.ownedTraits[traitKey] or 999999999999999999)  then
+		if value == true or value < (self.ownedTraits[traitKey] or 999999999999999999)  then
 			self.ownedTraits[traitKey] = value
 		end
 	end
@@ -214,9 +216,12 @@ function ResearchAssistantScanner:RescanBags()
 
 		--Check if inside a house & house bank was opened -> Prerequisite to scan the house banks
 		if self:IsHouseBankScanEnabled() == true then
+			if self.debug == true then
+				d(">inside a house")
+			end
 			--For each possible house bank coffer scan the bag
 			self.ownedTraits_HouseBank = self.ownedTraits_HouseBank or {}
-			for houseBankBag=BAG_HOUSE_BANK_ONE, BAG_HOUSE_BANK_TEN, 1 do
+			for houseBankBag=BAG_HOUSE_BANK_ONE, maxHouseBankBag, 1 do
 				if self.debug == true then
 					startTime = GetGameTimeMilliseconds()
 				end
@@ -231,9 +236,9 @@ function ResearchAssistantScanner:RescanBags()
 
 	self:JoinCachedOwnedTraits(self.ownedTraits_Bank)
 	self:JoinCachedOwnedTraits(self.ownedTraits_SubscriberBank)
-	--For each possible house bank coffer scan the bag
+	--For each possible house bank coffer: Join the scanned house bank trait items to the total table
 	if self.ownedTraits_HouseBank then
-		for houseBankBag=BAG_HOUSE_BANK_ONE, BAG_HOUSE_BANK_TEN, 1 do
+		for houseBankBag=BAG_HOUSE_BANK_ONE, maxHouseBankBag, 1 do
 			self:JoinCachedOwnedTraits(self.ownedTraits_HouseBank[houseBankBag])
 		end
 	end
