@@ -1,6 +1,7 @@
-local libResearch = LibResearch
-if libResearch == nil and LibStub then libResearch = LibStub("LibResearch", true) end
-if libResearch == nil then d("[ResearchAssistant]Needed library \"LibResearch\" was not loaded. This addon won't work without this library!") return end
+if ResearchAssistant == nil then ResearchAssistant = {} end
+local RA = ResearchAssistant
+
+local libResearch = RA.libResearch
 
 --Local variables for the class
 local BLACKSMITH 		= CRAFTING_TYPE_BLACKSMITHING

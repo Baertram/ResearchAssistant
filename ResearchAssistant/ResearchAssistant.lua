@@ -477,6 +477,14 @@ end
 local function ResearchAssistant_Loaded(eventCode, addOnName)
 	if addOnName ~= RA.name then return end
 
+	local libResearch = LibResearch
+	if libResearch == nil then d("[ResearchAssistant]Needed library \"LibResearch\" was not loaded. This addon won't work without this library!") return end
+	RA.libResearch = libResearch
+	local LAM = LibAddonMenu2
+	if not LAM and LibStub then LibStub("LibAddonMenu-2.0", true) end
+	if LAM == nil then d("[ResearchAssistant]Needed library \"LibAddonMenu-2.0\" was not loaded. This addon won't work without this library!") return end
+	RA.lam = LAM
+
 	wasInCombatAsWantedToScan = false
 
 	RASettings = ResearchAssistantSettings:New()

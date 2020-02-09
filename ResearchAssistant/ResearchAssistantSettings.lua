@@ -1,9 +1,6 @@
-ResearchAssistantSettings = ZO_Object:Subclass()
 if ResearchAssistant == nil then ResearchAssistant = {} end
 local RA = ResearchAssistant
 
-local LAM = LibAddonMenu2
-if not LAM and LibStub then LibStub("LibAddonMenu-2.0", true) end
 local settings = nil
 local _
 
@@ -56,6 +53,8 @@ end
 ------------------------------
 --OBJECT FUNCTIONS
 ------------------------------
+ResearchAssistantSettings = ZO_Object:Subclass()
+
 function ResearchAssistantSettings:New()
     local obj = ZO_Object.New(self)
     obj:Initialize()
@@ -318,6 +317,7 @@ function ResearchAssistantSettings:IsDebug()
 end
 
 function ResearchAssistantSettings:CreateOptionsMenu()
+    local LAM = RA.lam
     local str = RA_Strings[self:GetLanguage()].SETTINGS
 
     local panel = {
