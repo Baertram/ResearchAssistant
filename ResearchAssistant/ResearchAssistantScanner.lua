@@ -69,14 +69,16 @@ function ResearchAssistantScanner:CreateItemPreferenceValue(itemLink, bagId, slo
 		level = 1
 	end
 
-	local where = 4
-	if bagId == BAG_BACKPACK then
-		where = 2
-	elseif bagId == BAG_BANK or bagId == BAG_SUBSCRIBER_BANK then
-		where = 1
-	elseif bagId == BAG_GUILDBANK then
-		where = 3
+	local bagToWhere = {
+		[BAG_BANK] 				= 1,
+		[BAG_SUBSCRIBER_BANK] 	= 1,
+		[BAG_BACKPACK] 			= 2,
+		[BAG_GUILDBANK] 		= 3,
+	}
+	for bagHouseBank = BAG_HOUSE_BANK_ONE, BAG_HOUSE_BANK_TEN, 1 do
+		bagToWhere[bagHouseBank] = 1
 	end
+	local where = bagToWhere[bagId] or 1
 
 	--wxxxyzzz
 	--the lowest preference value is the "preferred" value

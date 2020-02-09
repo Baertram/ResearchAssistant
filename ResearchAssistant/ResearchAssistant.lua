@@ -475,11 +475,9 @@ local function RA_HookTrading()
 	EVENT_MANAGER:UnregisterForEvent("RA_TRADINGHOUSE", EVENT_TRADING_HOUSE_RESPONSE_RECEIVED)
 	local hookedFunction = TRADING_HOUSE.searchResultsList.dataTypes[1].setupCallback
 	if hookedFunction then
-		TRADING_HOUSE.searchResultsList.dataTypes[1].setupCallback = function(...)
-			local row, data = ...
-			hookedFunction(...)
+		SecurePostHook(TRADING_HOUSE.searchResultsList.dataTypes[1], "setupCallback", function(row, data)
 			AddResearchIndicatorToSlot(row, GetTradingHouseSearchResultItemLink)
-		end
+		end)
 	end
 end
 
