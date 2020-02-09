@@ -163,27 +163,31 @@ function ResearchAssistantSettings:Initialize()
     --Key is the unique character Id, value is the name
     self.charId2Name = getCharactersOfAccount(false)
     --Key is the name, value is unique character Id
-    self.charName2Id = getCharactersOfAccount(true)
+    --self.charName2Id = getCharactersOfAccount(true)
     --The LAM settings character values table
-    self.lamCharValuesTable = {}
+    self.lamCharNamesTable = {}
 
     local addme = true
     local addoff = true
     --Build the known characters table
     for k, v in pairs(settings.knownCharacters) do
         if v == charId then addme = false end
-        if v == CONST_OFF then addoff = false end
+        if v == CONST_OFF then addoff = false
+            self.lamCharNamesTable[k] = CONST_OFF
+        else
+            self.lamCharNamesTable[k] = self.charId2Name[v]
+        end
     end
     if addme then
-        table.insert(settings.knownCharacters, self.charId2Name[charId])
-        table.insert(self.lamCharValuesTable, charId)
+        table.insert(settings.knownCharacters, charId)
     end
     if addoff then
         table.insert(settings.knownCharacters, CONST_OFF)
-        table.insert(self.lamCharValuesTable, 0)
     end
 
     self:CreateOptionsMenu()
+
+    self.sv = settings
 end
 
 function ResearchAssistantSettings:IsActivated()
@@ -471,7 +475,7 @@ function ResearchAssistantSettings:CreateOptionsMenu()
         name = str.WS_CHAR_LABEL,
         tooltip = str.WS_CHAR_TOOLTIP,
         choices = settings.knownCharacters,
-        choicesValues = self.lamCharValuesTable,
+        choicesValues = self.lamCharNamesTable,
         getFunc = function() return settings.weaponsmithCharacter[charId] end,
         setFunc = function(value)
             settings.weaponsmithCharacter[charId] = value
@@ -483,8 +487,8 @@ function ResearchAssistantSettings:CreateOptionsMenu()
         type = "dropdown",
         name = str.BS_CHAR_LABEL,
         tooltip = str.BS_CHAR_TOOLTIP,
-        choices = settings.knownCharacters,
-        choicesValues = self.lamCharValuesTable,
+        choices = self.lamCharNamesTable,
+        choicesValues = settings.knownCharacters,
         getFunc = function() return settings.blacksmithCharacter[charId] end,
         setFunc = function(value)
             settings.blacksmithCharacter[charId] = value
@@ -498,8 +502,8 @@ function ResearchAssistantSettings:CreateOptionsMenu()
         type = "dropdown",
         name = str.LW_CHAR_LABEL,
         tooltip = str.LW_CHAR_TOOLTIP,
-        choices = settings.knownCharacters,
-        choicesValues = self.lamCharValuesTable,
+        choices = self.lamCharNamesTable,
+        choicesValues = settings.knownCharacters,
         getFunc = function() return settings.leatherworkerCharacter[charId] end,
         setFunc = function(value)
             settings.leatherworkerCharacter[charId] = value
@@ -511,8 +515,8 @@ function ResearchAssistantSettings:CreateOptionsMenu()
         type = "dropdown",
         name = str.CL_CHAR_LABEL,
         tooltip = str.CL_CHAR_TOOLTIP,
-        choices = settings.knownCharacters,
-        choicesValues = self.lamCharValuesTable,
+        choices = self.lamCharNamesTable,
+        choicesValues = settings.knownCharacters,
         getFunc = function() return settings.clothierCharacter[charId] end,
         setFunc = function(value)
             settings.clothierCharacter[charId] = value
@@ -526,8 +530,8 @@ function ResearchAssistantSettings:CreateOptionsMenu()
         type = "dropdown",
         name = str.WW_CHAR_LABEL,
         tooltip = str.WW_CHAR_TOOLTIP,
-        choices = settings.knownCharacters,
-        choicesValues = self.lamCharValuesTable,
+        choices = self.lamCharNamesTable,
+        choicesValues = settings.knownCharacters,
         getFunc = function() return settings.woodworkingCharacter[charId] end,
         setFunc = function(value)
             settings.woodworkingCharacter[charId] = value
@@ -538,8 +542,8 @@ function ResearchAssistantSettings:CreateOptionsMenu()
         type = "dropdown",
         name = str.JC_CHAR_LABEL,
         tooltip = str.JC_CHAR_TOOLTIP,
-        choices = settings.knownCharacters,
-        choicesValues = self.lamCharValuesTable,
+        choices = self.lamCharNamesTable,
+        choicesValues = settings.knownCharacters,
         getFunc = function() return settings.jewelryCraftingCharacter[charId] end,
         setFunc = function(value)
             settings.jewelryCraftingCharacter[charId] = value
