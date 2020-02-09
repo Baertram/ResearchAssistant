@@ -493,7 +493,7 @@ local function ResearchAssistant_Loaded(eventCode, addOnName)
 
 	RASettings = ResearchAssistantSettings:New()
 	RAScanner = ResearchAssistantScanner:New(RASettings)
-	RAScanner.SetDebug(RASettings:IsDebug())
+	RAScanner:SetDebug(RASettings:IsDebug())
 	RA.scanner = RAScanner
 
 	--Get the language of the client
