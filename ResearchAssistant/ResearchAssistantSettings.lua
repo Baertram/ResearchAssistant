@@ -3,8 +3,9 @@ local RA = ResearchAssistant
 
 local settings = nil
 local _
+local CONST_OFF = "off"
 
-local charName = GetUnitName("player")
+local charId = GetCurrentCharacterId()
 
 local CAN_RESEARCH_TEXTURES = {
     ["Classic"] = {
@@ -50,6 +51,26 @@ local function HexToRGBA(hex)
     return tonumber(rhex, 16)/255, tonumber(ghex, 16)/255, tonumber(bhex, 16)/255, tonumber(ahex, 16)/255
 end
 
+--Build the table of all characters of the account
+local function getCharactersOfAccount(keyIsCharName)
+    keyIsCharName = keyIsCharName or false
+    local charactersOfAccount
+    --Check all the characters of the account
+    for i = 1, GetNumCharacters() do
+        local name, _, _, _, _, _, characterId = GetCharacterInfo(i)
+        local charName = zo_strformat(SI_UNIT_NAME, name)
+        if characterId ~= nil and charName ~= "" then
+            if charactersOfAccount == nil then charactersOfAccount = {} end
+            if keyIsCharName then
+                charactersOfAccount[charName]   = characterId
+            else
+                charactersOfAccount[characterId]= charName
+            end
+        end
+    end
+    return charactersOfAccount
+end
+
 ------------------------------
 --OBJECT FUNCTIONS
 ------------------------------
@@ -63,6 +84,8 @@ end
 
 function ResearchAssistantSettings:Initialize()
     local defaults = {
+        debug = false,
+
         raToggle = true,
         multiCharacter = false,
 
@@ -84,8 +107,8 @@ function ResearchAssistantSettings:Initialize()
         showUntrackedOrnate = true,
         showUntrackedIntricate = true,
 
-        --knownCharacters = { "off", "all" },
-        knownCharacters = { "off" },
+        --knownCharacters = { CONST_OFF, "all" },
+        knownCharacters = { CONST_OFF },
         blacksmithCharacter = {},
         weaponsmithCharacter = {},
         woodworkingCharacter = {},
@@ -93,13 +116,14 @@ function ResearchAssistantSettings:Initialize()
         leatherworkerCharacter = {},
         jewelryCraftingCharacter = {},
 
-        debug = false,
-
         --non settings variables
         acquiredTraits = {},
 		}
-
-    settings = ZO_SavedVars:NewAccountWide("ResearchAssistant_Settings", 2, nil, defaults)
+    --Old non-server dependent character name settings
+    --settings = ZO_SavedVars:NewAccountWide("ResearchAssistant_Settings", 2, nil, defaults)
+    --New server dependent character unique ID settings
+    --ZO_SavedVars:NewAccountWide(savedVariableTable, version, namespace, defaults, profile, displayName)
+    settings = ZO_SavedVars:NewAccountWide("ResearchAssistant_Settings_Server", 1, nil, defaults, GetWorldName(), nil)
 
     if settings.isBlacksmith then settings.isBlacksmith = nil end
     if settings.isWoodworking then settings.isWoodworking = nil end
@@ -113,39 +137,51 @@ function ResearchAssistantSettings:Initialize()
         settings.showTraitless = false
     end
 
-    if(not settings.blacksmithCharacter[charName]) then
-        settings.blacksmithCharacter[charName] = charName
+    if(not settings.blacksmithCharacter[charId]) then
+        settings.blacksmithCharacter[charId] = charId
     end
-    if (not settings.weaponsmithCharacter[charName]) then
-        settings.weaponsmithCharacter[charName] = settings.blacksmithCharacter[charName]
+    if (not settings.weaponsmithCharacter[charId]) then
+        settings.weaponsmithCharacter[charId] = settings.blacksmithCharacter[charId]
     end
-    if (not settings.woodworkingCharacter[charName]) then
-        settings.woodworkingCharacter[charName] = charName
+    if (not settings.woodworkingCharacter[charId]) then
+        settings.woodworkingCharacter[charId] = charId
     end
-    if (not settings.clothierCharacter[charName]) then
-        settings.clothierCharacter[charName] = charName
+    if (not settings.clothierCharacter[charId]) then
+        settings.clothierCharacter[charId] = charId
     end
-    if (not settings.leatherworkerCharacter[charName]) then
-        settings.leatherworkerCharacter[charName] = settings.clothierCharacter[charName]
+    if (not settings.leatherworkerCharacter[charId]) then
+        settings.leatherworkerCharacter[charId] = settings.clothierCharacter[charId]
     end
-    if (not settings.jewelryCraftingCharacter[charName]) then
-        settings.jewelryCraftingCharacter[charName] = charName
+    if (not settings.jewelryCraftingCharacter[charId]) then
+        settings.jewelryCraftingCharacter[charId] = charId
     end
-    if (not settings.acquiredTraits[charName]) then
-        settings.acquiredTraits[charName] = { }
+    if (not settings.acquiredTraits[charId]) then
+        settings.acquiredTraits[charId] = { }
     end
+
+    --Build a list of characters of the current acount
+    --Key is the unique character Id, value is the name
+    self.charId2Name = getCharactersOfAccount(false)
+    --Key is the name, value is unique character Id
+    self.charName2Id = getCharactersOfAccount(true)
+    --The LAM settings character values table
+    self.lamCharValuesTable = {}
 
     local addme = true
     local addoff = true
-    --local addany = true
+    --Build the known characters table
     for k, v in pairs(settings.knownCharacters) do
-        if v == charName then addme = false end
-        if v == "off" then addoff = false end
-        --if v == "any" then addany = false end
+        if v == charId then addme = false end
+        if v == CONST_OFF then addoff = false end
     end
-    if addme then table.insert(settings.knownCharacters, charName) end
-    if addoff then table.insert(settings.knownCharacters, "off") end
-    --if addany then table.insert(settings.knownCharacters, "any") end
+    if addme then
+        table.insert(settings.knownCharacters, self.charId2Name[charId])
+        table.insert(self.lamCharValuesTable, charId)
+    end
+    if addoff then
+        table.insert(settings.knownCharacters, CONST_OFF)
+        table.insert(self.lamCharValuesTable, 0)
+    end
 
     self:CreateOptionsMenu()
 end
@@ -200,7 +236,7 @@ function ResearchAssistantSettings:ShowTooltips()
 end
 
 function ResearchAssistantSettings:SetKnownTraits(traitsTable)
-    settings.acquiredTraits[GetUnitName("player")] = traitsTable
+    settings.acquiredTraits[charId] = traitsTable
 end
 
 function ResearchAssistantSettings:GetCharsWhoKnowTrait(traitKey)
@@ -214,42 +250,30 @@ end
 function ResearchAssistantSettings:GetCraftingCharacterTraits(craftingSkillType, itemType)
     local crafter
     if(craftingSkillType == CRAFTING_TYPE_BLACKSMITHING and itemType > 7) then
-        crafter = settings.blacksmithCharacter[charName]
+        crafter = settings.blacksmithCharacter[charId]
     elseif(craftingSkillType == CRAFTING_TYPE_BLACKSMITHING and itemType <= 7) then
-        crafter = settings.weaponsmithCharacter[charName]
+        crafter = settings.weaponsmithCharacter[charId]
     elseif(craftingSkillType == CRAFTING_TYPE_CLOTHIER and itemType <= 7) then
-        crafter = settings.clothierCharacter[charName]
+        crafter = settings.clothierCharacter[charId]
     elseif(craftingSkillType == CRAFTING_TYPE_CLOTHIER and itemType > 7) then
-        crafter = settings.leatherworkerCharacter[charName]
+        crafter = settings.leatherworkerCharacter[charId]
     elseif(craftingSkillType == CRAFTING_TYPE_WOODWORKING) then
-        crafter = settings.woodworkingCharacter[charName]
+        crafter = settings.woodworkingCharacter[charId]
     elseif(craftingSkillType == CRAFTING_TYPE_JEWELRYCRAFTING) then
-        crafter = settings.jewelryCraftingCharacter[charName]
+        crafter = settings.jewelryCraftingCharacter[charId]
     else
-        crafter = charName
+        crafter = charId
     end
 
-    if crafter == "off" then
+    if crafter == CONST_OFF then
       return
-    --[[elseif crafter == "any" then
-        local retarray
-        for _, charname in pairs(settings.knownCharacters) do
-            if charname ~= "any" and charname ~= "off" then
-                for trait, pref in pairs(settings.acquiredTraits[charname]) do
-                    if (retarray[trait] == nil) or (type(retarray[trait]) == "boolean" and type(pref) ~= "boolean") or retarray[trait] > pref then
-                        retarray[trait] = pref
-                    end
-                end
-            end
-        end
-        return retarray]]
     else
         return settings.acquiredTraits[crafter]
     end
 end
 
 function ResearchAssistantSettings:GetPlayerTraits()
-    return settings.acquiredTraits[GetUnitName("player")]
+    return settings.acquiredTraits[charId]
 end
 
 function ResearchAssistantSettings:GetTraits()
@@ -258,17 +282,17 @@ end
 
 function ResearchAssistantSettings:IsMultiCharSkillOff(craftingSkillType, itemType)
     if(craftingSkillType == CRAFTING_TYPE_BLACKSMITHING and itemType > 7) then
-        return settings.blacksmithCharacter[charName] == "off"
+        return settings.blacksmithCharacter[charId] == CONST_OFF
     elseif(craftingSkillType == CRAFTING_TYPE_BLACKSMITHING and itemType <= 7) then
-        return settings.weaponsmithCharacter[charName] == "off"
+        return settings.weaponsmithCharacter[charId] == CONST_OFF
     elseif(craftingSkillType == CRAFTING_TYPE_CLOTHIER and itemType <= 7) then
-        return settings.clothierCharacter[charName] == "off"
+        return settings.clothierCharacter[charId] == CONST_OFF
     elseif(craftingSkillType == CRAFTING_TYPE_CLOTHIER and itemType > 7) then
-        return settings.leatherworkerCharacter[charName] == "off"
+        return settings.leatherworkerCharacter[charId] == CONST_OFF
     elseif(craftingSkillType == CRAFTING_TYPE_WOODWORKING) then
-        return settings.woodworkingCharacter[charName] == "off"
+        return settings.woodworkingCharacter[charId] == CONST_OFF
     elseif(craftingSkillType == CRAFTING_TYPE_JEWELRYCRAFTING) then
-        return settings.jewelryCraftingCharacter[charName] == "off"
+        return settings.jewelryCraftingCharacter[charId] == CONST_OFF
     else
         return true
     end
@@ -276,19 +300,19 @@ end
 
 function ResearchAssistantSettings:GetTrackedCharForSkill(craftingSkillType, itemType)
     if(craftingSkillType == CRAFTING_TYPE_BLACKSMITHING and itemType > 7) then
-        return settings.blacksmithCharacter[charName]
+        return settings.blacksmithCharacter[charId]
     elseif(craftingSkillType == CRAFTING_TYPE_BLACKSMITHING and itemType <= 7) then
-        return settings.weaponsmithCharacter[charName]
+        return settings.weaponsmithCharacter[charId]
     elseif(craftingSkillType == CRAFTING_TYPE_CLOTHIER and itemType <= 7) then
-        return settings.clothierCharacter[charName]
+        return settings.clothierCharacter[charId]
     elseif(craftingSkillType == CRAFTING_TYPE_CLOTHIER and itemType > 7) then
-        return settings.leatherworkerCharacter[charName]
+        return settings.leatherworkerCharacter[charId]
     elseif(craftingSkillType == CRAFTING_TYPE_WOODWORKING) then
-        return settings.woodworkingCharacter[charName]
+        return settings.woodworkingCharacter[charId]
     elseif(craftingSkillType == CRAFTING_TYPE_JEWELRYCRAFTING) then
-        return settings.jewelryCraftingCharacter[charName] == "off"
+        return settings.jewelryCraftingCharacter[charId] == CONST_OFF
     else
-        return "off"
+        return CONST_OFF
     end
 end
 
@@ -419,7 +443,7 @@ function ResearchAssistantSettings:CreateOptionsMenu()
         getFunc = function() return settings.separateClothier end,
         setFunc = function(value)
             if not value then
-                settings.leatherworkerCharacter[charName] = settings.clothierCharacter[charName]
+                settings.leatherworkerCharacter[charId] = settings.clothierCharacter[charId]
             end
             settings.separateClothier = value
             ResearchAssistant_InvUpdate()
@@ -432,7 +456,7 @@ function ResearchAssistantSettings:CreateOptionsMenu()
         getFunc = function() return settings.separateSmithing end,
         setFunc = function(value)
             if not value then
-                settings.weaponsmithCharacter[charName] = settings.blacksmithCharacter[charName]
+                settings.weaponsmithCharacter[charId] = settings.blacksmithCharacter[charId]
             end
             settings.separateSmithing = value
             ResearchAssistant_InvUpdate()
@@ -447,9 +471,10 @@ function ResearchAssistantSettings:CreateOptionsMenu()
         name = str.WS_CHAR_LABEL,
         tooltip = str.WS_CHAR_TOOLTIP,
         choices = settings.knownCharacters,
-        getFunc = function() return settings.weaponsmithCharacter[charName] end,
+        choicesValues = self.lamCharValuesTable,
+        getFunc = function() return settings.weaponsmithCharacter[charId] end,
         setFunc = function(value)
-            settings.weaponsmithCharacter[charName] = value
+            settings.weaponsmithCharacter[charId] = value
             ResearchAssistant_InvUpdate()
         end,
         disabled = function() return not settings.separateSmithing end,
@@ -459,11 +484,12 @@ function ResearchAssistantSettings:CreateOptionsMenu()
         name = str.BS_CHAR_LABEL,
         tooltip = str.BS_CHAR_TOOLTIP,
         choices = settings.knownCharacters,
-        getFunc = function() return settings.blacksmithCharacter[charName] end,
+        choicesValues = self.lamCharValuesTable,
+        getFunc = function() return settings.blacksmithCharacter[charId] end,
         setFunc = function(value)
-            settings.blacksmithCharacter[charName] = value
+            settings.blacksmithCharacter[charId] = value
             if not settings.separateSmithing then
-                settings.weaponsmithCharacter[charName] = value
+                settings.weaponsmithCharacter[charId] = value
             end
             ResearchAssistant_InvUpdate()
         end,
@@ -473,9 +499,10 @@ function ResearchAssistantSettings:CreateOptionsMenu()
         name = str.LW_CHAR_LABEL,
         tooltip = str.LW_CHAR_TOOLTIP,
         choices = settings.knownCharacters,
-        getFunc = function() return settings.leatherworkerCharacter[charName] end,
+        choicesValues = self.lamCharValuesTable,
+        getFunc = function() return settings.leatherworkerCharacter[charId] end,
         setFunc = function(value)
-            settings.leatherworkerCharacter[charName] = value
+            settings.leatherworkerCharacter[charId] = value
             ResearchAssistant_InvUpdate()
         end,
         disabled = function() return not settings.separateClothier end,
@@ -485,11 +512,12 @@ function ResearchAssistantSettings:CreateOptionsMenu()
         name = str.CL_CHAR_LABEL,
         tooltip = str.CL_CHAR_TOOLTIP,
         choices = settings.knownCharacters,
-        getFunc = function() return settings.clothierCharacter[charName] end,
+        choicesValues = self.lamCharValuesTable,
+        getFunc = function() return settings.clothierCharacter[charId] end,
         setFunc = function(value)
-            settings.clothierCharacter[charName] = value
+            settings.clothierCharacter[charId] = value
             if not settings.separateClothier then
-                settings.leatherworkerCharacter[charName] = value
+                settings.leatherworkerCharacter[charId] = value
             end
             ResearchAssistant_InvUpdate()
         end,
@@ -499,9 +527,10 @@ function ResearchAssistantSettings:CreateOptionsMenu()
         name = str.WW_CHAR_LABEL,
         tooltip = str.WW_CHAR_TOOLTIP,
         choices = settings.knownCharacters,
-        getFunc = function() return settings.woodworkingCharacter[charName] end,
+        choicesValues = self.lamCharValuesTable,
+        getFunc = function() return settings.woodworkingCharacter[charId] end,
         setFunc = function(value)
-            settings.woodworkingCharacter[charName] = value
+            settings.woodworkingCharacter[charId] = value
             ResearchAssistant_InvUpdate()
         end,
     })
@@ -510,9 +539,10 @@ function ResearchAssistantSettings:CreateOptionsMenu()
         name = str.JC_CHAR_LABEL,
         tooltip = str.JC_CHAR_TOOLTIP,
         choices = settings.knownCharacters,
-        getFunc = function() return settings.jewelryCraftingCharacter[charName] end,
+        choicesValues = self.lamCharValuesTable,
+        getFunc = function() return settings.jewelryCraftingCharacter[charId] end,
         setFunc = function(value)
-            settings.jewelryCraftingCharacter[charName] = value
+            settings.jewelryCraftingCharacter[charId] = value
             ResearchAssistant_InvUpdate()
         end,
     })
