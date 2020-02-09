@@ -206,9 +206,10 @@ function ResearchAssistantScanner:RescanBags()
 
 		--Todo: House banks 1 to 10
 
-		self:JoinCachedOwnedTraits(self.ownedTraits_Bank)
-		self:JoinCachedOwnedTraits(self.ownedTraits_SubscriberBank)
 	end
+
+	self:JoinCachedOwnedTraits(self.ownedTraits_Bank)
+	self:JoinCachedOwnedTraits(self.ownedTraits_SubscriberBank)
 
 	self:ScanKnownTraits()
 	self.settingsPtr:SetKnownTraits(self.ownedTraits)
