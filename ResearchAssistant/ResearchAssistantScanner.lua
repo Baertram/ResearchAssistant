@@ -200,7 +200,7 @@ function ResearchAssistantScanner:RescanBags()
 		d(">backpack scan elapsed: ".. (GetGameTimeMilliseconds()-startTime))
 	end
 
-	if(self.bankScanEnabled or self.ownedTraits_Bank==nil) then
+	if(self:IsBankScanEnabled() == true or self.ownedTraits_Bank==nil) then
 		if self.debug == true then
 			startTime = GetGameTimeMilliseconds()
 		end
@@ -213,31 +213,31 @@ function ResearchAssistantScanner:RescanBags()
 		if self.debug == true then
 			d(">subscriber bank scan elapsed: ".. (GetGameTimeMilliseconds()-startTime))
 		end
-
-		--Check if inside a house & house bank was opened -> Prerequisite to scan the house banks
-		if self:IsHouseBankScanEnabled() == true then
+	end
+	--Check if inside a house & house bank was opened -> Prerequisite to scan the house banks
+	--as it cannot be accessed from outside a house
+	local isInHouseAtHouseBank = self:IsHouseBankScanEnabled()
+	if isInHouseAtHouseBank == true then
+		if self.debug == true then
+			d(">inside a house")
+		end
+		--For each possible house bank coffer scan the bag
+		self.ownedTraits_HouseBank = self.ownedTraits_HouseBank or {}
+		for houseBankBag=BAG_HOUSE_BANK_ONE, maxHouseBankBag, 1 do
 			if self.debug == true then
-				d(">inside a house")
+				startTime = GetGameTimeMilliseconds()
 			end
-			--For each possible house bank coffer scan the bag
-			self.ownedTraits_HouseBank = self.ownedTraits_HouseBank or {}
-			for houseBankBag=BAG_HOUSE_BANK_ONE, maxHouseBankBag, 1 do
-				if self.debug == true then
-					startTime = GetGameTimeMilliseconds()
-				end
-				self.ownedTraits_HouseBank[houseBankBag] = self:ScanBag(houseBankBag)
-				if self.debug == true then
-					d(">house bank " .. tostring(houseBankBag) .." scan elapsed: ".. (GetGameTimeMilliseconds()-startTime))
-				end
+			self.ownedTraits_HouseBank[houseBankBag] = self:ScanBag(houseBankBag)
+			if self.debug == true then
+				d(">house bank " .. tostring(houseBankBag) .." scan elapsed: ".. (GetGameTimeMilliseconds()-startTime))
 			end
 		end
-
 	end
 
 	self:JoinCachedOwnedTraits(self.ownedTraits_Bank)
 	self:JoinCachedOwnedTraits(self.ownedTraits_SubscriberBank)
 	--For each possible house bank coffer: Join the scanned house bank trait items to the total table
-	if self.ownedTraits_HouseBank then
+	if isInHouseAtHouseBank == true and self.ownedTraits_HouseBank then
 		for houseBankBag=BAG_HOUSE_BANK_ONE, maxHouseBankBag, 1 do
 			self:JoinCachedOwnedTraits(self.ownedTraits_HouseBank[houseBankBag])
 		end
