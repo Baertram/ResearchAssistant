@@ -1,8 +1,3 @@
-if ResearchAssistant == nil then ResearchAssistant = {} end
-local RA = ResearchAssistant
-
-local libResearch = RA.libResearch
-
 --Local variables for the class
 local BLACKSMITH 		= CRAFTING_TYPE_BLACKSMITHING
 local CLOTHIER 			= CRAFTING_TYPE_CLOTHIER
@@ -24,6 +19,9 @@ for bagHouseBank = BAG_HOUSE_BANK_ONE, maxHouseBankBag, 1 do
 	houseBankBags[bagHouseBank] = true
 end
 
+--LibResearch
+local libResearch
+
 --Class ResearchAssistantScanner
 ResearchAssistantScanner = ZO_Object:Subclass()
 
@@ -38,6 +36,8 @@ function ResearchAssistantScanner:Initialize(settings)
 	self.bankScanEnabled = false
 	self.houseBankScanEnabled = false
 	self.debug = false
+
+	libResearch = ResearchAssistant.libResearch or LibResearch
 
 	self:RescanBags()
 end
