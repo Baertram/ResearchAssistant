@@ -526,19 +526,25 @@ local function ResearchAssistant_Loaded(eventCode, addOnName)
 		end
 	end
 
-	local function RA_EnableBankScan()
-		RAScanner:SetBankScanEnabled(true)
+	local function RA_EnableBankScan(bankBag)
+d("[RA]RA_EnableBankScan-bankBag: " ..tostring(bankBag))
+		if IsHouseBankBag(bankBag) == true then
+			RAScanner:SetHouseBankScanEnabled(true)
+		else
+			RAScanner:SetBankScanEnabled(true)
+		end
 	end
 
 	local function RA_DisableBankScan()
 		RAScanner:SetBankScanEnabled(false)
+		RAScanner:SetHouseBankScanEnabled(false)
 	end
 
 	--trading house hook
 	EVENT_MANAGER:RegisterForEvent("RA_DISABLE_BANK_SCAN", EVENT_END_CRAFTING_STATION_INTERACT, RA_DisableBankScan)
 	EVENT_MANAGER:RegisterForEvent("RA_DISABLE_BANK_SCAN", EVENT_CLOSE_BANK, RA_DisableBankScan)
 	EVENT_MANAGER:RegisterForEvent("RA_ENABLE_BANK_SCAN", EVENT_CRAFTING_STATION_INTERACT, RA_EnableBankScan)
-	EVENT_MANAGER:RegisterForEvent("RA_ENABLE_BANK_SCAN", EVENT_OPEN_BANK, RA_EnableBankScan)
+	EVENT_MANAGER:RegisterForEvent("RA_ENABLE_BANK_SCAN", EVENT_OPEN_BANK, function(eventId, bankBag) RA_EnableBankScan(bankBag) end)
 
 	EVENT_MANAGER:RegisterForEvent("RA_TRADINGHOUSE", EVENT_TRADING_HOUSE_RESPONSE_RECEIVED, RA_HookTrading)
 	EVENT_MANAGER:RegisterForEvent("RA_COMBAT_STATE", EVENT_PLAYER_COMBAT_STATE, RA_CombatState)

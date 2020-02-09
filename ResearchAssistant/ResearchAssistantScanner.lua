@@ -23,10 +23,12 @@ function ResearchAssistantScanner:Initialize(settings)
 	self.ownedTraits = {}
 	self.ownedTraits_Bank = nil
 	self.ownedTraits_SubscriberBank = nil
+	self.ownedTraits_HouseBank = nil
 	self.isScanning = false
 	self.scanMore = 0
 	self.settingsPtr = settings
 	self.bankScanEnabled = false
+	self.houseBankScanEnabled = false
 	self.debug = false
 
 	self:RescanBags()
@@ -44,6 +46,14 @@ end
 
 function ResearchAssistantScanner:IsBankScanEnabled()
 	return self.bankScanEnabled
+end
+
+function ResearchAssistantScanner:SetHouseBankScanEnabled(value)
+	self.houseBankScanEnabled=value
+end
+
+function ResearchAssistantScanner:IsHouseBankScanEnabled()
+	return self.houseBankScanEnabled
 end
 
 function ResearchAssistantScanner:SetDebug(value)
@@ -192,24 +202,32 @@ function ResearchAssistantScanner:RescanBags()
 		if self.debug == true then
 			startTime = GetGameTimeMilliseconds()
 		end
-		self.ownedTraits_Bank = {}
 		self.ownedTraits_Bank = self:ScanBag(BAG_BANK)
 		if self.debug == true then
 			d(">bank scan elapsed: ".. (GetGameTimeMilliseconds()-startTime))
 			startTime = GetGameTimeMilliseconds()
 		end
-		self.ownedTraits_SubscriberBank = {}
 		self.ownedTraits_SubscriberBank = self:ScanBag(BAG_SUBSCRIBER_BANK)
 		if self.debug == true then
 			d(">subscriber bank scan elapsed: ".. (GetGameTimeMilliseconds()-startTime))
 		end
 
-		--Todo: House banks 1 to 10
+		--Check if inside a house & house bank was opened -> Prerequisite to scan the house banks
+		if self:IsHouseBankScanEnabled() == true then
+			--For each possible house bank coffer scan the bag
+			for houseBankBag=BAG_HOUSE_BANK_ONE, BAG_HOUSE_BANK_TEN, 1 do
+				self.ownedTraits_HouseBank[houseBankBag] = self:ScanBag(houseBankBag)
+			end
+		end
 
 	end
 
 	self:JoinCachedOwnedTraits(self.ownedTraits_Bank)
 	self:JoinCachedOwnedTraits(self.ownedTraits_SubscriberBank)
+	--For each possible house bank coffer scan the bag
+	for houseBankBag=BAG_HOUSE_BANK_ONE, BAG_HOUSE_BANK_TEN, 1 do
+		self:JoinCachedOwnedTraits(self.ownedTraits_HouseBank[houseBankBag])
+	end
 
 	self:ScanKnownTraits()
 	self.settingsPtr:SetKnownTraits(self.ownedTraits)
