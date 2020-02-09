@@ -32,11 +32,17 @@ function ResearchAssistantScanner:Initialize(settings)
 	self:RescanBags()
 end
 
+function ResearchAssistantScanner:New(...)
+	local obj = ZO_Object.New(self)
+	obj:Initialize(...)
+	return obj
+end
+
 function ResearchAssistantScanner:SetBankScanEnabled(value)
 	self.bankScanEnabled=value
 end
 
-function ResearchAssistantScanner:GetBankScanEnabled()
+function ResearchAssistantScanner:IsBankScanEnabled()
 	return self.bankScanEnabled
 end
 
@@ -44,14 +50,12 @@ function ResearchAssistantScanner:SetDebug(value)
 	self.debug=value
 end
 
-function ResearchAssistantScanner:GetDebug()
+function ResearchAssistantScanner:IsDebug()
 	return self.debug
 end
 
-function ResearchAssistantScanner:New(...)
-	local obj = ZO_Object.New(self)
-	obj:Initialize(...)
-	return obj
+function ResearchAssistantScanner:SetScanning(value)
+	self.isScanning = value
 end
 
 function ResearchAssistantScanner:IsScanning()
@@ -170,7 +174,7 @@ function ResearchAssistantScanner:RescanBags()
 		self.scanMore = self.scanMore + 1
 		return
 	end
-	self.isScanning = true
+	self:SetScanning(true)
 
 	local startTime
 	if self.debug == true then
@@ -209,10 +213,10 @@ function ResearchAssistantScanner:RescanBags()
 
 	if self.scanMore ~= 0 then
 		self.scanMore = self.scanMore - 1
-		self.isScanning = false
+		self:SetScanning(false)
 		self:RescanBags()
 	else
-		self.isScanning = false
+		self:SetScanning(false)
 	end
 end
 
