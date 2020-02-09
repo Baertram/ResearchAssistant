@@ -16,7 +16,12 @@ local LIBRESEARCH_REASON_INTRICATE 			= "Intricate"
 local LIBRESEARCH_REASON_TRAITLESS 			= "Traitless"
 ]]
 
+--House bank bags
 local maxHouseBankBag = BAG_HOUSE_BANK_TEN
+local houseBankBags = {}
+for bagHouseBank = BAG_HOUSE_BANK_ONE, maxHouseBankBag, 1 do
+	houseBankBags[bagHouseBank] = true
+end
 
 --Class ResearchAssistantScanner
 ResearchAssistantScanner = ZO_Object:Subclass()
@@ -50,8 +55,21 @@ function ResearchAssistantScanner:IsBankScanEnabled()
 	return self.bankScanEnabled
 end
 
-function ResearchAssistantScanner:SetHouseBankScanEnabled(value)
+function ResearchAssistantScanner:SetHouseBankScanEnabled(value, scanHouseBankOnFirstOpen)
+	scanHouseBankOnFirstOpen = scanHouseBankOnFirstOpen or false
 	self.houseBankScanEnabled=value
+
+	--HouseBank is currently opened? Check if it wasn't scanned yet and scan on first open
+	if scanHouseBankOnFirstOpen == true and value == true and IsBankOpen() and self.ownedTraits_HouseBank == nil then
+		local isHouseBankBag = houseBankBags[GetBankingBag()] or false
+		if isHouseBankBag == true then
+			--Scan the house bank bags now
+			self.ownedTraits_HouseBank = {}
+			for bagHouseBank = BAG_HOUSE_BANK_ONE, maxHouseBankBag, 1 do
+				self:ScanBag(bagHouseBank)
+			end
+		end
+	end
 end
 
 function ResearchAssistantScanner:IsHouseBankScanEnabled()
@@ -105,7 +123,6 @@ function ResearchAssistantScanner:CreateItemPreferenceValue(itemLink, bagId, slo
 end
 
 function ResearchAssistantScanner:ScanBag(bagId)
---d("ScanBag, bagId: " .. tostring(bagId) .. ", debug: " ..tostring(self.debug))
 	local traits = {}
 	local numSlots = GetBagSize(bagId)
 	if self.debug == true then
@@ -183,7 +200,6 @@ function ResearchAssistantScanner:ScanKnownTraits()
 end
 
 function ResearchAssistantScanner:RescanBags()
-	--d("RescanBags, debug: " ..tostring(self.debug))
 	if self.isScanning then
 		self.scanMore = self.scanMore + 1
 		return
@@ -218,9 +234,6 @@ function ResearchAssistantScanner:RescanBags()
 	--as it cannot be accessed from outside a house
 	local isInHouseAtHouseBank = self:IsHouseBankScanEnabled()
 	if isInHouseAtHouseBank == true then
-		if self.debug == true then
-			d(">inside a house")
-		end
 		--For each possible house bank coffer scan the bag
 		self.ownedTraits_HouseBank = self.ownedTraits_HouseBank or {}
 		for houseBankBag=BAG_HOUSE_BANK_ONE, maxHouseBankBag, 1 do
@@ -237,7 +250,7 @@ function ResearchAssistantScanner:RescanBags()
 	self:JoinCachedOwnedTraits(self.ownedTraits_Bank)
 	self:JoinCachedOwnedTraits(self.ownedTraits_SubscriberBank)
 	--For each possible house bank coffer: Join the scanned house bank trait items to the total table
-	if isInHouseAtHouseBank == true and self.ownedTraits_HouseBank then
+	if self.ownedTraits_HouseBank then
 		for houseBankBag=BAG_HOUSE_BANK_ONE, maxHouseBankBag, 1 do
 			self:JoinCachedOwnedTraits(self.ownedTraits_HouseBank[houseBankBag])
 		end

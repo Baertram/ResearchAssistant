@@ -529,7 +529,8 @@ local function ResearchAssistant_Loaded(eventCode, addOnName)
 	local function RA_EnableBankScan(bankBag)
 d("[RA]RA_EnableBankScan-bankBag: " ..tostring(bankBag))
 		if IsHouseBankBag(bankBag) == true then
-			RAScanner:SetHouseBankScanEnabled(true)
+			--Scan the house bank on first open automatically!
+			RAScanner:SetHouseBankScanEnabled(true, true)
 		else
 			RAScanner:SetBankScanEnabled(true)
 		end
