@@ -1,6 +1,6 @@
 if ResearchAssistant == nil then ResearchAssistant = {} end
 local RA = ResearchAssistant
-RA.version = "0.9.4.7"
+RA.version = "0.9.4.8"
 local BACKPACK = ZO_PlayerInventoryBackpack
 local BANK = ZO_PlayerBankBackpack
 local GUILD_BANK = ZO_GuildBankBackpack
@@ -22,6 +22,23 @@ local LIBRESEARCH_REASON_WRONMG_ITEMTYPE 	= "WrongItemType"
 local LIBRESEARCH_REASON_ORNATE 			= "Ornate"
 local LIBRESEARCH_REASON_INTRICATE 			= "Intricate"
 local LIBRESEARCH_REASON_TRAITLESS 			= "Traitless"
+local LIBRESEARCH_REASON_WRONMG_ITEMTYPElower = "baditemtype"
+local LIBRESEARCH_REASON_ORNATElower 		= LIBRESEARCH_REASON_ORNATE:tolower()
+local LIBRESEARCH_REASON_INTRICATElower 	= LIBRESEARCH_REASON_INTRICATE:tolower()
+local LIBRESEARCH_REASON_TRAITLESSlower 	= LIBRESEARCH_REASON_TRAITLESS:tolower()
+--Tracking status
+local TRACKING_STATE_KNOWN					= "known"
+local TRACKING_STATE_RESEARCHABLE			= "researchable"
+local TRACKING_STATE_DUPLICATE				= "duplicate"
+local TRACKING_STATE_TRAITLESS				= LIBRESEARCH_REASON_TRAITLESSlower
+local TRACKING_STATE_UNTRACKED				= "untracked"
+RA.trackingStates = {
+	[TRACKING_STATE_KNOWN] 			= TRACKING_STATE_KNOWN,
+	[TRACKING_STATE_RESEARCHABLE] 	= TRACKING_STATE_RESEARCHABLE,
+	[TRACKING_STATE_DUPLICATE] 		= TRACKING_STATE_DUPLICATE,
+	[TRACKING_STATE_TRAITLESS]		= TRACKING_STATE_TRAITLESS,
+	[TRACKING_STATE_UNTRACKED] 		= TRACKING_STATE_UNTRACKED,
+}
 
 local function AddTooltips(control, text)
 	control:SetHandler("OnMouseEnter", function(self)
@@ -96,9 +113,9 @@ local function DisplayIndicator(indicatorControl, indicatorType)
 	local textureOffset = 0
 	indicatorType = indicatorType or "normal"
 
-	if indicatorType == "intricate" then
+	if indicatorType == LIBRESEARCH_REASON_INTRICATElower then
 		textureOffset = RASettings:GetTextureOffset() - 6
-	elseif indicatorType == "ornate" then
+	elseif indicatorType == LIBRESEARCH_REASON_ORNATElower then
 		textureOffset = RASettings:GetTextureOffset() - 6
 	else
 		textureOffset = RASettings:GetTextureOffset()
@@ -164,7 +181,7 @@ function RA.IsItemResearchableWithSettingsCharacter(bagId, slotIndex)
 	local bestTraitPreferenceScore = RASettings:GetPreferenceValueForTrait(traitKey)
 	if bestTraitPreferenceScore == nil then
 		-- if the item is traitless, show "researched" color. if we've never seen this trait before, show "best" color.
-		if reason == "Traitless" then
+		if reason == LIBRESEARCH_REASON_TRAITLESS then
 			bestTraitPreferenceScore = true
 		else
 			bestTraitPreferenceScore = 999999999
@@ -213,22 +230,22 @@ function RA.IsItemResearchableOrDuplicateWithSettingsCharacter(bagId, slotIndex)
 
 	if not isResearchable then
 		-- if the item isn't armor or a weapon, hide and go away
-		if reason == "WrongItemType" then
+		if reason == LIBRESEARCH_REASON_WRONMG_ITEMTYPE then
 			return isNoDuplicateResearchableWithSettingsChar
 		end
 
 		-- if the item has no trait
-		if reason == "Traitless"  then
+		if reason == LIBRESEARCH_REASON_TRAITLESS  then
 			return isNoDuplicateResearchableWithSettingsChar
 		end
 
 		-- if the item is ornate
-		if reason == "Ornate" then
+		if reason == LIBRESEARCH_REASON_ORNATE then
 			return isNoDuplicateResearchableWithSettingsChar
 		end
 
 		-- if the item is intricate
-		if reason == "Intricate" then
+		if reason == LIBRESEARCH_REASON_INTRICATE then
 			return isNoDuplicateResearchableWithSettingsChar
 		end
 	end
@@ -246,7 +263,7 @@ function RA.IsItemResearchableOrDuplicateWithSettingsCharacter(bagId, slotIndex)
 	local bestTraitPreferenceScore = RASettings:GetPreferenceValueForTrait(traitKey)
 	if bestTraitPreferenceScore == nil then
 		-- if the item is traitless, show "researched" color. if we've never seen this trait before, show "best" color.
-		if reason == "Traitless" then
+		if reason == LIBRESEARCH_REASON_TRAITLESS then
 			bestTraitPreferenceScore = true
 		else
 			bestTraitPreferenceScore = 999999999
@@ -269,7 +286,7 @@ function RA.IsItemResearchableOrDuplicateWithSettingsCharacter(bagId, slotIndex)
 		isNoDuplicateResearchableWithSettingsChar = true
 		if thisItemScore > bestTraitPreferenceScore or stackSize > 1 then
 			--Duplicate
-			return "duplicate"
+			return TRACKING_STATE_DUPLICATE
 		else
 			--Researchable!
 			return isNoDuplicateResearchableWithSettingsChar
@@ -304,39 +321,39 @@ local function AddResearchIndicatorToSlot(control, linkFunction)
 
 	if not isResearchable then
 		-- if the item isn't armor or a weapon, hide and go away
-		if reason == "WrongItemType" then
+		if reason == LIBRESEARCH_REASON_WRONMG_ITEMTYPE then
 			indicatorControl:SetHidden(true)
-			control.dataEntry.data.researchAssistant = "baditemtype"
+			control.dataEntry.data.researchAssistant = LIBRESEARCH_REASON_WRONMG_ITEMTYPElower
 			return
 		end
 
 		-- if the item has no trait and we don't want to display icon for traitless items, hide and go away
-		if reason == "Traitless" and RASettings:ShowTraitless() == false then
+		if reason == LIBRESEARCH_REASON_TRAITLESS and RASettings:ShowTraitless() == false then
 			indicatorControl:SetHidden(true)
-			control.dataEntry.data.researchAssistant = "traitless"
+			control.dataEntry.data.researchAssistant = LIBRESEARCH_REASON_TRAITLESSlower
 			return
 		end
 
 		-- if the item is ornate, make icon ornate if we show ornate and hide/go away if we don't show it
-		if reason == "Ornate" then
-			control.dataEntry.data.researchAssistant = "ornate"
+		if reason == LIBRESEARCH_REASON_ORNATE then
+			control.dataEntry.data.researchAssistant = LIBRESEARCH_REASON_ORNATElower
 			if (craftingSkill == -1 or (RASettings:IsMultiCharSkillOff(craftingSkill, itemType))) and not RASettings:ShowUntrackedOrnate() then
 				indicatorControl:SetHidden(true)
 			else
 				SetToOrnate(indicatorControl)
-				DisplayIndicator(indicatorControl, "ornate")
+				DisplayIndicator(indicatorControl, LIBRESEARCH_REASON_ORNATElower)
 			end
 			return
 		end
 
 		-- if the item is intricate, make icon intricate if we show that and hide/go away if we don't
-		if reason == "Intricate" then
-			control.dataEntry.data.researchAssistant = "intricate"
+		if reason == LIBRESEARCH_REASON_INTRICATE then
+			control.dataEntry.data.researchAssistant = LIBRESEARCH_REASON_INTRICATElower
 			if RASettings:IsMultiCharSkillOff(craftingSkill, itemType) and not RASettings:ShowUntrackedIntricate() then
 				indicatorControl:SetHidden(true)
 			else
 				SetToIntricate(indicatorControl)
-				DisplayIndicator(indicatorControl, "intricate")
+				DisplayIndicator(indicatorControl, LIBRESEARCH_REASON_INTRICATElower)
 			end
 			return
 		end
@@ -348,7 +365,7 @@ local function AddResearchIndicatorToSlot(control, linkFunction)
 
 	--if we aren't tracking anybody for that skill, hide and go away
 	if RASettings:IsMultiCharSkillOff(craftingSkill, itemType) then
-		control.dataEntry.data.researchAssistant = "untracked"
+		control.dataEntry.data.researchAssistant = TRACKING_STATE_UNTRACKED
 		indicatorControl:SetHidden(true)
 		return
 	end
@@ -357,7 +374,7 @@ local function AddResearchIndicatorToSlot(control, linkFunction)
 	local bestTraitPreferenceScore = RASettings:GetPreferenceValueForTrait(traitKey)
 	if bestTraitPreferenceScore == nil then
 		-- if the item is traitless, show "researched" color. if we've never seen this trait before, show "best" color.
-		if reason == "Traitless" then
+		if reason == LIBRESEARCH_REASON_TRAITLESS then
 			bestTraitPreferenceScore = true
 		else
 			bestTraitPreferenceScore = 999999999
@@ -365,7 +382,7 @@ local function AddResearchIndicatorToSlot(control, linkFunction)
 	end
 
 	if bestTraitPreferenceScore == true and not RASettings:ShowResearched() then
-		control.dataEntry.data.researchAssistant = "known"
+		control.dataEntry.data.researchAssistant = TRACKING_STATE_KNOWN
 		indicatorControl:SetHidden(true)
 		return
 	end
@@ -391,7 +408,7 @@ local function AddResearchIndicatorToSlot(control, linkFunction)
 			else
 				HandleTooltips(indicatorControl, "")
 			end
-			control.dataEntry.data.researchAssistant = "duplicate"
+			control.dataEntry.data.researchAssistant = TRACKING_STATE_DUPLICATE
 		else
 			indicatorControl:SetColor(unpack(RASettings:GetCanResearchColor()))
 			if whoKnows ~= "" then
@@ -399,7 +416,7 @@ local function AddResearchIndicatorToSlot(control, linkFunction)
 			else
 				HandleTooltips(indicatorControl, "")
 			end
-			control.dataEntry.data.researchAssistant = "researchable"
+			control.dataEntry.data.researchAssistant = TRACKING_STATE_RESEARCHABLE
 		end
 		return
 	end
@@ -407,9 +424,9 @@ local function AddResearchIndicatorToSlot(control, linkFunction)
 	indicatorControl:SetColor(unpack(RASettings:GetAlreadyResearchedColor()))
 	HandleTooltips(indicatorControl, RA_Strings[RAlang].TOOLTIPS.alreadyResearched .. whoKnows)
 	if reason == "Traitless" then
-		control.dataEntry.data.researchAssistant = "traitless"
+		control.dataEntry.data.researchAssistant = TRACKING_STATE_TRAITLESS
 	else
-		control.dataEntry.data.researchAssistant = "known"
+		control.dataEntry.data.researchAssistant = TRACKING_STATE_KNOWN
 	end
 end
 
