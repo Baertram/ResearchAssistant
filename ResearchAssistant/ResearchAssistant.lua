@@ -4,7 +4,7 @@ local RA = ResearchAssistant
 --Addon variables
 RA.name		= "ResearchAssistant"
 RA.version 	= "0.9.4.8"
-RA.author   = "ingeniousclown, Randactyl, current: Baetram"
+RA.author   = "ingeniousclown, katkat42, Randactyl, Baertram"
 RA.website	= "https://www.esoui.com/downloads/info111-ResearchAssistant.html"
 
 local BACKPACK = ZO_PlayerInventoryBackpack

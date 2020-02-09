@@ -336,6 +336,20 @@ function ResearchAssistantSettings:CreateOptionsMenu()
     local optionsData = { }
     table.insert(optionsData, {
         type = "header",
+        name = "Debug",
+    })
+    table.insert(optionsData, {
+        type = "checkbox",
+        name = "Debug",
+        tooltip = "Debug",
+        getFunc = function() return settings.debug end,
+        setFunc = function(value)
+            settings.debug = value
+            RA.scanner:SetDebug(value)
+        end,
+    })
+    table.insert(optionsData, {
+        type = "header",
         name = str.GENERAL_HEADER,
     })
     table.insert(optionsData, {
