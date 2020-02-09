@@ -1,0 +1,12 @@
+## Title: Research Assistant
+## Author: ingeniousclown, katkat42, Randactyl, Baertram
+## Version: 0.9.4.7
+## AddOnVersion: 0947
+## APIVersion: 100029 100030
+## SavedVariables: ResearchAssistant_Settings
+## DependsOn: LibResearch LibAddonMenu-2.0
+
+RA_Strings.lua
+ResearchAssistantSettings.lua
+ResearchAssistantScanner.lua
+ResearchAssistant.lua
