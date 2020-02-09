@@ -107,7 +107,6 @@ function ResearchAssistantSettings:Initialize()
         showUntrackedOrnate = true,
         showUntrackedIntricate = true,
 
-        --knownCharacters = { CONST_OFF, "all" },
         knownCharacters = { CONST_OFF },
         blacksmithCharacter = {},
         weaponsmithCharacter = {},
@@ -123,7 +122,7 @@ function ResearchAssistantSettings:Initialize()
     --settings = ZO_SavedVars:NewAccountWide("ResearchAssistant_Settings", 2, nil, defaults)
     --New server dependent character unique ID settings
     --ZO_SavedVars:NewAccountWide(savedVariableTable, version, namespace, defaults, profile, displayName)
-    settings = ZO_SavedVars:NewAccountWide("ResearchAssistant_Settings_Server", 1, nil, defaults, GetWorldName(), nil)
+    settings = ZO_SavedVars:NewAccountWide("ResearchAssistant_Settings_Server", 2, nil, defaults, GetWorldName(), nil)
 
     if settings.isBlacksmith then settings.isBlacksmith = nil end
     if settings.isWoodworking then settings.isWoodworking = nil end
@@ -172,7 +171,8 @@ function ResearchAssistantSettings:Initialize()
     --Build the known characters table
     for k, v in pairs(settings.knownCharacters) do
         if v == charId then addme = false end
-        if v == CONST_OFF then addoff = false
+        if v == CONST_OFF then
+            addoff = false
             self.lamCharNamesTable[k] = CONST_OFF
         else
             self.lamCharNamesTable[k] = self.charId2Name[v]
@@ -180,9 +180,11 @@ function ResearchAssistantSettings:Initialize()
     end
     if addme then
         table.insert(settings.knownCharacters, charId)
+        table.insert(settings.knownCharacters, self.charId2Name[charId])
     end
     if addoff then
-        table.insert(settings.knownCharacters, CONST_OFF)
+        table.insert(settings.knownCharacters, CONST_OFF, 1)
+        table.insert(self.lamCharNamesTable, CONST_OFF, 1)
     end
 
     self:CreateOptionsMenu()
