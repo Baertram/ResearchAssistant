@@ -20,11 +20,6 @@ local RAScanner = nil
 local RAlang = 'en'
 
 --LibResearch reasons
---local LIBRESEARCH_REASON_ALREADY_KNOWN 	 = "AlreadyKnown"
-local LIBRESEARCH_REASON_WRONG_ITEMTYPE 	= "WrongItemType"
-local LIBRESEARCH_REASON_ORNATE 			= "Ornate"
-local LIBRESEARCH_REASON_INTRICATE 			= "Intricate"
-local LIBRESEARCH_REASON_TRAITLESS 			= "Traitless"
 local LIBRESEARCH_REASON_WRONG_ITEMTYPElower= "baditemtype"
 local LIBRESEARCH_REASON_ORNATElower 		= LIBRESEARCH_REASON_ORNATE:lower()
 local LIBRESEARCH_REASON_INTRICATElower 	= LIBRESEARCH_REASON_INTRICATE:lower()
