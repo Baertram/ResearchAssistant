@@ -1,25 +1,10 @@
 ## Title: Research Assistant
-## Author: ingeniousclown, katkat42, Randactyl
-## Version: 0.9.4.3
-## APIVersion: 100023
+## Author: ingeniousclown, katkat42, Randactyl, Baertram
+## Version: 0.9.4.7
+## AddOnVersion: 0947
+## APIVersion: 100029 100030
 ## SavedVariables: ResearchAssistant_Settings
-
-lib\LibStub\LibStub.lua
-lib\LibAddonMenu-2.0\LibAddonMenu-2.0.lua
-lib\LibAddonMenu-2.0\controls\panel.lua
-lib\LibAddonMenu-2.0\controls\submenu.lua
-lib\LibAddonMenu-2.0\controls\button.lua
-lib\LibAddonMenu-2.0\controls\checkbox.lua
-lib\LibAddonMenu-2.0\controls\colorpicker.lua
-lib\LibAddonMenu-2.0\controls\custom.lua
-lib\LibAddonMenu-2.0\controls\description.lua
-lib\LibAddonMenu-2.0\controls\dropdown.lua
-lib\LibAddonMenu-2.0\controls\editbox.lua
-lib\LibAddonMenu-2.0\controls\header.lua
-lib\LibAddonMenu-2.0\controls\iconpicker.lua
-lib\LibAddonMenu-2.0\controls\slider.lua
-lib\LibAddonMenu-2.0\controls\texture.lua
-lib\libResearch\libResearch.lua
+## DependsOn: LibResearch LibAddonMenu-2.0
 
 RA_Strings.lua
 ResearchAssistantSettings.lua

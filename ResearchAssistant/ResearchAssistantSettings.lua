@@ -1,4 +1,6 @@
 ResearchAssistantSettings = ZO_Object:Subclass()
+if ResearchAssistant == nil then ResearchAssistant = {} end
+local RA = ResearchAssistant
 
 local LAM = LibStub("LibAddonMenu-2.0")
 local settings = nil
@@ -318,7 +320,7 @@ function ResearchAssistantSettings:CreateOptionsMenu()
         type = "panel",
         name = "Research Assistant",
         author = "ingeniousclown",
-        version = "0.9.4",
+        version = RA.version,
         slashCommand = "/researchassistant",
         registerForRefresh = true
     }
@@ -625,7 +627,7 @@ function ResearchAssistantSettings:GetLanguage()
     local lang = GetCVar("language.2")
 
     --check for supported languages
-    if(lang == "de" or lang == "en" or lang == "fr" or lang == "es") then return lang end
+    if(lang == "de" or lang == "en" or lang == "fr" or lang == "es" or lang == "jp") then return lang end
 
     --return english if not supported
     return "en"

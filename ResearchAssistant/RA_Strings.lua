@@ -154,7 +154,7 @@ RA_Strings = {
         TOOLTIPS = {
             ornate = "Verkaufspreis",
             intricate = "Inspiration",
-            duplicate = "Doppolte Eigenschaft bekannt von: ",
+            duplicate = "Doppelte Eigenschaft bekannt von: ",
             canResearch = "Unbekannte Eigenschaft bekannt von: ",
             alreadyResearched = "Eigenschaft bekannt von: "
         }
@@ -312,5 +312,85 @@ RA_Strings = {
             canResearch = "Rasgo desconocido; conocido por: ",
             alreadyResearched = "Rasgo conocido por: ",
         }
-    }
+    },
+    ["jp"] = {
+        SETTINGS = {
+            GENERAL_HEADER = "General Options",
+            COLORS_HEADER = "Color Options",
+            HIDDEN_HEADER = "Hide Icon Options",
+            CHARACTER_HEADER = "Tracked Character Options",
+
+            ICON_LABEL = "Research icon",
+            ICON_TOOLTIP = "Choose which icon to display as your research assistant.",
+
+            ICON_SIZE = "Icon size",
+            ICON_SIZE_TOOLTIP = "Choose the size of the research icon",
+
+            ICON_OFFSET = "Icon position",
+            ICON_OFFSET_TOOLTIP = "Choose the position of the research icon on the X-axis of inventories",
+            SEPARATE_LW_LABEL = "Separate leatherworking from tailoring?",
+            SEPARATE_LW_TOOLTIP = "Do you want to track medium armor and light armor research for separate characters?",
+
+            SEPARATE_SMITH_LABEL = "Separate weaponsmithing from blacksmithing?",
+            SEPARATE_SMITH_TOOLTIP = "Do you want to track weaponsmithing and armorsmithing research for separate characters?",
+
+            RESEARCHABLE_LABEL = "Researchable trait color",
+            RESEARCHABLE_TOOLTIP = "What color should the research assistant icon be if the trait is researchable?",
+
+            DUPLICATE_LABEL = "Duplicate researchable trait color",
+            DUPLICATE_TOOLTIP = "What color should the research assistant icon be if the item is researchable but there is a better candidate for research?",
+
+            RESEARCHED_LABEL = "Already researched color",
+            RESEARCHED_TOOLTIP = "What color should the research assistant icon be if the item is already researched?",
+
+            ORNATE_LABEL = "Ornate item color",
+            ORNATE_TOOLTIP = "What color should the icon be for an ornate item?",
+
+            INTRICATE_LABEL = "Intricate item color",
+            INTRICATE_TOOLTIP = "What color should the icon be for an intricate item?",
+
+            SHOW_RESEARCHED_LABEL = "Show researched icon?",
+            SHOW_RESEARCHED_TOOLTIP = "Should the icon show up for traits that you know?",
+
+            SHOW_TRAITLESS_LABEL = "Show researched icon on traitless?",
+            SHOW_TRAITLESS_TOOLTIP = "Should the icon show up for traitless equipment?",
+
+            SHOW_ORNATE_LABEL = "Always show Ornate?",
+            SHOW_ORNATE_TOOLTIP = "Should Ornate be shown for untracked skills?",
+
+            SHOW_INTRICATE_LABEL = "Always show Intricate?",
+            SHOW_INTRICATE_TOOLTIP = "Should Intricate be shown for untracked skills?",
+
+            SHOW_TOOLTIPS_LABEL = "Show icon tooltips?",
+            SHOW_TOOLTIPS_TOOLTIP = "Should tooltips tell you what they are? (recommended OFF)",
+
+            SHOW_IN_GRID_LABEL = "Show in Grid View?",
+            SHOW_IN_GRID_TOOLTIP = "Should the research assistant icon show up with Inventory Grid View toggled on? (Ignore this if you don't use Inventory Grid View)",
+
+            WS_CHAR_LABEL = "Weaponsmithing Character",
+            WS_CHAR_TOOLTIP = "Which character is your weaponsmithing character?",
+
+            BS_CHAR_LABEL = "Blacksmithing Character",
+            BS_CHAR_TOOLTIP = "Which character is your blacksmithing character?",
+
+            LW_CHAR_LABEL = "Leatherworking Character",
+            LW_CHAR_TOOLTIP = "Which character is your leatherworking character?",
+
+            CL_CHAR_LABEL = "Clothier Character",
+            CL_CHAR_TOOLTIP = "Which character is your clothier character?",
+
+            WW_CHAR_LABEL = "Woodworking Character",
+            WW_CHAR_TOOLTIP = "Which character is your woodworking character?",
+
+            JC_CHAR_LABEL = "Jewelry crafting Character",
+            JC_CHAR_TOOLTIP = "Which character is your jewelry crafting character?",
+        },
+        TOOLTIPS = {
+            ornate = "Ornate",
+            intricate = "Intricate",
+            duplicate = "Duplicate trait known by: ",
+            canResearch = "Unknown trait known by: ",
+            alreadyResearched = "Trait known by: "
+        }
+    },
 }
