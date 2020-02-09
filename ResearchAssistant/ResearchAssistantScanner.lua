@@ -1,13 +1,23 @@
-ResearchAssistantScanner = ZO_Object:Subclass()
 local libResearch = LibResearch
 if libResearch == nil and LibStub then libResearch = LibStub("LibResearch", true) end
 if libResearch == nil then d("[ResearchAssistant]Needed library \"LibResearch\" was not loaded. This addon won't work without this library!") return end
 
-local BLACKSMITH = CRAFTING_TYPE_BLACKSMITHING
-local CLOTHIER = CRAFTING_TYPE_CLOTHIER
-local WOODWORK = CRAFTING_TYPE_WOODWORKING
-local JEWELRY_CRAFTING = CRAFTING_TYPE_JEWELRYCRAFTING
+--Local variables for the class
+local BLACKSMITH 		= CRAFTING_TYPE_BLACKSMITHING
+local CLOTHIER 			= CRAFTING_TYPE_CLOTHIER
+local WOODWORK 			= CRAFTING_TYPE_WOODWORKING
+local JEWELRY_CRAFTING 	= CRAFTING_TYPE_JEWELRYCRAFTING
+--LibResearch reasons
+local LIBRESEARCH_REASON_ALREADY_KNOWN 		= "AlreadyKnown"
+local LIBRESEARCH_REASON_WRONMG_ITEMTYPE 	= "WrongItemType"
+--[[
+local LIBRESEARCH_REASON_ORNATE 			= "Ornate"
+local LIBRESEARCH_REASON_INTRICATE 			= "Intricate"
+local LIBRESEARCH_REASON_TRAITLESS 			= "Traitless"
+]]
 
+--Class ResearchAssistantScanner
+ResearchAssistantScanner = ZO_Object:Subclass()
 
 function ResearchAssistantScanner:Initialize(settings)
 	self.ownedTraits = {}
@@ -79,15 +89,17 @@ end
 function ResearchAssistantScanner:ScanBag(bagId)
 	local traits = {}
 	local numSlots = GetBagSize(bagId)
+	if self.debug == true then
+		d("[ReasearchAssistant]Scanner:ScanBag("..tostring(bagId).."), entries: " ..tostring(numSlots))
+	end
 	for i = 0, numSlots do
 		local itemLink = GetItemLink(bagId, i)
 		if itemLink ~= "" then
 			local traitKey, isResearchable, reason = self:CheckIsItemResearchable(itemLink)
 			local prefValue = self:CreateItemPreferenceValue(itemLink, bagId, i)
 			if self.debug == true then
-				d(bagId,i)
-				if bagId == BAG_BACKPACK and reason ~= "WrongItemType" then
-					d(i..". "..GetItemLinkName(itemLink)..": trait "..tostring(traitKey).." can? "..tostring(isResearchable).." why? "..tostring(reason).." pref "..prefValue)
+				if bagId == BAG_BACKPACK and reason ~= LIBRESEARCH_REASON_WRONMG_ITEMTYPE then
+					d(">>"..tostring(i).." "..GetItemLinkName(itemLink)..": trait "..tostring(traitKey).." can? "..tostring(isResearchable).." why? "..tostring(reason).." pref: "..prefValue)
 				end
 			end
 			--is this item researchable?
@@ -98,7 +110,7 @@ function ResearchAssistantScanner:ScanBag(bagId)
 				end
 			else
 				--if we're here,
-				if reason == "AlreadyKnown" then
+				if reason == LIBRESEARCH_REASON_ALREADY_KNOWN then
 					--either we already know it
 					traits[traitKey] = true
 				else

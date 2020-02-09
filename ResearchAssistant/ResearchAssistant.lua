@@ -16,6 +16,13 @@ local RAScanner = nil
 
 local RAlang = 'en'
 
+--LibResearch reasons
+--local LIBRESEARCH_REASON_ALREADY_KNOWN 		= "AlreadyKnown"
+local LIBRESEARCH_REASON_WRONMG_ITEMTYPE 	= "WrongItemType"
+local LIBRESEARCH_REASON_ORNATE 			= "Ornate"
+local LIBRESEARCH_REASON_INTRICATE 			= "Intricate"
+local LIBRESEARCH_REASON_TRAITLESS 			= "Traitless"
+
 local function AddTooltips(control, text)
 	control:SetHandler("OnMouseEnter", function(self)
 		ZO_Tooltips_ShowTextTooltip(self, TOP, text)
@@ -124,22 +131,22 @@ function RA.IsItemResearchableWithSettingsCharacter(bagId, slotIndex)
 
 	if not isResearchable then
 		-- if the item isn't armor or a weapon, hide and go away
-		if reason == "WrongItemType" then
+		if reason == LIBRESEARCH_REASON_WRONMG_ITEMTYPE then
 			return isResearchableWithSettingsChar
 		end
 
 		-- if the item has no trait
-		if reason == "Traitless"  then
+		if reason == LIBRESEARCH_REASON_TRAITLESS  then
 			return isResearchableWithSettingsChar
 		end
 
 		-- if the item is ornate
-		if reason == "Ornate" then
+		if reason == LIBRESEARCH_REASON_ORNATE then
 			return isResearchableWithSettingsChar
 		end
 
 		-- if the item is intricate
-		if reason == "Intricate" then
+		if reason == LIBRESEARCH_REASON_INTRICATE then
 			return isResearchableWithSettingsChar
 		end
 	end
