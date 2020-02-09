@@ -216,7 +216,13 @@ function ResearchAssistantScanner:RescanBags()
 		if self:IsHouseBankScanEnabled() == true then
 			--For each possible house bank coffer scan the bag
 			for houseBankBag=BAG_HOUSE_BANK_ONE, BAG_HOUSE_BANK_TEN, 1 do
+				if self.debug == true then
+					startTime = GetGameTimeMilliseconds()
+				end
 				self.ownedTraits_HouseBank[houseBankBag] = self:ScanBag(houseBankBag)
+				if self.debug == true then
+					d(">house bank " .. tostring(houseBankBag) .." scan elapsed: ".. (GetGameTimeMilliseconds()-startTime))
+				end
 			end
 		end
 
