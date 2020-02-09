@@ -93,6 +93,7 @@ function ResearchAssistantScanner:CreateItemPreferenceValue(itemLink, bagId, slo
 end
 
 function ResearchAssistantScanner:ScanBag(bagId)
+--d("ScanBag, bagId: " .. tostring(bagId) .. ", debug: " ..tostring(self.debug))
 	local traits = {}
 	local numSlots = GetBagSize(bagId)
 	if self.debug == true then
@@ -170,6 +171,7 @@ function ResearchAssistantScanner:ScanKnownTraits()
 end
 
 function ResearchAssistantScanner:RescanBags()
+--d("RescanBags, debug: " ..tostring(self.debug))
 	if self.isScanning then
 		self.scanMore = self.scanMore + 1
 		return

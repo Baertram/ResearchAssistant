@@ -313,6 +313,10 @@ function ResearchAssistantSettings:GetTextureOffset()
     return settings.textureOffset + 70
 end
 
+function ResearchAssistantSettings:IsDebug()
+    return settings.debug
+end
+
 function ResearchAssistantSettings:CreateOptionsMenu()
     local str = RA_Strings[self:GetLanguage()].SETTINGS
 
