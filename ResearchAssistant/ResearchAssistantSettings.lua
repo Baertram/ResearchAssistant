@@ -625,10 +625,14 @@ end
 
 function ResearchAssistantSettings:GetLanguage()
     local lang = GetCVar("language.2")
-
-    --check for supported languages
-    if(lang == "de" or lang == "en" or lang == "fr" or lang == "es" or lang == "jp") then return lang end
-
+    local supportedLanguages = {
+        ["de"] = "de",
+        ["en"] = "en",
+        ["es"] = "es",
+        ["fr"] = "fr",
+        ["jp"] = "jp",
+    }
     --return english if not supported
-    return "en"
+    local langSupported = supportedLanguages[lang] or "en"
+    return langSupported
 end

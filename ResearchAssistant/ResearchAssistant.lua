@@ -320,6 +320,10 @@ local function AddResearchIndicatorToSlot(control, linkFunction)
 	--returns int traitKey, bool isResearchable, string reason
 	local traitKey, isResearchable, reason = RAScanner:CheckIsItemResearchable(itemLink)
 
+	--now we get into the stuff that requires the craft skill and item type
+	local craftingSkill = RAScanner:GetItemCraftingSkill(itemLink)
+	local itemType = RAScanner:GetResearchLineIndex(itemLink)
+
 	if not isResearchable then
 		-- if the item isn't armor or a weapon, hide and go away
 		if reason == LIBRESEARCH_REASON_WRONMG_ITEMTYPE then
@@ -359,10 +363,6 @@ local function AddResearchIndicatorToSlot(control, linkFunction)
 			return
 		end
 	end
-
-	--now we get into the stuff that requires the craft skill and item type
-	local craftingSkill = RAScanner:GetItemCraftingSkill(itemLink)
-	local itemType = RAScanner:GetResearchLineIndex(itemLink)
 
 	--if we aren't tracking anybody for that skill, hide and go away
 	if RASettings:IsMultiCharSkillOff(craftingSkill, itemType) then
@@ -492,19 +492,6 @@ local function ResearchAssistant_Loaded(eventCode, addOnName)
 	RAlang = RASettings:GetLanguage()
 
 	--inventories hook
-	--[[
-	for _, v in pairs(PLAYER_INVENTORY.inventories) do
-		local listView = v.listView
-		if listView and listView.dataTypes and listView.dataTypes[1] then
-			local hookedFunctions = listView.dataTypes[1].setupCallback
-
-			listView.dataTypes[1].setupCallback = function(rowControl, slot)
-				hookedFunctions(rowControl, slot)
-				AddResearchIndicatorToSlot(rowControl, GetItemLink)
-			end
-		end
-	end
-	]]
 	for _, v in pairs(PLAYER_INVENTORY.inventories) do
 		local listView = v.listView
 		if listView and listView.dataTypes and listView.dataTypes[1] then
@@ -515,13 +502,6 @@ local function ResearchAssistant_Loaded(eventCode, addOnName)
 	end
 
 	--deconstruction hook
-	--[[
-	local hookedFunctions = DECONSTRUCTION.dataTypes[1].setupCallback
-	DECONSTRUCTION.dataTypes[1].setupCallback = function(rowControl, slot)
-		hookedFunctions(rowControl, slot)
-		AddResearchIndicatorToSlot(rowControl, GetItemLink)
-	end
-	]]
 	SecurePostHook(DECONSTRUCTION.dataTypes[1], "setupCallback", function(rowControl, slot)
 		AddResearchIndicatorToSlot(rowControl, GetItemLink)
 	end)
