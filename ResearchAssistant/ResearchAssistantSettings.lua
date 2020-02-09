@@ -3,7 +3,7 @@ local RA = ResearchAssistant
 
 local settings = nil
 local _
-local CONST_OFF = "off"
+local CONST_OFF = "-"
 
 local charId = GetCurrentCharacterId()
 
@@ -474,8 +474,8 @@ function ResearchAssistantSettings:CreateOptionsMenu()
         type = "dropdown",
         name = str.WS_CHAR_LABEL,
         tooltip = str.WS_CHAR_TOOLTIP,
-        choices = settings.knownCharacters,
-        choicesValues = self.lamCharNamesTable,
+        choices = self.lamCharNamesTable,
+        choicesValues = settings.knownCharacters,
         getFunc = function() return settings.weaponsmithCharacter[charId] end,
         setFunc = function(value)
             settings.weaponsmithCharacter[charId] = value
