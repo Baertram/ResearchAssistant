@@ -9,7 +9,7 @@ local WOODWORK 			= CRAFTING_TYPE_WOODWORKING
 local JEWELRY_CRAFTING 	= CRAFTING_TYPE_JEWELRYCRAFTING
 --LibResearch reasons
 local LIBRESEARCH_REASON_ALREADY_KNOWN 		= "AlreadyKnown"
-local LIBRESEARCH_REASON_WRONMG_ITEMTYPE 	= "WrongItemType"
+local LIBRESEARCH_REASON_WRONG_ITEMTYPE 	= "WrongItemType"
 --[[
 local LIBRESEARCH_REASON_ORNATE 			= "Ornate"
 local LIBRESEARCH_REASON_INTRICATE 			= "Intricate"
@@ -117,7 +117,7 @@ function ResearchAssistantScanner:ScanBag(bagId)
 			local traitKey, isResearchable, reason = self:CheckIsItemResearchable(itemLink)
 			local prefValue = self:CreateItemPreferenceValue(itemLink, bagId, i)
 			if self.debug == true then
-				if bagId == BAG_BACKPACK and reason ~= LIBRESEARCH_REASON_WRONMG_ITEMTYPE then
+				if bagId == BAG_BACKPACK and reason ~= LIBRESEARCH_REASON_WRONG_ITEMTYPE then
 					d(">>"..tostring(i).." "..GetItemLinkName(itemLink)..": trait "..tostring(traitKey).." can? "..tostring(isResearchable).." why? "..tostring(reason).." pref: "..prefValue)
 				end
 			end
