@@ -181,7 +181,7 @@ function ResearchAssistantScanner:ScanKnownTraits()
 end
 
 function ResearchAssistantScanner:RescanBags()
---d("RescanBags, debug: " ..tostring(self.debug))
+	--d("RescanBags, debug: " ..tostring(self.debug))
 	if self.isScanning then
 		self.scanMore = self.scanMore + 1
 		return
@@ -215,6 +215,7 @@ function ResearchAssistantScanner:RescanBags()
 		--Check if inside a house & house bank was opened -> Prerequisite to scan the house banks
 		if self:IsHouseBankScanEnabled() == true then
 			--For each possible house bank coffer scan the bag
+			self.ownedTraits_HouseBank = self.ownedTraits_HouseBank or {}
 			for houseBankBag=BAG_HOUSE_BANK_ONE, BAG_HOUSE_BANK_TEN, 1 do
 				if self.debug == true then
 					startTime = GetGameTimeMilliseconds()
@@ -231,8 +232,10 @@ function ResearchAssistantScanner:RescanBags()
 	self:JoinCachedOwnedTraits(self.ownedTraits_Bank)
 	self:JoinCachedOwnedTraits(self.ownedTraits_SubscriberBank)
 	--For each possible house bank coffer scan the bag
-	for houseBankBag=BAG_HOUSE_BANK_ONE, BAG_HOUSE_BANK_TEN, 1 do
-		self:JoinCachedOwnedTraits(self.ownedTraits_HouseBank[houseBankBag])
+	if self.ownedTraits_HouseBank then
+		for houseBankBag=BAG_HOUSE_BANK_ONE, BAG_HOUSE_BANK_TEN, 1 do
+			self:JoinCachedOwnedTraits(self.ownedTraits_HouseBank[houseBankBag])
+		end
 	end
 
 	self:ScanKnownTraits()
