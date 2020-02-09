@@ -1,6 +1,7 @@
 if ResearchAssistant == nil then ResearchAssistant = {} end
 local RA = ResearchAssistant
-RA.version = "0.9.4.8"
+RA.name		= "ResearchAssistant"
+RA.version 	= "0.9.4.8"
 local BACKPACK = ZO_PlayerInventoryBackpack
 local BANK = ZO_PlayerBankBackpack
 local GUILD_BANK = ZO_GuildBankBackpack
@@ -483,7 +484,7 @@ local function RA_HookTrading()
 end
 
 local function ResearchAssistant_Loaded(eventCode, addOnName)
-	if addOnName ~= "ResearchAssistant" then return end
+	if addOnName ~= RA.name then return end
 
 	wasInCombatAsWantedToScan = false
 
@@ -561,4 +562,4 @@ local function ResearchAssistant_Loaded(eventCode, addOnName)
 	EVENT_MANAGER:AddFilterForEvent("RA_INV_SLOT_UPDATE", EVENT_INVENTORY_SINGLE_SLOT_UPDATE, REGISTER_FILTER_INVENTORY_UPDATE_REASON, INVENTORY_UPDATE_REASON_DEFAULT)
 end
 
-EVENT_MANAGER:RegisterForEvent("ResearchAssistantLoaded", EVENT_ADD_ON_LOADED, ResearchAssistant_Loaded)
+EVENT_MANAGER:RegisterForEvent(RA.name .."Loaded", EVENT_ADD_ON_LOADED, ResearchAssistant_Loaded)
