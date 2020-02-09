@@ -2,9 +2,12 @@ ResearchAssistantSettings = ZO_Object:Subclass()
 if ResearchAssistant == nil then ResearchAssistant = {} end
 local RA = ResearchAssistant
 
-local LAM = LibStub("LibAddonMenu-2.0")
+local LAM = LibAddonMenu2
+if not LAM and LibStub then LibStub("LibAddonMenu-2.0", true) end
 local settings = nil
 local _
+
+local charName = GetUnitName("player")
 
 local CAN_RESEARCH_TEXTURES = {
     ["Classic"] = {
@@ -60,7 +63,6 @@ function ResearchAssistantSettings:New()
 end
 
 function ResearchAssistantSettings:Initialize()
-    local charName = GetUnitName("player")
     local defaults = {
         raToggle = true,
         multiCharacter = false,
@@ -91,6 +93,8 @@ function ResearchAssistantSettings:Initialize()
         clothierCharacter = {},
         leatherworkerCharacter = {},
         jewelryCraftingCharacter = {},
+
+        debug = false,
 
         --non settings variables
         acquiredTraits = {},
@@ -210,7 +214,6 @@ end
 
 function ResearchAssistantSettings:GetCraftingCharacterTraits(craftingSkillType, itemType)
     local crafter
-    local charName = GetUnitName("player")
     if(craftingSkillType == CRAFTING_TYPE_BLACKSMITHING and itemType > 7) then
         crafter = settings.blacksmithCharacter[charName]
     elseif(craftingSkillType == CRAFTING_TYPE_BLACKSMITHING and itemType <= 7) then
@@ -255,7 +258,6 @@ function ResearchAssistantSettings:GetTraits()
 end
 
 function ResearchAssistantSettings:IsMultiCharSkillOff(craftingSkillType, itemType)
-    local charName = GetUnitName("player")
     if(craftingSkillType == CRAFTING_TYPE_BLACKSMITHING and itemType > 7) then
         return settings.blacksmithCharacter[charName] == "off"
     elseif(craftingSkillType == CRAFTING_TYPE_BLACKSMITHING and itemType <= 7) then
@@ -274,7 +276,6 @@ function ResearchAssistantSettings:IsMultiCharSkillOff(craftingSkillType, itemTy
 end
 
 function ResearchAssistantSettings:GetTrackedCharForSkill(craftingSkillType, itemType)
-    local charName = GetUnitName("player")
     if(craftingSkillType == CRAFTING_TYPE_BLACKSMITHING and itemType > 7) then
         return settings.blacksmithCharacter[charName]
     elseif(craftingSkillType == CRAFTING_TYPE_BLACKSMITHING and itemType <= 7) then
@@ -314,13 +315,13 @@ end
 
 function ResearchAssistantSettings:CreateOptionsMenu()
     local str = RA_Strings[self:GetLanguage()].SETTINGS
-    local charName = GetUnitName("player")
 
     local panel = {
         type = "panel",
-        name = "Research Assistant",
-        author = "ingeniousclown",
+        name = RA.name,
+        author = RA.author,
         version = RA.version,
+        website = RA.website,
         slashCommand = "/researchassistant",
         registerForRefresh = true
     }

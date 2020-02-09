@@ -1,7 +1,12 @@
 if ResearchAssistant == nil then ResearchAssistant = {} end
 local RA = ResearchAssistant
+
+--Addon variables
 RA.name		= "ResearchAssistant"
 RA.version 	= "0.9.4.8"
+RA.author   = "ingeniousclown, Randactyl, current: Baetram"
+RA.website	= "https://www.esoui.com/downloads/info111-ResearchAssistant.html"
+
 local BACKPACK = ZO_PlayerInventoryBackpack
 local BANK = ZO_PlayerBankBackpack
 local GUILD_BANK = ZO_GuildBankBackpack
@@ -488,6 +493,8 @@ local function ResearchAssistant_Loaded(eventCode, addOnName)
 
 	RASettings = ResearchAssistantSettings:New()
 	RAScanner = ResearchAssistantScanner:New(RASettings)
+	RA.scanner = RAScanner
+
 	--Get the language of the client
 	RAlang = RASettings:GetLanguage()
 
