@@ -330,7 +330,7 @@ function ResearchAssistantSettings:GetCraftingCharacterTraits(craftingSkillType,
 end
 
 function ResearchAssistantSettings:GetPlayerTraits()
-    return settings.acquiredTraits[self:GetResearchCharIdDependingOnSettings()]
+    return settings.acquiredTraits[currentlyLoggedInCharId]
 end
 
 function ResearchAssistantSettings:GetTraits()
