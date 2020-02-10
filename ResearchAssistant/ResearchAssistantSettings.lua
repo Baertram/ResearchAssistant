@@ -166,7 +166,6 @@ function ResearchAssistantSettings:Initialize()
         settings.showTraitless = false
     end
 
-    settings.acquiredTraits[self.CONST_OFF_VALUE] = settings.acquiredTraits[self.CONST_OFF_VALUE] or { }
     settings.acquiredTraits[currentlyLoggedInCharId] = settings.acquiredTraits[currentlyLoggedInCharId] or { }
 
     --Use the same research characters for each of your characters
@@ -276,15 +275,17 @@ function ResearchAssistantSettings:GetResearchCharIdDependingOnSettings()
 end
 
 function ResearchAssistantSettings:SetKnownTraits(traitsTable)
-    settings.acquiredTraits[self:GetResearchCharIdDependingOnSettings()] = traitsTable
+    settings.acquiredTraits[currentlyLoggedInCharId] = traitsTable
 end
 
 function ResearchAssistantSettings:GetCharsWhoKnowTrait(traitKey)
     local knowers = ""
-    for curChar, traitList in pairs(settings.acquiredTraits) do
-        if traitList and traitList[traitKey] == true then
-            local curCharName = self.charId2Name[curChar] or ""
-            knowers = knowers .. ", " .. curCharName
+    for curCharId, traitList in pairs(settings.acquiredTraits) do
+        if curCharId ~= self.CONST_OFF_VALUE then
+            if traitList and traitList[traitKey] == true then
+                local curCharName = self.charId2Name[curCharId]
+                knowers = knowers .. ", " .. curCharName
+            end
         end
     end
     return string.sub(knowers, 3)
@@ -335,7 +336,6 @@ function ResearchAssistantSettings:IsMultiCharSkillOff(craftingSkillType, itemTy
     if charIdForCraftSkill == self.CONST_OFF_VALUE then
         retVar = true
     end
-    d("[RASettings:IsMultiCharSkillOff]: " ..tostring(retVar))
     return retVar
 end
 

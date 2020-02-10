@@ -334,7 +334,6 @@ local function AddResearchIndicatorToSlot(control, linkFunction)
 
 	--returns int traitKey, bool isResearchable, string reason
 	local traitKey, isResearchable, reason = RAScanner:CheckIsItemResearchable(itemLink)
-d(">" .. string.format("traitKey: %s, isResearchable: %s, reason: %s", tostring(traitKey), tostring(isResearchable), tostring(reason)))
 	--now we get into the stuff that requires the craft skill and item type
 	local craftingSkill = RAScanner:GetItemCraftingSkill(itemLink)
 	local itemType = RAScanner:GetResearchLineIndex(itemLink)
@@ -408,10 +407,10 @@ d(">" .. string.format("traitKey: %s, isResearchable: %s, reason: %s", tostring(
 
 	local stackSize = control.dataEntry.data.stackCount or 0
 
-	--d("[RA]AddResearchIndicatorToSlot: " .. itemLink .. " - best: "..tostring(bestTraitPreferenceScore).. ", this: "..tostring(thisItemScore) .. ", trait: "..tostring(traitKey) .. ", stackSize: " ..tostring(stackSize))
-
 	--Who knows the trait already?
 	local whoKnows = RASettings:GetCharsWhoKnowTrait(traitKey)
+
+	d(">" .. string.format("traitKey: %s, isResearchable: %s, reason: %s, score: %s, stackSize: %s, char: %s, whoKnows: %s", tostring(traitKey), tostring(isResearchable), tostring(reason), tostring(bestTraitPreferenceScore), tostring(stackSize), tostring(researchCharOfCraftingTypeNameDecorated), tostring(whoKnows)))
 
 	--pretty colors time!
 	--if we don't know it, color the icon something fun

@@ -124,7 +124,7 @@ RA_Strings = {
             SHOW_RESEARCHED_TOOLTIP = "Sollen Icons für Gegenstände angezeigt werden, die bereits analysiert wurden?",
 
             SHOW_TRAITLESS_LABEL = "Gegenstände ohne Eigenschaften",
-            SHOW_TRAITLESS_TOOLTIP = "Sollen Icons für Gegenstände angezeigt werden, die keine Eigenscahaften besitzen?",
+            SHOW_TRAITLESS_TOOLTIP = "Sollen Icons für Gegenstände angezeigt werden, die keine Eigenschaften besitzen?",
 
             SHOW_ORNATE_LABEL = "Hoher Verkaufspreis",
             SHOW_ORNATE_TOOLTIP = "Sollen Icons für Gegenstände mit hohem Verkaufspreis trotz deaktivierten Berufen angezeigt werden?",
