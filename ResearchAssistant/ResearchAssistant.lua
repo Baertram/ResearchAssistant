@@ -429,7 +429,7 @@ local function AddResearchIndicatorToSlot(control, linkFunction)
 				if whoKnows ~= "" then
 					HandleTooltips(indicatorControl, RA_Strings[RAlang].TOOLTIPS.duplicate .. whoKnows)
 				else
-					HandleTooltips(indicatorControl, "")
+					HandleTooltips(indicatorControl, RA_Strings[RAlang].TOOLTIPS.duplicate)
 				end
 				control.dataEntry.data.researchAssistant = TRACKING_STATE_DUPLICATE
 			else
@@ -437,7 +437,7 @@ local function AddResearchIndicatorToSlot(control, linkFunction)
 				if whoKnows ~= "" then
 					HandleTooltips(indicatorControl, RA_Strings[RAlang].TOOLTIPS.canResearch .. whoKnows)
 				else
-					HandleTooltips(indicatorControl, "")
+					HandleTooltips(indicatorControl, RA_Strings[RAlang].TOOLTIPS.canResearch)
 				end
 				control.dataEntry.data.researchAssistant = TRACKING_STATE_RESEARCHABLE
 			end

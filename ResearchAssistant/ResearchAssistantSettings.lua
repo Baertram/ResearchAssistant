@@ -268,7 +268,10 @@ end
 function ResearchAssistantSettings:GetCharsWhoKnowTrait(traitKey)
     local knowers = ""
     for curChar, traitList in pairs(settings.acquiredTraits) do
-        if traitList[traitKey] == true then knowers = knowers .. ", " .. curChar end
+        if traitList and traitList[traitKey] == true then
+            local curCharName = self.charId2Name[curChar] or ""
+            knowers = knowers .. ", " .. curCharName
+        end
     end
     return string.sub(knowers, 3)
 end
