@@ -380,7 +380,9 @@ local function AddResearchIndicatorToSlot(control, linkFunction)
 	end
 
 	--if we aren't tracking anybody for that skill, hide and go away
-	if RASettings:IsMultiCharSkillOff(craftingSkill, itemType) then
+	d("[RASettings]IsMultiCharSkillOff: " ..tostring(RASettings:IsMultiCharSkillOff(craftingSkill, itemType)))
+
+	if RASettings:IsMultiCharSkillOff(craftingSkill, itemType) == true then
 		control.dataEntry.data.researchAssistant = TRACKING_STATE_UNTRACKED
 		indicatorControl:SetHidden(true)
 		return
@@ -388,6 +390,9 @@ local function AddResearchIndicatorToSlot(control, linkFunction)
 
 	--preference value for the "best" item candidate for the trait in question
 	local bestTraitPreferenceScore = RASettings:GetPreferenceValueForTrait(traitKey)
+	--research character of that item
+	local researchCharOfCraftingTypeNameDecorated = RASettings:GetTrackedCharForSkill(craftingSkill, itemType, true)
+
 	if bestTraitPreferenceScore == nil then
 		-- if the item is traitless, show "researched" color. if we've never seen this trait before, show "best" color.
 		if reason == LIBRESEARCH_REASON_TRAITLESS then
@@ -407,23 +412,24 @@ local function AddResearchIndicatorToSlot(control, linkFunction)
 	SetToNormal(indicatorControl)
 	DisplayIndicator(indicatorControl)
 
-	--preference value for the current item
-	local thisItemScore = RAScanner:CreateItemPreferenceValue(itemLink, bagId, slotIndex)
 	local stackSize = control.dataEntry.data.stackCount or 0
 
---d("[RA]AddResearchIndicatorToSlot: " .. itemLink .. " - best: "..tostring(bestTraitPreferenceScore).. ", this: "..tostring(thisItemScore) .. ", trait: "..tostring(traitKey) .. ", stackSize: " ..tostring(stackSize))
+	--d("[RA]AddResearchIndicatorToSlot: " .. itemLink .. " - best: "..tostring(bestTraitPreferenceScore).. ", this: "..tostring(thisItemScore) .. ", trait: "..tostring(traitKey) .. ", stackSize: " ..tostring(stackSize))
 
+	--Who knows the trait already?
 	local whoKnows = RASettings:GetCharsWhoKnowTrait(traitKey)
+
 	--pretty colors time!
 	--if we don't know it, color the icon something fun
 	if bestTraitPreferenceScore ~= true then
 		if bestTraitPreferenceScore == RASettings.CONST_CHARACTER_NOT_SCANNED_YET then
 			indicatorControl:SetColor(unpack(RASettings:GetNotScannedColor()))
-			local researchCharOfCraftingTypeNameDecorated = RASettings:GetCraftingCharacterIdOrName(craftingSkill, itemType, true)
-			HandleTooltips(indicatorControl, string.format(RA_Strings[RAlang].TOOLTIPS.notScannedWithNeededCharYet, tostring(researchCharOfCraftingTypeNameDecorated)))
+			HandleTooltips(indicatorControl, string.format(RA_Strings[RAlang].TOOLTIPS.notScannedWithNeededCharYet, researchCharOfCraftingTypeNameDecorated))
 			control.dataEntry.data.researchAssistant = TRACKING_STATE_CHARACTER_NOT_SCANNED_YET
 			return
 		else
+			--preference value for the current item
+			local thisItemScore = RAScanner:CreateItemPreferenceValue(itemLink, bagId, slotIndex)
 			if (thisItemScore > bestTraitPreferenceScore or stackSize > 1) then
 				indicatorControl:SetColor(unpack(RASettings:GetDuplicateUnresearchedColor()))
 				if whoKnows ~= "" then

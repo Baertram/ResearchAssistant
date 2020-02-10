@@ -3,7 +3,6 @@ local RA = ResearchAssistant
 
 local settings = nil
 local _
-local CONST_OFF = "-"
 
 local currentlyLoggedInCharId = GetCurrentCharacterId()
 
@@ -111,6 +110,8 @@ end
 function ResearchAssistantSettings:Initialize()
     --Constants
     self.CONST_CHARACTER_NOT_SCANNED_YET = -100
+    self.CONST_OFF = "-"
+    self.CONST_OFF_VALUE = 0
 
     local defaults = {
         debug = false,
@@ -195,8 +196,8 @@ function ResearchAssistantSettings:Initialize()
     self.lamCharNamesTable = {}
     --Build the known characters table for the LAM dropdown controls
     self.lamCharIdTable = {}
-    table.insert(self.lamCharNamesTable, 1, "-")
-    table.insert(self.lamCharIdTable, 1, 0)
+    table.insert(self.lamCharNamesTable, 1, self.CONST_OFF)
+    table.insert(self.lamCharIdTable, 1, self.CONST_OFF_VALUE)
     for l_charId, l_charName in pairs(self.charId2Name) do
         table.insert(self.lamCharNamesTable, l_charName)
         table.insert(self.lamCharIdTable, l_charId)
@@ -276,7 +277,7 @@ function ResearchAssistantSettings:GetCharsWhoKnowTrait(traitKey)
     return string.sub(knowers, 3)
 end
 
-function ResearchAssistantSettings:GetCraftingCharacterIdOrName(craftingSkillType, itemType, getCrafterName)
+function ResearchAssistantSettings:GetTrackedCharForSkill(craftingSkillType, itemType, getCrafterName)
     getCrafterName = getCrafterName or false
     local crafter
     if(craftingSkillType == CRAFTING_TYPE_BLACKSMITHING and itemType > 7) then
@@ -292,10 +293,10 @@ function ResearchAssistantSettings:GetCraftingCharacterIdOrName(craftingSkillTyp
     elseif(craftingSkillType == CRAFTING_TYPE_JEWELRYCRAFTING) then
         crafter = settings.jewelryCraftingCharacter[currentlyLoggedInCharId]
     else
-        crafter = currentlyLoggedInCharId
+        crafter = self.CONST_OFF_VALUE
     end
     --Shall we return the name instead of the unique id?
-    if getCrafterName == true and (crafter ~= nil and crafter ~= "") then
+    if getCrafterName == true and (crafter ~= nil and crafter ~= "" and crafter ~= self.CONST_OFF_VALUE) then
         local charNameDecorated = self.charId2Name[crafter]
         if charNameDecorated and charNameDecorated ~= "" then return charNameDecorated end
     end
@@ -303,8 +304,8 @@ function ResearchAssistantSettings:GetCraftingCharacterIdOrName(craftingSkillTyp
 end
 
 function ResearchAssistantSettings:GetCraftingCharacterTraits(craftingSkillType, itemType)
-    local crafter = self:GetCraftingCharacterIdOrName(craftingSkillType, itemType, false)
-    if crafter == CONST_OFF then
+    local crafter = self:GetTrackedCharForSkill(craftingSkillType, itemType)
+    if crafter == self.CONST_OFF_VALUE then
       return
     else
         if settings.acquiredTraits and settings.acquiredTraits[crafter] then
@@ -325,37 +326,19 @@ end
 
 function ResearchAssistantSettings:IsMultiCharSkillOff(craftingSkillType, itemType)
     if(craftingSkillType == CRAFTING_TYPE_BLACKSMITHING and itemType > 7) then
-        return settings.blacksmithCharacter[currentlyLoggedInCharId] == CONST_OFF
+        return (settings.blacksmithCharacter[currentlyLoggedInCharId] == self.CONST_OFF_VALUE) or false
     elseif(craftingSkillType == CRAFTING_TYPE_BLACKSMITHING and itemType <= 7) then
-        return settings.weaponsmithCharacter[currentlyLoggedInCharId] == CONST_OFF
+        return (settings.weaponsmithCharacter[currentlyLoggedInCharId] == self.CONST_OFF_VALUE) or false
     elseif(craftingSkillType == CRAFTING_TYPE_CLOTHIER and itemType <= 7) then
-        return settings.clothierCharacter[currentlyLoggedInCharId] == CONST_OFF
+        return (settings.clothierCharacter[currentlyLoggedInCharId] == self.CONST_OFF_VALUE) or false
     elseif(craftingSkillType == CRAFTING_TYPE_CLOTHIER and itemType > 7) then
-        return settings.leatherworkerCharacter[currentlyLoggedInCharId] == CONST_OFF
+        return (settings.leatherworkerCharacter[currentlyLoggedInCharId] == self.CONST_OFF_VALUE) or false
     elseif(craftingSkillType == CRAFTING_TYPE_WOODWORKING) then
-        return settings.woodworkingCharacter[currentlyLoggedInCharId] == CONST_OFF
+        return (settings.woodworkingCharacter[currentlyLoggedInCharId] == self.CONST_OFF_VALUE) or false
     elseif(craftingSkillType == CRAFTING_TYPE_JEWELRYCRAFTING) then
-        return settings.jewelryCraftingCharacter[currentlyLoggedInCharId] == CONST_OFF
+        return (settings.jewelryCraftingCharacter[currentlyLoggedInCharId] == self.CONST_OFF_VALUE) or false
     else
         return true
-    end
-end
-
-function ResearchAssistantSettings:GetTrackedCharForSkill(craftingSkillType, itemType)
-    if(craftingSkillType == CRAFTING_TYPE_BLACKSMITHING and itemType > 7) then
-        return settings.blacksmithCharacter[currentlyLoggedInCharId]
-    elseif(craftingSkillType == CRAFTING_TYPE_BLACKSMITHING and itemType <= 7) then
-        return settings.weaponsmithCharacter[currentlyLoggedInCharId]
-    elseif(craftingSkillType == CRAFTING_TYPE_CLOTHIER and itemType <= 7) then
-        return settings.clothierCharacter[currentlyLoggedInCharId]
-    elseif(craftingSkillType == CRAFTING_TYPE_CLOTHIER and itemType > 7) then
-        return settings.leatherworkerCharacter[currentlyLoggedInCharId]
-    elseif(craftingSkillType == CRAFTING_TYPE_WOODWORKING) then
-        return settings.woodworkingCharacter[currentlyLoggedInCharId]
-    elseif(craftingSkillType == CRAFTING_TYPE_JEWELRYCRAFTING) then
-        return settings.jewelryCraftingCharacter[currentlyLoggedInCharId] == CONST_OFF
-    else
-        return CONST_OFF
     end
 end
 
