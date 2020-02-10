@@ -228,6 +228,11 @@ function ResearchAssistantSettings:GetIntricateColor()
     return {r, g, b, a}
 end
 
+function ResearchAssistantSettings:GetNotScannedColor()
+    local r, g, b, a = 1, 1, 1, 1
+    return {r, g, b, a}
+end
+
 function ResearchAssistantSettings:ShowResearched()
     return settings.showResearched
 end

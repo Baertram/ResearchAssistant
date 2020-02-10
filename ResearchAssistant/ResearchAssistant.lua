@@ -36,12 +36,14 @@ local TRACKING_STATE_RESEARCHABLE			= "researchable"
 local TRACKING_STATE_DUPLICATE				= "duplicate"
 local TRACKING_STATE_TRAITLESS				= LIBRESEARCH_REASON_TRAITLESSlower
 local TRACKING_STATE_UNTRACKED				= "untracked"
+local TRACKING_STATE_CHARACTER_NOT_SCANNED_YET = "CharacterNotScannedYet"
 RA.trackingStates = {
 	[TRACKING_STATE_KNOWN] 			= TRACKING_STATE_KNOWN,
 	[TRACKING_STATE_RESEARCHABLE] 	= TRACKING_STATE_RESEARCHABLE,
 	[TRACKING_STATE_DUPLICATE] 		= TRACKING_STATE_DUPLICATE,
 	[TRACKING_STATE_TRAITLESS]		= TRACKING_STATE_TRAITLESS,
 	[TRACKING_STATE_UNTRACKED] 		= TRACKING_STATE_UNTRACKED,
+	[TRACKING_STATE_CHARACTER_NOT_SCANNED_YET] = TRACKING_STATE_CHARACTER_NOT_SCANNED_YET,
 }
 
 local function AddTooltips(control, text)
@@ -206,12 +208,17 @@ function RA.IsItemResearchableWithSettingsCharacter(bagId, slotIndex)
 	--if we don't know it yet
 	if bestTraitPreferenceScore ~= true then
 		isResearchableWithSettingsChar = true
-		if bestTraitPreferenceScore ~= RASettings.CONST_CHARACTER_NOT_SCANNED_YET and (thisItemScore > bestTraitPreferenceScore or stackSize > 1) then
-			--Duplicate
-			return isResearchableWithSettingsChar
+		if bestTraitPreferenceScore == RASettings.CONST_CHARACTER_NOT_SCANNED_YET then
+			--Character to research this crafttype with was not logged in yet
+			return false
 		else
-			--Researchable!
-			return isResearchableWithSettingsChar
+			if (thisItemScore > bestTraitPreferenceScore or stackSize > 1) then
+				--Duplicate
+				return isResearchableWithSettingsChar
+			else
+				--Researchable!
+				return isResearchableWithSettingsChar
+			end
 		end
 	end
 	--in any other case
@@ -288,12 +295,17 @@ function RA.IsItemResearchableOrDuplicateWithSettingsCharacter(bagId, slotIndex)
 	--if we don't know it yet
 	if bestTraitPreferenceScore ~= true then
 		isNoDuplicateResearchableWithSettingsChar = true
-		if thisItemScore > bestTraitPreferenceScore or stackSize > 1 then
-			--Duplicate
-			return TRACKING_STATE_DUPLICATE
+		if bestTraitPreferenceScore == RASettings.CONST_CHARACTER_NOT_SCANNED_YET then
+			--Character to research this crafttype with was not logged in yet
+			return false
 		else
-			--Researchable!
-			return isNoDuplicateResearchableWithSettingsChar
+			if (thisItemScore > bestTraitPreferenceScore or stackSize > 1) then
+				--Duplicate
+				return TRACKING_STATE_DUPLICATE
+			else
+				--Researchable!
+				return isNoDuplicateResearchableWithSettingsChar
+			end
 		end
 	end
 	--in any other case
@@ -336,7 +348,7 @@ local function AddResearchIndicatorToSlot(control, linkFunction)
 		end
 
 		-- if the item has no trait and we don't want to display icon for traitless items, hide and go away
-		if reason == LIBRESEARCH_REASON_TRAITLESS and RASettings:ShowTraitless() == false then
+		if reason == libResearch_Reason_TRAITLESS and RASettings:ShowTraitless() == false then
 			indicatorControl:SetHidden(true)
 			control.dataEntry.data.researchAssistant = LIBRESEARCH_REASON_TRAITLESSlower
 			return
@@ -399,30 +411,37 @@ local function AddResearchIndicatorToSlot(control, linkFunction)
 	local thisItemScore = RAScanner:CreateItemPreferenceValue(itemLink, bagId, slotIndex)
 	local stackSize = control.dataEntry.data.stackCount or 0
 
-	--d("[RA]AddResearchIndicatorToSlot: " .. itemLink .. " - best: "..tostring(bestTraitPreferenceScore).. ", this: "..tostring(thisItemScore) .. ", trait: "..tostring(traitKey) .. ", stackSize: " ..tostring(stackSize))
+--d("[RA]AddResearchIndicatorToSlot: " .. itemLink .. " - best: "..tostring(bestTraitPreferenceScore).. ", this: "..tostring(thisItemScore) .. ", trait: "..tostring(traitKey) .. ", stackSize: " ..tostring(stackSize))
 
 	local whoKnows = RASettings:GetCharsWhoKnowTrait(traitKey)
 	--pretty colors time!
 	--if we don't know it, color the icon something fun
 	if bestTraitPreferenceScore ~= true then
-		if bestTraitPreferenceScore ~= RASettings.CONST_CHARACTER_NOT_SCANNED_YET and (thisItemScore > bestTraitPreferenceScore or stackSize > 1) then
-			indicatorControl:SetColor(unpack(RASettings:GetDuplicateUnresearchedColor()))
-			if whoKnows ~= "" then
-				HandleTooltips(indicatorControl, RA_Strings[RAlang].TOOLTIPS.duplicate .. whoKnows)
-			else
-				HandleTooltips(indicatorControl, "")
-			end
-			control.dataEntry.data.researchAssistant = TRACKING_STATE_DUPLICATE
+		if bestTraitPreferenceScore == RASettings.CONST_CHARACTER_NOT_SCANNED_YET then
+			indicatorControl:SetColor(unpack(RASettings:GetNotScannedColor()))
+			HandleTooltips(indicatorControl, RA_Strings[RAlang].TOOLTIPS.notScannedWithNeededCharYet)
+			control.dataEntry.data.researchAssistant = TRACKING_STATE_CHARACTER_NOT_SCANNED_YET
+			return
 		else
-			indicatorControl:SetColor(unpack(RASettings:GetCanResearchColor()))
-			if whoKnows ~= "" then
-				HandleTooltips(indicatorControl, RA_Strings[RAlang].TOOLTIPS.canResearch .. whoKnows)
+			if (thisItemScore > bestTraitPreferenceScore or stackSize > 1) then
+				indicatorControl:SetColor(unpack(RASettings:GetDuplicateUnresearchedColor()))
+				if whoKnows ~= "" then
+					HandleTooltips(indicatorControl, RA_Strings[RAlang].TOOLTIPS.duplicate .. whoKnows)
+				else
+					HandleTooltips(indicatorControl, "")
+				end
+				control.dataEntry.data.researchAssistant = TRACKING_STATE_DUPLICATE
 			else
-				HandleTooltips(indicatorControl, "")
+				indicatorControl:SetColor(unpack(RASettings:GetCanResearchColor()))
+				if whoKnows ~= "" then
+					HandleTooltips(indicatorControl, RA_Strings[RAlang].TOOLTIPS.canResearch .. whoKnows)
+				else
+					HandleTooltips(indicatorControl, "")
+				end
+				control.dataEntry.data.researchAssistant = TRACKING_STATE_RESEARCHABLE
 			end
-			control.dataEntry.data.researchAssistant = TRACKING_STATE_RESEARCHABLE
+			return
 		end
-		return
 	end
 	--in any other case, color it known
 	indicatorControl:SetColor(unpack(RASettings:GetAlreadyResearchedColor()))

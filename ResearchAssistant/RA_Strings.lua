@@ -76,7 +76,8 @@ RA_Strings = {
             intricate = "Intricate",
             duplicate = "Duplicate trait known by: ",
             canResearch = "Unknown trait known by: ",
-            alreadyResearched = "Trait known by: "
+            alreadyResearched = "Trait known by: ",
+            notScannedWithNeededCharYet = "Researching character not logged in yet!\NPlease login with the character chosen in your settings for the crafttype of this item.",
         }
     },
     ["de"] = {
@@ -156,7 +157,8 @@ RA_Strings = {
             intricate = "Inspiration",
             duplicate = "Doppelte Eigenschaft bekannt von: ",
             canResearch = "Unbekannte Eigenschaft bekannt von: ",
-            alreadyResearched = "Eigenschaft bekannt von: "
+            alreadyResearched = "Eigenschaft bekannt von: ",
+            notScannedWithNeededCharYet = "Analyse Charakter noch nicht eingeloggt!\NBitte logge dich mit dem ausgewählten Charakter für das Handwerk dieses Gegenstandes ein.",
         }
     },
     ["fr"] = {
