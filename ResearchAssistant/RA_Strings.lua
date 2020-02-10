@@ -139,24 +139,24 @@ RA_Strings = {
             SHOW_IN_GRID_TOOLTIP = "Sollen Icons auch bei Verwendung des Inventory Grid View Addons angezeigt werden?",
 
             WS_CHAR_LABEL = "Waffenschmiedekunst",
-            WS_CHAR_TOOLTIP = "Welcher Charakter soll für Waffenschmiedekunst verwendet werden?",
+            WS_CHAR_TOOLTIP = "Welcher Charakter soll für die Waffenschmiedekunst verwendet werden?",
 
             BS_CHAR_LABEL = "Schmiedekunst",
-            BS_CHAR_TOOLTIP = "Welcher Charakter soll für Schmiedekunst verwendet werden?",
+            BS_CHAR_TOOLTIP = "Welcher Charakter soll für die Schmiedekunst verwendet werden?",
 
             CL_CHAR_LABEL = "Schneiderei",
-            CL_CHAR_TOOLTIP = "Welcher Charakter soll für Schneiderei verwendet werden?",
+            CL_CHAR_TOOLTIP = "Welcher Charakter soll für die Schneiderei verwendet werden?",
 
             LW_CHAR_LABEL = "Lederschneiderei",
-            LW_CHAR_TOOLTIP = "Welcher Charakter soll für Lederschneiderei verwendet werden?",
+            LW_CHAR_TOOLTIP = "Welcher Charakter soll für die Lederschneiderei verwendet werden?",
 
             WW_CHAR_LABEL = "Schreinerei",
-            WW_CHAR_TOOLTIP = "Welcher Charakter soll für Schreinerei verwendet werden?",
+            WW_CHAR_TOOLTIP = "Welcher Charakter soll für die Schreinerei verwendet werden?",
 
             JC_CHAR_LABEL = "Schmuck Handwerk",
-            JC_CHAR_TOOLTIP = "Welcher Charakter soll für Schmuck Handwerk verwendet werden?",
+            JC_CHAR_TOOLTIP = "Welcher Charakter soll für das Schmuck Handwerk verwendet werden?",
 
-            USE_ACCOUNTWIDE_RESEARCH_CHARS      = "Account-weit Analyse Charaktere gleich",
+            USE_ACCOUNTWIDE_RESEARCH_CHARS      = "Account-weit Analyse Charaktere identisch",
             USE_ACCOUNTWIDE_RESEARCH_CHARS_TT   = "ACHTUNG: Verändern dieser Option lädt die Benutzeroberfläche sofort neu!\n\nIst diese Option aktiviert so werden für diesen Account dieselben Analyse Charaktere für alle Handwerke benutzt (Standard Einstellung).\nDeaktivierst du diese Option so kannst du je Charakter deines Accounts unterschiedliche Analyse Charaktere je Handwerk festlegen.",
         },
         TOOLTIPS = {

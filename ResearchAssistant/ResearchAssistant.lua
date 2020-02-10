@@ -504,9 +504,15 @@ local function AddResearchIndicatorToSlot(control, linkFunction)
 
 	--d(">" .. string.format("traitKey: %s, isResearchable: %s, reason: %s, score: %s, stackSize: %s, char: %s, whoKnows: %s", tostring(traitKey), tostring(isResearchable), tostring(reason), tostring(bestTraitPreferenceScore), tostring(stackSize), tostring(researchCharOfCraftingTypeNameDecorated), tostring(whoKnows)))
 
-	local traitId = GetItemLinkTraitType(itemLink)
-	local traitName = traitTypes[traitId]
-	traitName = " " .. buildItemTraitIconText(traitName, traitId)
+	local traitId
+	local traitName
+	if whoKnows and whoKnows ~= "" then
+		traitId = GetItemLinkTraitType(itemLink)
+		if traitId then
+			traitName = traitTypes[traitId]
+			traitName = " " .. buildItemTraitIconText(traitName, traitId)
+		end
+	end
 
 	--pretty colors time!
 	--if we don't know it, color the icon something fun
