@@ -70,6 +70,9 @@ RA_Strings = {
 
             JC_CHAR_LABEL = "Jewelry crafting Character",
             JC_CHAR_TOOLTIP = "Which character is your jewelry crafting character?",
+
+            USE_ACCOUNTWIDE_RESEARCH_CHARS      = "Account-wide same research characters",
+            USE_ACCOUNTWIDE_RESEARCH_CHARS_TT   = "Attention: Change of this option will reload the UI directly!\n\nWith this option enabled all your characters of the current acocunt will use the same research characters for each crafting type (default setting).\nWith this option disabled you can specify different research characters for each crafting type at each of your characters.",
         },
         TOOLTIPS = {
             knownBy = " known by: ",
@@ -152,6 +155,9 @@ RA_Strings = {
 
             JC_CHAR_LABEL = "Schmuck Handwerk",
             JC_CHAR_TOOLTIP = "Welcher Charakter soll für Schmuck Handwerk verwendet werden?",
+
+            USE_ACCOUNTWIDE_RESEARCH_CHARS      = "Account-weit Analyse Charaktere gleich",
+            USE_ACCOUNTWIDE_RESEARCH_CHARS_TT   = "ACHTUNG: Verändern dieser Option lädt die Benutzeroberfläche sofort neu!\n\nIst diese Option aktiviert so werden für diesen Account dieselben Analyse Charaktere für alle Handwerke benutzt (Standard Einstellung).\nDeaktivierst du diese Option so kannst du je Charakter deines Accounts unterschiedliche Analyse Charaktere je Handwerk festlegen.",
         },
         TOOLTIPS = {
             knownBy = " bekannt bei: ",

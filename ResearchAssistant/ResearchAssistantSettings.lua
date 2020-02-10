@@ -116,6 +116,7 @@ function ResearchAssistantSettings:Initialize()
     local defaults = {
         debug = false,
 
+        useAccountWideResearchChars = true,
         raToggle = true,
         multiCharacter = false,
 
@@ -130,7 +131,7 @@ function ResearchAssistantSettings:Initialize()
         duplicateUnresearchedColor = RGBAToHex(1, 1, 0, 1),
         alreadyResearchedColor = RGBAToHex(.5, .5, .5, 1),
         ornateColor = RGBAToHex(1, 1, 0, 1),
-				intricateColor = RGBAToHex(0, 1, 1, 1),
+        intricateColor = RGBAToHex(0, 1, 1, 1),
 
         showResearched = true,
         showTraitless = true,
@@ -146,7 +147,7 @@ function ResearchAssistantSettings:Initialize()
 
         --non settings variables
         acquiredTraits = {},
-		}
+    }
     --Old non-server dependent character name settings
     --settings = ZO_SavedVars:NewAccountWide("ResearchAssistant_Settings", 2, nil, defaults)
     --New server dependent character unique ID settings
@@ -161,30 +162,34 @@ function ResearchAssistantSettings:Initialize()
     if settings.useCrossCharacter then settings.useCrossCharacter = nil end
     if settings.showInGrid then settings.showInGrid = nil end
 
-    if (not settings.showResearched) and settings.showTraitless then
+    if (not settings.showResearched) and settings.showTraitless == true then
         settings.showTraitless = false
     end
 
-    if(not settings.blacksmithCharacter[currentlyLoggedInCharId]) then
-        settings.blacksmithCharacter[currentlyLoggedInCharId] = currentlyLoggedInCharId
-    end
-    if (not settings.weaponsmithCharacter[currentlyLoggedInCharId]) then
-        settings.weaponsmithCharacter[currentlyLoggedInCharId] = settings.blacksmithCharacter[currentlyLoggedInCharId]
-    end
-    if (not settings.woodworkingCharacter[currentlyLoggedInCharId]) then
-        settings.woodworkingCharacter[currentlyLoggedInCharId] = currentlyLoggedInCharId
-    end
-    if (not settings.clothierCharacter[currentlyLoggedInCharId]) then
-        settings.clothierCharacter[currentlyLoggedInCharId] = currentlyLoggedInCharId
-    end
-    if (not settings.leatherworkerCharacter[currentlyLoggedInCharId]) then
-        settings.leatherworkerCharacter[currentlyLoggedInCharId] = settings.clothierCharacter[currentlyLoggedInCharId]
-    end
-    if (not settings.jewelryCraftingCharacter[currentlyLoggedInCharId]) then
-        settings.jewelryCraftingCharacter[currentlyLoggedInCharId] = currentlyLoggedInCharId
-    end
-    if (not settings.acquiredTraits[currentlyLoggedInCharId]) then
-        settings.acquiredTraits[currentlyLoggedInCharId] = { }
+    settings.acquiredTraits[self.CONST_OFF_VALUE] = settings.acquiredTraits[self.CONST_OFF_VALUE] or { }
+    settings.acquiredTraits[currentlyLoggedInCharId] = settings.acquiredTraits[currentlyLoggedInCharId] or { }
+
+    --Use the same research characters for each of your characters
+    if settings.useAccountWideResearchChars == true then
+        --Use the value 0 (self.CONST_OFF_VALUE) as key for the account wide same chars
+        settings.blacksmithCharacter[self.CONST_OFF_VALUE]       = settings.blacksmithCharacter[self.CONST_OFF_VALUE]         or self.CONST_OFF_VALUE
+        settings.weaponsmithCharacter[self.CONST_OFF_VALUE]      = settings.weaponsmithCharacter[self.CONST_OFF_VALUE]        or self.CONST_OFF_VALUE
+        settings.woodworkingCharacter[self.CONST_OFF_VALUE]      = settings.woodworkingCharacter[self.CONST_OFF_VALUE]        or self.CONST_OFF_VALUE
+        settings.clothierCharacter[self.CONST_OFF_VALUE]         = settings.clothierCharacter[self.CONST_OFF_VALUE]           or self.CONST_OFF_VALUE
+        settings.leatherworkerCharacter[self.CONST_OFF_VALUE]    = settings.leatherworkerCharacter[self.CONST_OFF_VALUE]      or self.CONST_OFF_VALUE
+        settings.jewelryCraftingCharacter[self.CONST_OFF_VALUE]  = settings.jewelryCraftingCharacter[self.CONST_OFF_VALUE]    or self.CONST_OFF_VALUE
+    else
+        --Use different research characters for each of your characters
+        -->Makes no sense imo but was the standard setting in older ResearchAssistant.
+        -->Would only make sense if you level a small toon and whant it to research stuff. But even than changing it globally for
+        -->all chars would be fine in order to collect the items for this small toon on all of your chars
+        --Preset each selected research char with "none" for new added characters of the account
+        settings.blacksmithCharacter[currentlyLoggedInCharId]       = settings.blacksmithCharacter[currentlyLoggedInCharId]         or self.CONST_OFF_VALUE
+        settings.weaponsmithCharacter[currentlyLoggedInCharId]      = settings.weaponsmithCharacter[currentlyLoggedInCharId]        or self.CONST_OFF_VALUE
+        settings.woodworkingCharacter[currentlyLoggedInCharId]      = settings.woodworkingCharacter[currentlyLoggedInCharId]        or self.CONST_OFF_VALUE
+        settings.clothierCharacter[currentlyLoggedInCharId]         = settings.clothierCharacter[currentlyLoggedInCharId]           or self.CONST_OFF_VALUE
+        settings.leatherworkerCharacter[currentlyLoggedInCharId]    = settings.leatherworkerCharacter[currentlyLoggedInCharId]      or self.CONST_OFF_VALUE
+        settings.jewelryCraftingCharacter[currentlyLoggedInCharId]  = settings.jewelryCraftingCharacter[currentlyLoggedInCharId]    or self.CONST_OFF_VALUE
     end
 
     --Build a list of characters of the current acount
@@ -262,8 +267,16 @@ function ResearchAssistantSettings:ShowTooltips()
     return settings.showTooltips
 end
 
+function ResearchAssistantSettings:GetResearchCharIdDependingOnSettings()
+    if settings.useAccountWideResearchChars == true then
+        return self.CONST_OFF_VALUE
+    else
+        return currentlyLoggedInCharId
+    end
+end
+
 function ResearchAssistantSettings:SetKnownTraits(traitsTable)
-    settings.acquiredTraits[currentlyLoggedInCharId] = traitsTable
+    settings.acquiredTraits[self:GetResearchCharIdDependingOnSettings()] = traitsTable
 end
 
 function ResearchAssistantSettings:GetCharsWhoKnowTrait(traitKey)
@@ -281,17 +294,17 @@ function ResearchAssistantSettings:GetTrackedCharForSkill(craftingSkillType, ite
     getCrafterName = getCrafterName or false
     local crafter
     if(craftingSkillType == CRAFTING_TYPE_BLACKSMITHING and itemType > 7) then
-        crafter = settings.blacksmithCharacter[currentlyLoggedInCharId]
+        crafter = settings.blacksmithCharacter[self:GetResearchCharIdDependingOnSettings()]
     elseif(craftingSkillType == CRAFTING_TYPE_BLACKSMITHING and itemType <= 7) then
-        crafter = settings.weaponsmithCharacter[currentlyLoggedInCharId]
+        crafter = settings.weaponsmithCharacter[self:GetResearchCharIdDependingOnSettings()]
     elseif(craftingSkillType == CRAFTING_TYPE_CLOTHIER and itemType <= 7) then
-        crafter = settings.clothierCharacter[currentlyLoggedInCharId]
+        crafter = settings.clothierCharacter[self:GetResearchCharIdDependingOnSettings()]
     elseif(craftingSkillType == CRAFTING_TYPE_CLOTHIER and itemType > 7) then
-        crafter = settings.leatherworkerCharacter[currentlyLoggedInCharId]
+        crafter = settings.leatherworkerCharacter[self:GetResearchCharIdDependingOnSettings()]
     elseif(craftingSkillType == CRAFTING_TYPE_WOODWORKING) then
-        crafter = settings.woodworkingCharacter[currentlyLoggedInCharId]
+        crafter = settings.woodworkingCharacter[self:GetResearchCharIdDependingOnSettings()]
     elseif(craftingSkillType == CRAFTING_TYPE_JEWELRYCRAFTING) then
-        crafter = settings.jewelryCraftingCharacter[currentlyLoggedInCharId]
+        crafter = settings.jewelryCraftingCharacter[self:GetResearchCharIdDependingOnSettings()]
     else
         crafter = self.CONST_OFF_VALUE
     end
@@ -317,7 +330,7 @@ function ResearchAssistantSettings:GetCraftingCharacterTraits(craftingSkillType,
 end
 
 function ResearchAssistantSettings:GetPlayerTraits()
-    return settings.acquiredTraits[currentlyLoggedInCharId]
+    return settings.acquiredTraits[self:GetResearchCharIdDependingOnSettings()]
 end
 
 function ResearchAssistantSettings:GetTraits()
@@ -326,17 +339,17 @@ end
 
 function ResearchAssistantSettings:IsMultiCharSkillOff(craftingSkillType, itemType)
     if(craftingSkillType == CRAFTING_TYPE_BLACKSMITHING and itemType > 7) then
-        return (settings.blacksmithCharacter[currentlyLoggedInCharId] == self.CONST_OFF_VALUE) or false
+        return (settings.blacksmithCharacter[self:GetResearchCharIdDependingOnSettings()] == self.CONST_OFF_VALUE) or false
     elseif(craftingSkillType == CRAFTING_TYPE_BLACKSMITHING and itemType <= 7) then
-        return (settings.weaponsmithCharacter[currentlyLoggedInCharId] == self.CONST_OFF_VALUE) or false
+        return (settings.weaponsmithCharacter[self:GetResearchCharIdDependingOnSettings()] == self.CONST_OFF_VALUE) or false
     elseif(craftingSkillType == CRAFTING_TYPE_CLOTHIER and itemType <= 7) then
-        return (settings.clothierCharacter[currentlyLoggedInCharId] == self.CONST_OFF_VALUE) or false
+        return (settings.clothierCharacter[self:GetResearchCharIdDependingOnSettings()] == self.CONST_OFF_VALUE) or false
     elseif(craftingSkillType == CRAFTING_TYPE_CLOTHIER and itemType > 7) then
-        return (settings.leatherworkerCharacter[currentlyLoggedInCharId] == self.CONST_OFF_VALUE) or false
+        return (settings.leatherworkerCharacter[self:GetResearchCharIdDependingOnSettings()] == self.CONST_OFF_VALUE) or false
     elseif(craftingSkillType == CRAFTING_TYPE_WOODWORKING) then
-        return (settings.woodworkingCharacter[currentlyLoggedInCharId] == self.CONST_OFF_VALUE) or false
+        return (settings.woodworkingCharacter[self:GetResearchCharIdDependingOnSettings()] == self.CONST_OFF_VALUE) or false
     elseif(craftingSkillType == CRAFTING_TYPE_JEWELRYCRAFTING) then
-        return (settings.jewelryCraftingCharacter[currentlyLoggedInCharId] == self.CONST_OFF_VALUE) or false
+        return (settings.jewelryCraftingCharacter[self:GetResearchCharIdDependingOnSettings()] == self.CONST_OFF_VALUE) or false
     else
         return true
     end
@@ -468,17 +481,19 @@ function ResearchAssistantSettings:CreateOptionsMenu()
         end,
     })
     table.insert(optionsData, {
+        type = "header",
+        name = str.CHARACTER_HEADER,
+    })
+    table.insert(optionsData, {
         type = "checkbox",
-        name = str.SEPARATE_LW_LABEL,
-        tooltip = str.SEPARATE_LW_TOOLTIP,
-        getFunc = function() return settings.separateClothier end,
+        name = str.USE_ACCOUNTWIDE_RESEARCH_CHARS,
+        tooltip = str.USE_ACCOUNTWIDE_RESEARCH_CHARS_TT,
+        getFunc = function() return settings.useAccountWideResearchChars end,
         setFunc = function(value)
-            if not value then
-                settings.leatherworkerCharacter[currentlyLoggedInCharId] = settings.clothierCharacter[currentlyLoggedInCharId]
-            end
-            settings.separateClothier = value
-            ResearchAssistant_InvUpdate()
+            settings.useAccountWideResearchChars = value
+            ReloadUI()
         end,
+        requiresReload = true,
     })
     table.insert(optionsData, {
         type = "checkbox",
@@ -487,15 +502,11 @@ function ResearchAssistantSettings:CreateOptionsMenu()
         getFunc = function() return settings.separateSmithing end,
         setFunc = function(value)
             if not value then
-                settings.weaponsmithCharacter[currentlyLoggedInCharId] = settings.blacksmithCharacter[currentlyLoggedInCharId]
+                settings.weaponsmithCharacter[self:GetResearchCharIdDependingOnSettings()] = settings.blacksmithCharacter[self:GetResearchCharIdDependingOnSettings()]
             end
             settings.separateSmithing = value
             ResearchAssistant_InvUpdate()
         end
-    })
-    table.insert(optionsData, {
-        type = "header",
-        name = str.CHARACTER_HEADER,
     })
     table.insert(optionsData, {
         type = "dropdown",
@@ -505,9 +516,9 @@ function ResearchAssistantSettings:CreateOptionsMenu()
         choicesValues = self.lamCharIdTable,
         sort = "name-up",
         scrollable = true,
-        getFunc = function() return settings.weaponsmithCharacter[currentlyLoggedInCharId] end,
+        getFunc = function() return settings.weaponsmithCharacter[self:GetResearchCharIdDependingOnSettings()] end,
         setFunc = function(value)
-            settings.weaponsmithCharacter[currentlyLoggedInCharId] = value
+            settings.weaponsmithCharacter[self:GetResearchCharIdDependingOnSettings()] = value
             ResearchAssistant_InvUpdate()
         end,
         disabled = function() return not settings.separateSmithing end,
@@ -520,12 +531,25 @@ function ResearchAssistantSettings:CreateOptionsMenu()
         choicesValues = self.lamCharIdTable,
         sort = "name-up",
         scrollable = true,
-        getFunc = function() return settings.blacksmithCharacter[currentlyLoggedInCharId] end,
+        getFunc = function() return settings.blacksmithCharacter[self:GetResearchCharIdDependingOnSettings()] end,
         setFunc = function(value)
-            settings.blacksmithCharacter[currentlyLoggedInCharId] = value
+            settings.blacksmithCharacter[self:GetResearchCharIdDependingOnSettings()] = value
             if not settings.separateSmithing then
-                settings.weaponsmithCharacter[currentlyLoggedInCharId] = value
+                settings.weaponsmithCharacter[self:GetResearchCharIdDependingOnSettings()] = value
             end
+            ResearchAssistant_InvUpdate()
+        end,
+    })
+    table.insert(optionsData, {
+        type = "checkbox",
+        name = str.SEPARATE_LW_LABEL,
+        tooltip = str.SEPARATE_LW_TOOLTIP,
+        getFunc = function() return settings.separateClothier end,
+        setFunc = function(value)
+            if not value then
+                settings.leatherworkerCharacter[self:GetResearchCharIdDependingOnSettings()] = settings.clothierCharacter[self:GetResearchCharIdDependingOnSettings()]
+            end
+            settings.separateClothier = value
             ResearchAssistant_InvUpdate()
         end,
     })
@@ -537,9 +561,9 @@ function ResearchAssistantSettings:CreateOptionsMenu()
         choicesValues = self.lamCharIdTable,
         sort = "name-up",
         scrollable = true,
-        getFunc = function() return settings.leatherworkerCharacter[currentlyLoggedInCharId] end,
+        getFunc = function() return settings.leatherworkerCharacter[self:GetResearchCharIdDependingOnSettings()] end,
         setFunc = function(value)
-            settings.leatherworkerCharacter[currentlyLoggedInCharId] = value
+            settings.leatherworkerCharacter[self:GetResearchCharIdDependingOnSettings()] = value
             ResearchAssistant_InvUpdate()
         end,
         disabled = function() return not settings.separateClothier end,
@@ -552,11 +576,11 @@ function ResearchAssistantSettings:CreateOptionsMenu()
         choicesValues = self.lamCharIdTable,
         sort = "name-up",
         scrollable = true,
-        getFunc = function() return settings.clothierCharacter[currentlyLoggedInCharId] end,
+        getFunc = function() return settings.clothierCharacter[self:GetResearchCharIdDependingOnSettings()] end,
         setFunc = function(value)
-            settings.clothierCharacter[currentlyLoggedInCharId] = value
+            settings.clothierCharacter[self:GetResearchCharIdDependingOnSettings()] = value
             if not settings.separateClothier then
-                settings.leatherworkerCharacter[currentlyLoggedInCharId] = value
+                settings.leatherworkerCharacter[self:GetResearchCharIdDependingOnSettings()] = value
             end
             ResearchAssistant_InvUpdate()
         end,
@@ -569,9 +593,9 @@ function ResearchAssistantSettings:CreateOptionsMenu()
         choicesValues = self.lamCharIdTable,
         sort = "name-up",
         scrollable = true,
-        getFunc = function() return settings.woodworkingCharacter[currentlyLoggedInCharId] end,
+        getFunc = function() return settings.woodworkingCharacter[self:GetResearchCharIdDependingOnSettings()] end,
         setFunc = function(value)
-            settings.woodworkingCharacter[currentlyLoggedInCharId] = value
+            settings.woodworkingCharacter[self:GetResearchCharIdDependingOnSettings()] = value
             ResearchAssistant_InvUpdate()
         end,
     })
@@ -583,9 +607,9 @@ function ResearchAssistantSettings:CreateOptionsMenu()
         choicesValues = self.lamCharIdTable,
         sort = "name-up",
         scrollable = true,
-        getFunc = function() return settings.jewelryCraftingCharacter[currentlyLoggedInCharId] end,
+        getFunc = function() return settings.jewelryCraftingCharacter[self:GetResearchCharIdDependingOnSettings()] end,
         setFunc = function(value)
-            settings.jewelryCraftingCharacter[currentlyLoggedInCharId] = value
+            settings.jewelryCraftingCharacter[self:GetResearchCharIdDependingOnSettings()] = value
             ResearchAssistant_InvUpdate()
         end,
     })
