@@ -3,14 +3,10 @@ local BLACKSMITH 		= CRAFTING_TYPE_BLACKSMITHING
 local CLOTHIER 			= CRAFTING_TYPE_CLOTHIER
 local WOODWORK 			= CRAFTING_TYPE_WOODWORKING
 local JEWELRY_CRAFTING 	= CRAFTING_TYPE_JEWELRYCRAFTING
+
 --LibResearch reasons
-local LIBRESEARCH_REASON_ALREADY_KNOWN 		= "AlreadyKnown"
-local LIBRESEARCH_REASON_WRONG_ITEMTYPE 	= "WrongItemType"
---[[
-local LIBRESEARCH_REASON_ORNATE 			= "Ornate"
-local LIBRESEARCH_REASON_INTRICATE 			= "Intricate"
-local LIBRESEARCH_REASON_TRAITLESS 			= "Traitless"
-]]
+local libResearch_Reason_ALREADY_KNOWN 	= LIBRESEARCH_REASON_ALREADY_KNOWN or "AlreadyKnown"
+local libResearch_Reason_WRONG_ITEMTYPE = LIBRESEARCH_REASON_WRONG_ITEMTYPE or "WrongItemType"
 
 --House bank bags
 local maxHouseBankBag = BAG_HOUSE_BANK_TEN
@@ -135,7 +131,7 @@ function ResearchAssistantScanner:ScanBag(bagId)
 			local traitKey, isResearchable, reason = self:CheckIsItemResearchable(itemLink)
 			local prefValue = self:CreateItemPreferenceValue(itemLink, bagId, i)
 			if self.debug == true then
-				if bagId == BAG_BACKPACK and reason ~= LIBRESEARCH_REASON_WRONG_ITEMTYPE then
+				if bagId == BAG_BACKPACK and reason ~= libResearch_Reason_WRONG_ITEMTYPE then
 					d(">>"..tostring(i).." "..GetItemLinkName(itemLink)..": trait "..tostring(traitKey).." can? "..tostring(isResearchable).." why? "..tostring(reason).." pref: "..prefValue)
 				end
 			end
@@ -147,7 +143,7 @@ function ResearchAssistantScanner:ScanBag(bagId)
 				end
 			else
 				--if we're here,
-				if reason == LIBRESEARCH_REASON_ALREADY_KNOWN then
+				if reason == libResearch_Reason_ALREADY_KNOWN then
 					--either we already know it
 					traits[traitKey] = true
 				else

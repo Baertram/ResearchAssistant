@@ -51,16 +51,34 @@ local function HexToRGBA(hex)
     return tonumber(rhex, 16)/255, tonumber(ghex, 16)/255, tonumber(bhex, 16)/255, tonumber(ahex, 16)/255
 end
 
+local function getClassIcon(classId)
+    --* GetClassInfo(*luaindex* _index_)
+    -- @return defId integer,lore string,normalIconKeyboard textureName,pressedIconKeyboard textureName,mouseoverIconKeyboard textureName,isSelectable bool,ingameIconKeyboard textureName,ingameIconGamepad textureName,normalIconGamepad textureName,pressedIconGamepad textureName
+    local classLuaIndex = GetClassIndexById(classId)
+    local _, _, textureName, _, _, _, ingameIconKeyboard, _, _, _= GetClassInfo(classLuaIndex)
+    return ingameIconKeyboard or textureName or ""
+end
+
 --Build the table of all characters of the account
-local function getCharactersOfAccount(keyIsCharName)
+local function getCharactersOfAccount(keyIsCharName, decorateByClass)
+    decorateByClass = decorateByClass or false
     keyIsCharName = keyIsCharName or false
     local charactersOfAccount
     --Check all the characters of the account
     for i = 1, GetNumCharacters() do
-        local name, _, _, _, _, _, characterId = GetCharacterInfo(i)
+        --GetCharacterInfo() -> *string* _name_, *[Gender|#Gender]* _gender_, *integer* _level_, *integer* _classId_, *integer* _raceId_, *[Alliance|#Alliance]* _alliance_, *string* _id_, *integer* _locationId_
+        local name, gender, level, classId, raceId, alliance, characterId, location = GetCharacterInfo(i)
         local charName = zo_strformat(SI_UNIT_NAME, name)
         if characterId ~= nil and charName ~= "" then
             if charactersOfAccount == nil then charactersOfAccount = {} end
+            if decorateByClass == true then
+                local charNameDecorated = charName
+                --Get the class color
+                local charColorDef = GetClassColor(classId)
+                if nil ~= charColorDef then charNameDecorated = charColorDef:Colorize(charName) end
+                charNameDecorated = zo_iconTextFormatNoSpace(getClassIcon(classId), 20, 20, charNameDecorated)
+                charName = charNameDecorated
+            end
             if keyIsCharName then
                 charactersOfAccount[charName]   = characterId
             else
@@ -159,9 +177,9 @@ function ResearchAssistantSettings:Initialize()
 
     --Build a list of characters of the current acount
     --Key is the unique character Id, value is the name
-    self.charId2Name = getCharactersOfAccount(false)
+    self.charId2Name = getCharactersOfAccount(false, true)
     --Key is the name, value the unique character Id
-    self.charName2Id = getCharactersOfAccount(true)
+    self.charName2Id = getCharactersOfAccount(true, true)
     --The LAM settings character values table
     self.lamCharNamesTable = {}
     --Build the known characters table for the LAM dropdown controls
@@ -260,7 +278,11 @@ function ResearchAssistantSettings:GetCraftingCharacterTraits(craftingSkillType,
     if crafter == CONST_OFF then
       return
     else
-        return settings.acquiredTraits[crafter]
+        if settings.acquiredTraits and settings.acquiredTraits[crafter] then
+            return settings.acquiredTraits[crafter]
+        else
+            return
+        end
     end
 end
 
@@ -313,6 +335,11 @@ function ResearchAssistantSettings:GetPreferenceValueForTrait(traitKey)
     local craft = zo_floor(traitKey / 10000)
     local item = zo_floor((traitKey - (craft * 10000)) / 100)
     local traits = self:GetCraftingCharacterTraits(craft, item)
+    --if the traits are nil the selected character was not yet loggedIn!
+    if traits == nil then
+        --Char was not logged in yet. Return special value -100
+        return -100
+    end
     return traits[traitKey]
 end
 

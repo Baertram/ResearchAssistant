@@ -4,7 +4,7 @@
 ## AddOnVersion: 0948
 ## APIVersion: 100029 100030
 ## SavedVariables: ResearchAssistant_Settings_Server
-## DependsOn: LibResearch>=042 LibAddonMenu-2.0
+## DependsOn: LibResearch LibAddonMenu-2.0
 
 RA_Strings.lua
 ResearchAssistantSettings.lua

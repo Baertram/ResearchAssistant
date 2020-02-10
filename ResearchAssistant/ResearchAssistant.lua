@@ -20,10 +20,16 @@ local RAScanner = nil
 local RAlang = 'en'
 
 --LibResearch reasons
+local libResearch_Reason_ALREADY_KNOWN 	= LIBRESEARCH_REASON_ALREADY_KNOWN 	or "AlreadyKnown"
+local libResearch_Reason_WRONG_ITEMTYPE = LIBRESEARCH_REASON_WRONG_ITEMTYPE or "WrongItemType"
+local libResearch_Reason_ORNATE 		= LIBRESEARCH_REASON_ORNATE 		or "Ornate"
+local libResearch_Reason_INTRICATE 		= LIBRESEARCH_REASON_INTRICATE 		or "Intricate"
+local libResearch_Reason_TRAITLESS  	= LIBRESEARCH_REASON_TRAITLESS 		or "Traitless"
+
 local LIBRESEARCH_REASON_WRONG_ITEMTYPElower= "baditemtype"
-local LIBRESEARCH_REASON_ORNATElower 		= LIBRESEARCH_REASON_ORNATE:lower()
-local LIBRESEARCH_REASON_INTRICATElower 	= LIBRESEARCH_REASON_INTRICATE:lower()
-local LIBRESEARCH_REASON_TRAITLESSlower 	= LIBRESEARCH_REASON_TRAITLESS:lower()
+local LIBRESEARCH_REASON_ORNATElower 		= libResearch_Reason_ORNATE:lower()
+local LIBRESEARCH_REASON_INTRICATElower 	= libResearch_Reason_INTRICATE:lower()
+local LIBRESEARCH_REASON_TRAITLESSlower 	= libResearch_Reason_TRAITLESS:lower()
 --Tracking status
 local TRACKING_STATE_KNOWN					= "known"
 local TRACKING_STATE_RESEARCHABLE			= "researchable"
@@ -146,22 +152,22 @@ function RA.IsItemResearchableWithSettingsCharacter(bagId, slotIndex)
 
 	if not isResearchable then
 		-- if the item isn't armor or a weapon, hide and go away
-		if reason == LIBRESEARCH_REASON_WRONG_ITEMTYPE then
+		if reason == libResearch_Reason_WRONG_ITEMTYPE then
 			return isResearchableWithSettingsChar
 		end
 
 		-- if the item has no trait
-		if reason == LIBRESEARCH_REASON_TRAITLESS  then
+		if reason == libResearch_Reason_TRAITLESS then
 			return isResearchableWithSettingsChar
 		end
 
 		-- if the item is ornate
-		if reason == LIBRESEARCH_REASON_ORNATE then
+		if reason == libResearch_Reason_ORNATE then
 			return isResearchableWithSettingsChar
 		end
 
 		-- if the item is intricate
-		if reason == LIBRESEARCH_REASON_INTRICATE then
+		if reason == libResearch_Reason_INTRICATE then
 			return isResearchableWithSettingsChar
 		end
 	end
@@ -179,7 +185,7 @@ function RA.IsItemResearchableWithSettingsCharacter(bagId, slotIndex)
 	local bestTraitPreferenceScore = RASettings:GetPreferenceValueForTrait(traitKey)
 	if bestTraitPreferenceScore == nil then
 		-- if the item is traitless, show "researched" color. if we've never seen this trait before, show "best" color.
-		if reason == LIBRESEARCH_REASON_TRAITLESS then
+		if reason == libResearch_Reason_TRAITLESS then
 			bestTraitPreferenceScore = true
 		else
 			bestTraitPreferenceScore = 999999999
@@ -228,22 +234,22 @@ function RA.IsItemResearchableOrDuplicateWithSettingsCharacter(bagId, slotIndex)
 
 	if not isResearchable then
 		-- if the item isn't armor or a weapon, hide and go away
-		if reason == LIBRESEARCH_REASON_WRONG_ITEMTYPE then
+		if reason == libResearch_Reason_WRONG_ITEMTYPE then
 			return isNoDuplicateResearchableWithSettingsChar
 		end
 
 		-- if the item has no trait
-		if reason == LIBRESEARCH_REASON_TRAITLESS  then
+		if reason == libResearch_Reason_TRAITLESS  then
 			return isNoDuplicateResearchableWithSettingsChar
 		end
 
 		-- if the item is ornate
-		if reason == LIBRESEARCH_REASON_ORNATE then
+		if reason == libResearch_Reason_ORNATE then
 			return isNoDuplicateResearchableWithSettingsChar
 		end
 
 		-- if the item is intricate
-		if reason == LIBRESEARCH_REASON_INTRICATE then
+		if reason == libResearch_Reason_INTRICATE then
 			return isNoDuplicateResearchableWithSettingsChar
 		end
 	end
@@ -261,7 +267,7 @@ function RA.IsItemResearchableOrDuplicateWithSettingsCharacter(bagId, slotIndex)
 	local bestTraitPreferenceScore = RASettings:GetPreferenceValueForTrait(traitKey)
 	if bestTraitPreferenceScore == nil then
 		-- if the item is traitless, show "researched" color. if we've never seen this trait before, show "best" color.
-		if reason == LIBRESEARCH_REASON_TRAITLESS then
+		if reason == libResearch_Reason_TRAITLESS then
 			bestTraitPreferenceScore = true
 		else
 			bestTraitPreferenceScore = 999999999
@@ -323,7 +329,7 @@ local function AddResearchIndicatorToSlot(control, linkFunction)
 
 	if not isResearchable then
 		-- if the item isn't armor or a weapon, hide and go away
-		if reason == LIBRESEARCH_REASON_WRONG_ITEMTYPE then
+		if reason == libResearch_Reason_WRONG_ITEMTYPE then
 			indicatorControl:SetHidden(true)
 			control.dataEntry.data.researchAssistant = LIBRESEARCH_REASON_WRONG_ITEMTYPElower
 			return
@@ -337,7 +343,7 @@ local function AddResearchIndicatorToSlot(control, linkFunction)
 		end
 
 		-- if the item is ornate, make icon ornate if we show ornate and hide/go away if we don't show it
-		if reason == LIBRESEARCH_REASON_ORNATE then
+		if reason == libResearch_Reason_ORNATE then
 			control.dataEntry.data.researchAssistant = LIBRESEARCH_REASON_ORNATElower
 			if (craftingSkill == -1 or (RASettings:IsMultiCharSkillOff(craftingSkill, itemType))) and not RASettings:ShowUntrackedOrnate() then
 				indicatorControl:SetHidden(true)
@@ -349,7 +355,7 @@ local function AddResearchIndicatorToSlot(control, linkFunction)
 		end
 
 		-- if the item is intricate, make icon intricate if we show that and hide/go away if we don't
-		if reason == LIBRESEARCH_REASON_INTRICATE then
+		if reason == libResearch_Reason_INTRICATE then
 			control.dataEntry.data.researchAssistant = LIBRESEARCH_REASON_INTRICATElower
 			if RASettings:IsMultiCharSkillOff(craftingSkill, itemType) and not RASettings:ShowUntrackedIntricate() then
 				indicatorControl:SetHidden(true)
@@ -398,7 +404,7 @@ local function AddResearchIndicatorToSlot(control, linkFunction)
 	local whoKnows = RASettings:GetCharsWhoKnowTrait(traitKey)
 	--pretty colors time!
 	--if we don't know it, color the icon something fun
-	if bestTraitPreferenceScore ~= true then
+	if bestTraitPreferenceScore ~= true and bestTraitPreferenceScore ~= -100 then
 		if thisItemScore > bestTraitPreferenceScore or stackSize > 1 then
 			indicatorControl:SetColor(unpack(RASettings:GetDuplicateUnresearchedColor()))
 			if whoKnows ~= "" then
