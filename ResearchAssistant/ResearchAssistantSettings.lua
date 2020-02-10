@@ -167,12 +167,10 @@ function ResearchAssistantSettings:Initialize()
     --Build the known characters table for the LAM dropdown controls
     self.lamCharIdTable = {}
     table.insert(self.lamCharNamesTable, 1, "-")
+    table.insert(self.lamCharIdTable, 1, 0)
     for l_charId, l_charName in pairs(self.charId2Name) do
         table.insert(self.lamCharNamesTable, l_charName)
-    end
-    table.insert(self.lamCharIdTable, 1, 0)
-    for idx, l_charName in ipairs(self.lamCharNamesTable) do
-        table.insert(self.lamCharIdTable, idx, self.charName2Id[l_charName])
+        table.insert(self.lamCharIdTable, l_charId)
     end
 
     self:CreateOptionsMenu()
@@ -466,6 +464,8 @@ function ResearchAssistantSettings:CreateOptionsMenu()
         tooltip = str.WS_CHAR_TOOLTIP,
         choices = self.lamCharNamesTable,
         choicesValues = self.lamCharIdTable,
+        sort = "name-up",
+        scrollable = true,
         getFunc = function() return settings.weaponsmithCharacter[currentlyLoggedInCharId] end,
         setFunc = function(value)
             settings.weaponsmithCharacter[currentlyLoggedInCharId] = value
@@ -479,6 +479,8 @@ function ResearchAssistantSettings:CreateOptionsMenu()
         tooltip = str.BS_CHAR_TOOLTIP,
         choices = self.lamCharNamesTable,
         choicesValues = self.lamCharIdTable,
+        sort = "name-up",
+        scrollable = true,
         getFunc = function() return settings.blacksmithCharacter[currentlyLoggedInCharId] end,
         setFunc = function(value)
             settings.blacksmithCharacter[currentlyLoggedInCharId] = value
@@ -494,6 +496,8 @@ function ResearchAssistantSettings:CreateOptionsMenu()
         tooltip = str.LW_CHAR_TOOLTIP,
         choices = self.lamCharNamesTable,
         choicesValues = self.lamCharIdTable,
+        sort = "name-up",
+        scrollable = true,
         getFunc = function() return settings.leatherworkerCharacter[currentlyLoggedInCharId] end,
         setFunc = function(value)
             settings.leatherworkerCharacter[currentlyLoggedInCharId] = value
@@ -507,6 +511,8 @@ function ResearchAssistantSettings:CreateOptionsMenu()
         tooltip = str.CL_CHAR_TOOLTIP,
         choices = self.lamCharNamesTable,
         choicesValues = self.lamCharIdTable,
+        sort = "name-up",
+        scrollable = true,
         getFunc = function() return settings.clothierCharacter[currentlyLoggedInCharId] end,
         setFunc = function(value)
             settings.clothierCharacter[currentlyLoggedInCharId] = value
@@ -522,6 +528,8 @@ function ResearchAssistantSettings:CreateOptionsMenu()
         tooltip = str.WW_CHAR_TOOLTIP,
         choices = self.lamCharNamesTable,
         choicesValues = self.lamCharIdTable,
+        sort = "name-up",
+        scrollable = true,
         getFunc = function() return settings.woodworkingCharacter[currentlyLoggedInCharId] end,
         setFunc = function(value)
             settings.woodworkingCharacter[currentlyLoggedInCharId] = value
@@ -534,6 +542,8 @@ function ResearchAssistantSettings:CreateOptionsMenu()
         tooltip = str.JC_CHAR_TOOLTIP,
         choices = self.lamCharNamesTable,
         choicesValues = self.lamCharIdTable,
+        sort = "name-up",
+        scrollable = true,
         getFunc = function() return settings.jewelryCraftingCharacter[currentlyLoggedInCharId] end,
         setFunc = function(value)
             settings.jewelryCraftingCharacter[currentlyLoggedInCharId] = value
