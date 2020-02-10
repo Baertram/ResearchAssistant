@@ -404,6 +404,19 @@ function RA.IsItemResearchableOrDuplicateWithSettingsCharacter(bagId, slotIndex)
 	return isNoDuplicateResearchableWithSettingsChar
 end
 
+local function getWhoKnowsAndTraitTextAndTexture(p_itemLink, p_traitKey)
+	local r_traitName
+	local r_whoKnows = RASettings:GetCharsWhoKnowTrait(p_traitKey)
+	if r_whoKnows and r_whoKnows ~= "" then
+		local traitId = GetItemLinkTraitType(p_itemLink)
+		if traitId then
+			r_traitName = traitTypes[traitId]
+			r_traitName = " " .. buildItemTraitIconText(r_traitName, traitId)
+		end
+	end
+	return r_whoKnows, r_traitName
+end
+
 --[[----------------------------------------------------------------------------
 	puts an additional point of data into control.dataEntry.data called
 	researchAssistant
@@ -500,20 +513,9 @@ local function AddResearchIndicatorToSlot(control, linkFunction)
 	local stackSize = control.dataEntry.data.stackCount or 0
 
 	--Who knows the trait already?
-	local showTooltips = RASettings:ShowTooltips()
 	local whoKnows = ""
-	local traitId
 	local traitName
-	if showTooltips == true then
-		whoKnows = RASettings:GetCharsWhoKnowTrait(traitKey)
-		if whoKnows and whoKnows ~= "" then
-			traitId = GetItemLinkTraitType(itemLink)
-			if traitId then
-				traitName = traitTypes[traitId]
-				traitName = " " .. buildItemTraitIconText(traitName, traitId)
-			end
-		end
-	end
+	local showTooltips = RASettings:ShowTooltips()
 	--d(">" .. string.format("traitKey: %s, isResearchable: %s, reason: %s, score: %s, stackSize: %s, char: %s, whoKnows: %s", tostring(traitKey), tostring(isResearchable), tostring(reason), tostring(bestTraitPreferenceScore), tostring(stackSize), tostring(researchCharOfCraftingTypeNameDecorated), tostring(whoKnows)))
 
 	--pretty colors time!
@@ -529,6 +531,9 @@ local function AddResearchIndicatorToSlot(control, linkFunction)
 			local thisItemScore = RAScanner:CreateItemPreferenceValue(itemLink, bagId, slotIndex)
 			if (thisItemScore > bestTraitPreferenceScore or stackSize > 1) then
 				indicatorControl:SetColor(unpack(RASettings:GetDuplicateUnresearchedColor()))
+				if showTooltips == true then
+					whoKnows, traitName = getWhoKnowsAndTraitTextAndTexture(itemLink, traitKey)
+				end
 				if showTooltips == true and whoKnows ~= "" then
 					HandleTooltips(indicatorControl, string.format(RA_Strings[RAlang].TOOLTIPS.duplicate, string.format(RA_Strings[RAlang].TOOLTIPS.knownBy, traitName)) .. whoKnows)
 				else
@@ -537,6 +542,9 @@ local function AddResearchIndicatorToSlot(control, linkFunction)
 				control.dataEntry.data.researchAssistant = TRACKING_STATE_DUPLICATE
 			else
 				indicatorControl:SetColor(unpack(RASettings:GetCanResearchColor()))
+				if showTooltips == true then
+					whoKnows, traitName = getWhoKnowsAndTraitTextAndTexture(itemLink, traitKey)
+				end
 				if showTooltips == true and whoKnows ~= "" then
 					HandleTooltips(indicatorControl, string.format(RA_Strings[RAlang].TOOLTIPS.canResearch, string.format(RA_Strings[RAlang].TOOLTIPS.knownBy, traitName)) .. whoKnows)
 				else
@@ -549,6 +557,9 @@ local function AddResearchIndicatorToSlot(control, linkFunction)
 	end
 	--in any other case, color it known
 	indicatorControl:SetColor(unpack(RASettings:GetAlreadyResearchedColor()))
+	if showTooltips == true then
+		whoKnows, traitName = getWhoKnowsAndTraitTextAndTexture(itemLink, traitKey)
+	end
 	if showTooltips == true and whoKnows ~= "" then
 		HandleTooltips(indicatorControl, string.format(RA_Strings[RAlang].TOOLTIPS.alreadyResearched, string.format(RA_Strings[RAlang].TOOLTIPS.knownBy, traitName)) .. whoKnows)
 	else

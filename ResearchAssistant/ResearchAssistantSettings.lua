@@ -279,16 +279,27 @@ function ResearchAssistantSettings:SetKnownTraits(traitsTable)
 end
 
 function ResearchAssistantSettings:GetCharsWhoKnowTrait(traitKey)
+    local knownCharIds = {}
     local knowers = ""
     for curCharId, traitList in pairs(settings.acquiredTraits) do
         if curCharId ~= self.CONST_OFF_VALUE then
             if traitList and traitList[traitKey] == true then
                 local curCharName = self.charId2Name[curCharId]
-                knowers = knowers .. ", " .. curCharName
+                table.insert(knownCharIds, curCharName)
             end
         end
     end
-    return string.sub(knowers, 3)
+    if #knownCharIds > 0 then
+        table.sort(knownCharIds)
+        for _, curCharName in ipairs(knownCharIds) do
+            if knowers == "" then
+                knowers = curCharName
+            else
+                knowers = knowers .. "\n" .. curCharName
+            end
+        end
+    end
+    return knowers
 end
 
 function ResearchAssistantSettings:GetTrackedCharForSkill(craftingSkillType, itemType, getCrafterName)
