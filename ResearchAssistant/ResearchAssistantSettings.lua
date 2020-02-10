@@ -59,6 +59,19 @@ local function getClassIcon(classId)
     return ingameIconKeyboard or textureName or ""
 end
 
+local function decorateCharName(charName, useClassIcon)
+    if not charName or charName == "" then return "" end
+    useClassIcon = useClassIcon or false
+    local charNameDecorated = charName
+    --Get the class color
+    local charColorDef = GetClassColor(classId)
+    if nil ~= charColorDef then charNameDecorated = charColorDef:Colorize(charName) end
+    if useClassIcon == true then
+        charNameDecorated = zo_iconTextFormatNoSpace(getClassIcon(classId), 20, 20, charNameDecorated)
+    end
+    return charNameDecorated
+end
+
 --Build the table of all characters of the account
 local function getCharactersOfAccount(keyIsCharName, decorateByClass)
     decorateByClass = decorateByClass or false
@@ -72,11 +85,7 @@ local function getCharactersOfAccount(keyIsCharName, decorateByClass)
         if characterId ~= nil and charName ~= "" then
             if charactersOfAccount == nil then charactersOfAccount = {} end
             if decorateByClass == true then
-                local charNameDecorated = charName
-                --Get the class color
-                local charColorDef = GetClassColor(classId)
-                if nil ~= charColorDef then charNameDecorated = charColorDef:Colorize(charName) end
-                charNameDecorated = zo_iconTextFormatNoSpace(getClassIcon(classId), 20, 20, charNameDecorated)
+                local charNameDecorated = decorateCharName(charName, true)
                 charName = charNameDecorated
             end
             if keyIsCharName then
@@ -265,7 +274,9 @@ function ResearchAssistantSettings:GetCharsWhoKnowTrait(traitKey)
     return string.sub(knowers, 3)
 end
 
-function ResearchAssistantSettings:GetCraftingCharacterTraits(craftingSkillType, itemType)
+function ResearchAssistantSettings:GetCraftingCharacterIdOrName(craftingSkillType, itemType, getCrafterName, decorateByClass)
+    getCrafterName = getCrafterName or false
+    decorateByClass = decorateByClass or false
     local crafter
     if(craftingSkillType == CRAFTING_TYPE_BLACKSMITHING and itemType > 7) then
         crafter = settings.blacksmithCharacter[currentlyLoggedInCharId]
@@ -282,7 +293,16 @@ function ResearchAssistantSettings:GetCraftingCharacterTraits(craftingSkillType,
     else
         crafter = currentlyLoggedInCharId
     end
+    --Shall we return the name instead of the unique id?
+    if getCrafterName == true and (crafter ~= nil and crafter ~= "") then
+        local charNameDecorated = decorateCharName(crafter, decorateByClass)
+        crafter = charNameDecorated
+    end
+    return crafter
+end
 
+function ResearchAssistantSettings:GetCraftingCharacterTraits(craftingSkillType, itemType)
+    local crafter = self:GetCraftingCharacterIdOrName(craftingSkillType, itemType, false, false)
     if crafter == CONST_OFF then
       return
     else

@@ -419,7 +419,8 @@ local function AddResearchIndicatorToSlot(control, linkFunction)
 	if bestTraitPreferenceScore ~= true then
 		if bestTraitPreferenceScore == RASettings.CONST_CHARACTER_NOT_SCANNED_YET then
 			indicatorControl:SetColor(unpack(RASettings:GetNotScannedColor()))
-			HandleTooltips(indicatorControl, RA_Strings[RAlang].TOOLTIPS.notScannedWithNeededCharYet)
+			local researchCharOfCraftingTypeNameDecorated = RASettings:GetCraftingCharacterIdOrName(craftingSkill, itemType, true, true)
+			HandleTooltips(indicatorControl, string.format(RA_Strings[RAlang].TOOLTIPS.notScannedWithNeededCharYet, tostring(researchCharOfCraftingTypeNameDecorated)))
 			control.dataEntry.data.researchAssistant = TRACKING_STATE_CHARACTER_NOT_SCANNED_YET
 			return
 		else
