@@ -334,7 +334,7 @@ local function AddResearchIndicatorToSlot(control, linkFunction)
 
 	--returns int traitKey, bool isResearchable, string reason
 	local traitKey, isResearchable, reason = RAScanner:CheckIsItemResearchable(itemLink)
-
+d(">" .. string.format("traitKey: %s, isResearchable: %s, reason: %s", tostring(traitKey), tostring(isResearchable), tostring(reason)))
 	--now we get into the stuff that requires the craft skill and item type
 	local craftingSkill = RAScanner:GetItemCraftingSkill(itemLink)
 	local itemType = RAScanner:GetResearchLineIndex(itemLink)
@@ -342,34 +342,30 @@ local function AddResearchIndicatorToSlot(control, linkFunction)
 	if not isResearchable then
 		-- if the item isn't armor or a weapon, hide and go away
 		if reason == libResearch_Reason_WRONG_ITEMTYPE then
-			indicatorControl:SetHidden(true)
 			control.dataEntry.data.researchAssistant = LIBRESEARCH_REASON_WRONG_ITEMTYPElower
-			return
-		end
-
-		-- if the item has no trait and we don't want to display icon for traitless items, hide and go away
-		if reason == libResearch_Reason_TRAITLESS and RASettings:ShowTraitless() == false then
 			indicatorControl:SetHidden(true)
-			control.dataEntry.data.researchAssistant = LIBRESEARCH_REASON_TRAITLESSlower
 			return
-		end
-
+		-- if the item has no trait and we don't want to display icon for traitless items, hide and go away
+		elseif reason == libResearch_Reason_TRAITLESS then
+			control.dataEntry.data.researchAssistant = LIBRESEARCH_REASON_TRAITLESSlower
+			if not RASettings:ShowTraitless() then
+				indicatorControl:SetHidden(true)
+				return
+			end
 		-- if the item is ornate, make icon ornate if we show ornate and hide/go away if we don't show it
-		if reason == libResearch_Reason_ORNATE then
+		elseif reason == libResearch_Reason_ORNATE then
 			control.dataEntry.data.researchAssistant = LIBRESEARCH_REASON_ORNATElower
-			if (craftingSkill == -1 or (RASettings:IsMultiCharSkillOff(craftingSkill, itemType))) and not RASettings:ShowUntrackedOrnate() then
+			if not RASettings:ShowUntrackedOrnate() or (craftingSkill == -1 or (RASettings:IsMultiCharSkillOff(craftingSkill, itemType) == true)) then
 				indicatorControl:SetHidden(true)
 			else
 				SetToOrnate(indicatorControl)
 				DisplayIndicator(indicatorControl, LIBRESEARCH_REASON_ORNATElower)
 			end
 			return
-		end
-
 		-- if the item is intricate, make icon intricate if we show that and hide/go away if we don't
-		if reason == libResearch_Reason_INTRICATE then
+		elseif reason == libResearch_Reason_INTRICATE then
 			control.dataEntry.data.researchAssistant = LIBRESEARCH_REASON_INTRICATElower
-			if RASettings:IsMultiCharSkillOff(craftingSkill, itemType) and not RASettings:ShowUntrackedIntricate() then
+			if not RASettings:ShowUntrackedIntricate() or (craftingSkill == -1 or (RASettings:IsMultiCharSkillOff(craftingSkill, itemType) == true))  then
 				indicatorControl:SetHidden(true)
 			else
 				SetToIntricate(indicatorControl)
@@ -393,7 +389,7 @@ local function AddResearchIndicatorToSlot(control, linkFunction)
 
 	if bestTraitPreferenceScore == nil then
 		-- if the item is traitless, show "researched" color. if we've never seen this trait before, show "best" color.
-		if reason == LIBRESEARCH_REASON_TRAITLESS then
+		if reason == libResearch_Reason_TRAITLESS then
 			bestTraitPreferenceScore = true
 		else
 			bestTraitPreferenceScore = 999999999

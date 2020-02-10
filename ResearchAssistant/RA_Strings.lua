@@ -81,7 +81,7 @@ RA_Strings = {
             duplicate = "Duplicate trait%s",
             canResearch = "Unknown trait%s",
             alreadyResearched = "Trait%s",
-            notScannedWithNeededCharYet = "Researching character not logged in yet!\n[%s]",
+            notScannedWithNeededCharYet = "ERROR: Research character was not logged in yet!\n[%s]",
         }
     },
     ["de"] = {
@@ -166,7 +166,7 @@ RA_Strings = {
             duplicate = "Doppelte Eigenschaft%s",
             canResearch = "Unbekannte Eigenschaft%s",
             alreadyResearched = "Eigenschaft%s",
-            notScannedWithNeededCharYet = "Analyse Charakter war noch nicht eingeloggt!\n[%s]",
+            notScannedWithNeededCharYet = "FEHLER: Analyse Charakter wurde noch nicht eingeloggt!\n[%s]",
         }
     },
     ["fr"] = {

@@ -329,30 +329,22 @@ function ResearchAssistantSettings:GetCraftingCharacterTraits(craftingSkillType,
     end
 end
 
+function ResearchAssistantSettings:IsMultiCharSkillOff(craftingSkillType, itemType)
+    local retVar = false
+    local charIdForCraftSkill = self:GetTrackedCharForSkill(craftingSkillType, itemType, false)
+    if charIdForCraftSkill == self.CONST_OFF_VALUE then
+        retVar = true
+    end
+    d("[RASettings:IsMultiCharSkillOff]: " ..tostring(retVar))
+    return retVar
+end
+
 function ResearchAssistantSettings:GetPlayerTraits()
     return settings.acquiredTraits[currentlyLoggedInCharId]
 end
 
 function ResearchAssistantSettings:GetTraits()
     return settings.acquiredTraits
-end
-
-function ResearchAssistantSettings:IsMultiCharSkillOff(craftingSkillType, itemType)
-    if(craftingSkillType == CRAFTING_TYPE_BLACKSMITHING and itemType > 7) then
-        return (settings.blacksmithCharacter[self:GetResearchCharIdDependingOnSettings()] == self.CONST_OFF_VALUE) or false
-    elseif(craftingSkillType == CRAFTING_TYPE_BLACKSMITHING and itemType <= 7) then
-        return (settings.weaponsmithCharacter[self:GetResearchCharIdDependingOnSettings()] == self.CONST_OFF_VALUE) or false
-    elseif(craftingSkillType == CRAFTING_TYPE_CLOTHIER and itemType <= 7) then
-        return (settings.clothierCharacter[self:GetResearchCharIdDependingOnSettings()] == self.CONST_OFF_VALUE) or false
-    elseif(craftingSkillType == CRAFTING_TYPE_CLOTHIER and itemType > 7) then
-        return (settings.leatherworkerCharacter[self:GetResearchCharIdDependingOnSettings()] == self.CONST_OFF_VALUE) or false
-    elseif(craftingSkillType == CRAFTING_TYPE_WOODWORKING) then
-        return (settings.woodworkingCharacter[self:GetResearchCharIdDependingOnSettings()] == self.CONST_OFF_VALUE) or false
-    elseif(craftingSkillType == CRAFTING_TYPE_JEWELRYCRAFTING) then
-        return (settings.jewelryCraftingCharacter[self:GetResearchCharIdDependingOnSettings()] == self.CONST_OFF_VALUE) or false
-    else
-        return true
-    end
 end
 
 function ResearchAssistantSettings:GetPreferenceValueForTrait(traitKey)
