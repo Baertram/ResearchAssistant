@@ -75,7 +75,7 @@ RA_Strings = {
             USE_ACCOUNTWIDE_RESEARCH_CHARS_TT   = "Attention: Change of this option will reload the UI directly!\n\nWith this option enabled all your characters of the current acocunt will use the same research characters for each crafting type (default setting).\nWith this option disabled you can specify different research characters for each crafting type at each of your characters.",
         },
         TOOLTIPS = {
-            knownBy = "\'%s\' known by:\n",
+            knownBy = " \'%s\' known by:\n",
             ornate = "Ornate",
             intricate = "Intricate",
             duplicate = "Duplicate trait%s",
@@ -160,7 +160,7 @@ RA_Strings = {
             USE_ACCOUNTWIDE_RESEARCH_CHARS_TT   = "ACHTUNG: Verändern dieser Option lädt die Benutzeroberfläche sofort neu!\n\nIst diese Option aktiviert so werden für diesen Account dieselben Analyse Charaktere für alle Handwerke benutzt (Standard Einstellung).\nDeaktivierst du diese Option so kannst du je Charakter deines Accounts unterschiedliche Analyse Charaktere je Handwerk festlegen.",
         },
         TOOLTIPS = {
-            knownBy = "\'%s\' analysiert:\n",
+            knownBy = " \'%s\' analysiert:\n",
             ornate = "Verkaufspreis",
             intricate = "Inspiration",
             duplicate = "Doppelte Eigenschaft%s",

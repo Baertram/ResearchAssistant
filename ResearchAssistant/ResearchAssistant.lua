@@ -411,7 +411,7 @@ local function getWhoKnowsAndTraitTextAndTexture(p_itemLink, p_traitKey)
 		local traitId = GetItemLinkTraitType(p_itemLink)
 		if traitId then
 			r_traitName = traitTypes[traitId]
-			r_traitName = " " .. buildItemTraitIconText(r_traitName, traitId)
+			r_traitName = buildItemTraitIconText(r_traitName, traitId)
 		end
 	end
 	return r_whoKnows, r_traitName
