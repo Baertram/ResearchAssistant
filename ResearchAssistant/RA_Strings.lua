@@ -72,11 +72,12 @@ RA_Strings = {
             JC_CHAR_TOOLTIP = "Which character is your jewelry crafting character?",
         },
         TOOLTIPS = {
+            knownBy = " known by: ",
             ornate = "Ornate",
             intricate = "Intricate",
-            duplicate = "Duplicate trait known by: ",
-            canResearch = "Unknown trait known by: ",
-            alreadyResearched = "Trait known by: ",
+            duplicate = "Duplicate trait%s",
+            canResearch = "Unknown trait%s",
+            alreadyResearched = "Trait%s",
             notScannedWithNeededCharYet = "Researching character not logged in yet!\n[%s]",
         }
     },
@@ -153,11 +154,12 @@ RA_Strings = {
             JC_CHAR_TOOLTIP = "Welcher Charakter soll für Schmuck Handwerk verwendet werden?",
         },
         TOOLTIPS = {
+            knownBy = " bekannt bei: ",
             ornate = "Verkaufspreis",
             intricate = "Inspiration",
-            duplicate = "Doppelte Eigenschaft bekannt von: ",
-            canResearch = "Unbekannte Eigenschaft bekannt von: ",
-            alreadyResearched = "Eigenschaft bekannt von: ",
+            duplicate = "Doppelte Eigenschaft%s",
+            canResearch = "Unbekannte Eigenschaft%s",
+            alreadyResearched = "Eigenschaft%s",
             notScannedWithNeededCharYet = "Analyse Charakter war noch nicht eingeloggt!\n[%s]",
         }
     },

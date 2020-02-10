@@ -427,7 +427,7 @@ local function AddResearchIndicatorToSlot(control, linkFunction)
 			if (thisItemScore > bestTraitPreferenceScore or stackSize > 1) then
 				indicatorControl:SetColor(unpack(RASettings:GetDuplicateUnresearchedColor()))
 				if whoKnows ~= "" then
-					HandleTooltips(indicatorControl, RA_Strings[RAlang].TOOLTIPS.duplicate .. whoKnows)
+					HandleTooltips(indicatorControl, string.format(RA_Strings[RAlang].TOOLTIPS.duplicate, RA_Strings[RAlang].TOOLTIPS.knownBy) .. whoKnows)
 				else
 					HandleTooltips(indicatorControl, RA_Strings[RAlang].TOOLTIPS.duplicate)
 				end
@@ -435,7 +435,7 @@ local function AddResearchIndicatorToSlot(control, linkFunction)
 			else
 				indicatorControl:SetColor(unpack(RASettings:GetCanResearchColor()))
 				if whoKnows ~= "" then
-					HandleTooltips(indicatorControl, RA_Strings[RAlang].TOOLTIPS.canResearch .. whoKnows)
+					HandleTooltips(indicatorControl, string.format(RA_Strings[RAlang].TOOLTIPS.canResearch, RA_Strings[RAlang].TOOLTIPS.knownBy) .. whoKnows)
 				else
 					HandleTooltips(indicatorControl, RA_Strings[RAlang].TOOLTIPS.canResearch)
 				end
@@ -446,7 +446,7 @@ local function AddResearchIndicatorToSlot(control, linkFunction)
 	end
 	--in any other case, color it known
 	indicatorControl:SetColor(unpack(RASettings:GetAlreadyResearchedColor()))
-	HandleTooltips(indicatorControl, RA_Strings[RAlang].TOOLTIPS.alreadyResearched .. whoKnows)
+	HandleTooltips(indicatorControl, string.format(RA_Strings[RAlang].TOOLTIPS.alreadyResearched, RA_Strings[RAlang].TOOLTIPS.knownBy) .. whoKnows)
 	if reason == libResearch_Reason_TRAITLESS then
 		control.dataEntry.data.researchAssistant = TRACKING_STATE_TRAITLESS
 	else
