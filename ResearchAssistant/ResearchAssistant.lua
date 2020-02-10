@@ -380,8 +380,6 @@ local function AddResearchIndicatorToSlot(control, linkFunction)
 	end
 
 	--if we aren't tracking anybody for that skill, hide and go away
-	d("[RASettings]IsMultiCharSkillOff: " ..tostring(RASettings:IsMultiCharSkillOff(craftingSkill, itemType)))
-
 	if RASettings:IsMultiCharSkillOff(craftingSkill, itemType) == true then
 		control.dataEntry.data.researchAssistant = TRACKING_STATE_UNTRACKED
 		indicatorControl:SetHidden(true)
