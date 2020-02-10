@@ -274,9 +274,8 @@ function ResearchAssistantSettings:GetCharsWhoKnowTrait(traitKey)
     return string.sub(knowers, 3)
 end
 
-function ResearchAssistantSettings:GetCraftingCharacterIdOrName(craftingSkillType, itemType, getCrafterName, decorateByClass)
+function ResearchAssistantSettings:GetCraftingCharacterIdOrName(craftingSkillType, itemType, getCrafterName)
     getCrafterName = getCrafterName or false
-    decorateByClass = decorateByClass or false
     local crafter
     if(craftingSkillType == CRAFTING_TYPE_BLACKSMITHING and itemType > 7) then
         crafter = settings.blacksmithCharacter[currentlyLoggedInCharId]
@@ -295,14 +294,14 @@ function ResearchAssistantSettings:GetCraftingCharacterIdOrName(craftingSkillTyp
     end
     --Shall we return the name instead of the unique id?
     if getCrafterName == true and (crafter ~= nil and crafter ~= "") then
-        local charNameDecorated = decorateCharName(crafter, decorateByClass)
-        crafter = charNameDecorated
+        local charNameDecorated = self.charId2Name[crafter]
+        if charNameDecorated and charNameDecorated ~= "" then return charNameDecorated end
     end
     return crafter
 end
 
 function ResearchAssistantSettings:GetCraftingCharacterTraits(craftingSkillType, itemType)
-    local crafter = self:GetCraftingCharacterIdOrName(craftingSkillType, itemType, false, false)
+    local crafter = self:GetCraftingCharacterIdOrName(craftingSkillType, itemType, false)
     if crafter == CONST_OFF then
       return
     else
