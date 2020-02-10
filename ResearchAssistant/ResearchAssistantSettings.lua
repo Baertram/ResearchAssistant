@@ -101,6 +101,9 @@ function ResearchAssistantSettings:New()
 end
 
 function ResearchAssistantSettings:Initialize()
+    --Constants
+    self.CONST_CHARACTER_NOT_SCANNED_YET = -100
+
     local defaults = {
         debug = false,
 
@@ -338,7 +341,7 @@ function ResearchAssistantSettings:GetPreferenceValueForTrait(traitKey)
     --if the traits are nil the selected character was not yet loggedIn!
     if traits == nil then
         --Char was not logged in yet. Return special value -100
-        return -100
+        return self.CONST_CHARACTER_NOT_SCANNED_YET
     end
     return traits[traitKey]
 end

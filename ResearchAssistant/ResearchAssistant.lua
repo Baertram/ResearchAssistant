@@ -206,7 +206,7 @@ function RA.IsItemResearchableWithSettingsCharacter(bagId, slotIndex)
 	--if we don't know it yet
 	if bestTraitPreferenceScore ~= true then
 		isResearchableWithSettingsChar = true
-		if thisItemScore > bestTraitPreferenceScore or stackSize > 1 then
+		if bestTraitPreferenceScore ~= RASettings.CONST_CHARACTER_NOT_SCANNED_YET and (thisItemScore > bestTraitPreferenceScore or stackSize > 1) then
 			--Duplicate
 			return isResearchableWithSettingsChar
 		else
@@ -404,8 +404,8 @@ local function AddResearchIndicatorToSlot(control, linkFunction)
 	local whoKnows = RASettings:GetCharsWhoKnowTrait(traitKey)
 	--pretty colors time!
 	--if we don't know it, color the icon something fun
-	if bestTraitPreferenceScore ~= true and bestTraitPreferenceScore ~= -100 then
-		if thisItemScore > bestTraitPreferenceScore or stackSize > 1 then
+	if bestTraitPreferenceScore ~= true then
+		if bestTraitPreferenceScore ~= RASettings.CONST_CHARACTER_NOT_SCANNED_YET and (thisItemScore > bestTraitPreferenceScore or stackSize > 1) then
 			indicatorControl:SetColor(unpack(RASettings:GetDuplicateUnresearchedColor()))
 			if whoKnows ~= "" then
 				HandleTooltips(indicatorControl, RA_Strings[RAlang].TOOLTIPS.duplicate .. whoKnows)
@@ -427,7 +427,7 @@ local function AddResearchIndicatorToSlot(control, linkFunction)
 	--in any other case, color it known
 	indicatorControl:SetColor(unpack(RASettings:GetAlreadyResearchedColor()))
 	HandleTooltips(indicatorControl, RA_Strings[RAlang].TOOLTIPS.alreadyResearched .. whoKnows)
-	if reason == "Traitless" then
+	if reason == libResearch_Reason_TRAITLESS then
 		control.dataEntry.data.researchAssistant = TRACKING_STATE_TRAITLESS
 	else
 		control.dataEntry.data.researchAssistant = TRACKING_STATE_KNOWN
