@@ -158,7 +158,7 @@ RA_Strings = {
             duplicate = "Doppelte Eigenschaft bekannt von: ",
             canResearch = "Unbekannte Eigenschaft bekannt von: ",
             alreadyResearched = "Eigenschaft bekannt von: ",
-            notScannedWithNeededCharYet = "Analyse Charakter war noch nicht eingeloggt!\n.[%s]",
+            notScannedWithNeededCharYet = "Analyse Charakter war noch nicht eingeloggt!\n[%s]",
         }
     },
     ["fr"] = {

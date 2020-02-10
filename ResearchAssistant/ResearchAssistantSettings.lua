@@ -59,22 +59,24 @@ local function getClassIcon(classId)
     return ingameIconKeyboard or textureName or ""
 end
 
-local function decorateCharName(charName, useClassIcon)
+local function decorateCharName(charName, classId, decorate)
     if not charName or charName == "" then return "" end
-    useClassIcon = useClassIcon or false
-    local charNameDecorated = charName
+    if not classId then return charName end
+    decorate = decorate or false
+    if not decorate then return charName end
+    local charNameDecorated
     --Get the class color
     local charColorDef = GetClassColor(classId)
+    --Apply the class color to the charname
     if nil ~= charColorDef then charNameDecorated = charColorDef:Colorize(charName) end
-    if useClassIcon == true then
-        charNameDecorated = zo_iconTextFormatNoSpace(getClassIcon(classId), 20, 20, charNameDecorated)
-    end
+    --Apply the class textures to the charname
+    charNameDecorated = zo_iconTextFormatNoSpace(getClassIcon(classId), 20, 20, charNameDecorated)
     return charNameDecorated
 end
 
 --Build the table of all characters of the account
-local function getCharactersOfAccount(keyIsCharName, decorateByClass)
-    decorateByClass = decorateByClass or false
+local function getCharactersOfAccount(keyIsCharName, decorate)
+    decorate = decorate or false
     keyIsCharName = keyIsCharName or false
     local charactersOfAccount
     --Check all the characters of the account
@@ -84,10 +86,7 @@ local function getCharactersOfAccount(keyIsCharName, decorateByClass)
         local charName = zo_strformat(SI_UNIT_NAME, name)
         if characterId ~= nil and charName ~= "" then
             if charactersOfAccount == nil then charactersOfAccount = {} end
-            if decorateByClass == true then
-                local charNameDecorated = decorateCharName(charName, true)
-                charName = charNameDecorated
-            end
+            charName = decorateCharName(charName, classId, decorate)
             if keyIsCharName then
                 charactersOfAccount[charName]   = characterId
             else
