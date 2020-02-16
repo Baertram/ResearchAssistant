@@ -73,6 +73,13 @@ RA_Strings = {
 
             USE_ACCOUNTWIDE_RESEARCH_CHARS      = "Account-wide same research characters",
             USE_ACCOUNTWIDE_RESEARCH_CHARS_TT   = "Attention: Change of this option will reload the UI directly!\n\nWith this option enabled all your characters of the current acocunt will use the same research characters for each crafting type (default setting).\nWith this option disabled you can specify different research characters for each crafting type at each of your characters.",
+
+            PROTECTION                  = "Protection",
+            SKIP_ZOS_MARKED             = "Skip ZOs marked",
+            SKIP_ZOS_MARKED_TOOLTIP     = "Skip items at the researchable scans and Research Assistant markers if the item is marked with the ZOs lock icon.",
+            SKIP_FCOIS_MARKED           = "Skip FCOItemSaver marked",
+            SKIP_FCOIS_MARKED_TOOLTIP   = "Skip items at the researchable scans and Research Assistant markers if the item is marked with the FCOIS icons.\nExclusion: The research marker icon of FCOIS is allowed!",
+
         },
         TOOLTIPS = {
             knownBy = " \'%s\' known by:\n",
@@ -158,6 +165,13 @@ RA_Strings = {
 
             USE_ACCOUNTWIDE_RESEARCH_CHARS      = "Account-weit Analyse Charaktere identisch",
             USE_ACCOUNTWIDE_RESEARCH_CHARS_TT   = "ACHTUNG: Verändern dieser Option lädt die Benutzeroberfläche sofort neu!\n\nIst diese Option aktiviert so werden für diesen Account dieselben Analyse Charaktere für alle Handwerke benutzt (Standard Einstellung).\nDeaktivierst du diese Option so kannst du je Charakter deines Accounts unterschiedliche Analyse Charaktere je Handwerk festlegen.",
+
+            PROTECTION                  = "Schutz",
+            SKIP_ZOS_MARKED             = "ZOs markierte ausschließen",
+            SKIP_ZOS_MARKED_TOOLTIP     = "Schließt durch ZOs markierte (Schloß Symbol) Gegenstände von den Research Assistant Scan und Markierungen aus.",
+            SKIP_FCOIS_MARKED           = "FCOItemSaver markierte ausschließen",
+            SKIP_FCOIS_MARKED_TOOLTIP   = "Schließt durch FCOItemSaver markierte Gegenstände von den Research Assistant Scan und Markierungen aus.\nAußname: Mit dem Analyse Symbol markierte werden berücksichtigt!",
+
         },
         TOOLTIPS = {
             knownBy = " \'%s\' analysiert:\n",

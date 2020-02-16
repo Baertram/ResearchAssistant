@@ -7,6 +7,8 @@ RA.version 	= "0.9.4.8"
 RA.author   = "ingeniousclown, katkat42, Randactyl, Baertram"
 RA.website	= "https://www.esoui.com/downloads/info111-ResearchAssistant.html"
 
+local libErrorText = "[ResearchAssistant]Needed library \'%s\' was not loaded. This addon won't work without this library!"
+
 local DECONSTRUCTION	= ZO_SmithingTopLevelDeconstructionPanelInventoryBackpack
 
 local ORNATE_TEXTURE = [[/esoui/art/tradinghouse/tradinghouse_sell_tabicon_disabled.dds]]
@@ -479,6 +481,12 @@ local function AddResearchIndicatorToSlot(control, linkFunction)
 		end
 	end
 
+	--Item is protected agaisnt research so do not add any marker
+	if RA.scanner:IsItemProtectedAgainstResearch(bagId, slotIndex, itemLink) == false then
+		indicatorControl:SetHidden(true)
+		return
+	end
+
 	--if we aren't tracking anybody for that skill, hide and go away
 	if RASettings:IsMultiCharSkillOff(craftingSkill, itemType) == true then
 		control.dataEntry.data.researchAssistant = TRACKING_STATE_UNTRACKED
@@ -627,13 +635,12 @@ end
 
 local function ResearchAssistant_Loaded(eventCode, addOnName)
 	if addOnName ~= RA.name then return end
-
 	local libResearch = LibResearch
-	if libResearch == nil then d("[ResearchAssistant]Needed library \"LibResearch\" was not loaded. This addon won't work without this library!") return end
+	if libResearch == nil then d(string.format(libErrorText, "LibResearch")) return end
 	RA.libResearch = libResearch
 	local LAM = LibAddonMenu2
 	if not LAM and LibStub then LibStub("LibAddonMenu-2.0", true) end
-	if LAM == nil then d("[ResearchAssistant]Needed library \"LibAddonMenu-2.0\" was not loaded. This addon won't work without this library!") return end
+	if LAM == nil then d(string.format(libErrorText, "LibAddonMenu-2.0")) return end
 	RA.lam = LAM
 
 	wasInCombatAsWantedToScan = false

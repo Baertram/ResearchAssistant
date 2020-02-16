@@ -145,6 +145,9 @@ function ResearchAssistantSettings:Initialize()
         leatherworkerCharacter = {},
         jewelryCraftingCharacter = {},
 
+        respechtItemProtectionByZOs     = false,
+        respechtItemProtectionByFCOIS   = false,
+
         --non settings variables
         acquiredTraits = {},
     }
@@ -272,6 +275,18 @@ function ResearchAssistantSettings:GetResearchCharIdDependingOnSettings()
     else
         return currentlyLoggedInCharId
     end
+end
+
+function ResearchAssistantSettings:IsItemProtectedByZOsSkipped()
+    return settings.respechtItemProtectionByZOs
+end
+
+function ResearchAssistantSettings:IsItemProtectedByFCOISSkipped()
+    return settings.respechtItemProtectionByFCOIS
+end
+
+function ResearchAssistantSettings:IsItemProtectedByAnySkipped()
+    return (self:IsItemProtectedByZOsSkipped() and self:IsItemProtectedByFCOISSkipped()) or false
 end
 
 function ResearchAssistantSettings:SetKnownTraits(traitsTable)
@@ -731,6 +746,32 @@ function ResearchAssistantSettings:CreateOptionsMenu()
             ResearchAssistant_InvUpdate()
         end,
     })
+    table.insert(optionsData, {
+        type = "header",
+        name = str.PROTECTION,
+    })
+    table.insert(optionsData, {
+        type = "checkbox",
+        name = str.SKIP_ZOS_MARKED,
+        tooltip = str.SKIP_ZOS_MARKED_TTOLTIP,
+        getFunc = function() return settings.respechtItemProtectionByZOs end,
+        setFunc = function(value)
+            settings.respechtItemProtectionByZOs = value
+            ResearchAssistant_InvUpdate()
+        end,
+    })
+    table.insert(optionsData, {
+        type = "checkbox",
+        name = str.SKIP_FCOIS_MARKED,
+        tooltip = str.SKIP_FCOIS_MARKED_TOOLTIP,
+        getFunc = function() return settings.respechtItemProtectionByFCOIS end,
+        setFunc = function(value)
+            settings.respechtItemProtectionByFCOIS = value
+            ResearchAssistant_InvUpdate()
+        end,
+        disabled = function() return FCOIS == nil end,
+    })
+
     LAM:RegisterAddonPanel("ResearchAssistantSettingsPanel", panel)
     LAM:RegisterOptionControls("ResearchAssistantSettingsPanel", optionsData)
 
