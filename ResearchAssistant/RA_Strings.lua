@@ -54,22 +54,22 @@ RA_Strings = {
             SHOW_IN_GRID_TOOLTIP = "Should the research assistant icon show up with Inventory Grid View toggled on? (Ignore this if you don't use Inventory Grid View)",
 
             WS_CHAR_LABEL = "Weaponsmithing Character",
-            WS_CHAR_TOOLTIP = "Which character is your weaponsmithing character?",
+            WS_CHAR_TOOLTIP = "Which character is your weaponsmithing character?\n\'-\' means: None",
 
             BS_CHAR_LABEL = "Blacksmithing Character",
-            BS_CHAR_TOOLTIP = "Which character is your blacksmithing character?",
+            BS_CHAR_TOOLTIP = "Which character is your blacksmithing character?\n\'-\' means: None",
 
             LW_CHAR_LABEL = "Leatherworking Character",
-            LW_CHAR_TOOLTIP = "Which character is your leatherworking character?",
+            LW_CHAR_TOOLTIP = "Which character is your leatherworking character?\n\'-\' means: None",
 
             CL_CHAR_LABEL = "Clothier Character",
-            CL_CHAR_TOOLTIP = "Which character is your clothier character?",
+            CL_CHAR_TOOLTIP = "Which character is your clothier character?\n\'-\' means: None",
 
             WW_CHAR_LABEL = "Woodworking Character",
-            WW_CHAR_TOOLTIP = "Which character is your woodworking character?",
+            WW_CHAR_TOOLTIP = "Which character is your woodworking character?\n\'-\' means: None",
 
             JC_CHAR_LABEL = "Jewelry crafting Character",
-            JC_CHAR_TOOLTIP = "Which character is your jewelry crafting character?",
+            JC_CHAR_TOOLTIP = "Which character is your jewelry crafting character?\n\'-\' means: None",
 
             USE_ACCOUNTWIDE_RESEARCH_CHARS      = "Account-wide same research characters",
             USE_ACCOUNTWIDE_RESEARCH_CHARS_TT   = "Attention: Change of this option will reload the UI directly!\n\nWith this option enabled all your characters of the current acocunt will use the same research characters for each crafting type (default setting).\nWith this option disabled you can specify different research characters for each crafting type at each of your characters.",
@@ -146,22 +146,22 @@ RA_Strings = {
             SHOW_IN_GRID_TOOLTIP = "Sollen Icons auch bei Verwendung des Inventory Grid View Addons angezeigt werden?",
 
             WS_CHAR_LABEL = "Waffenschmiedekunst",
-            WS_CHAR_TOOLTIP = "Welcher Charakter soll für die Waffenschmiedekunst verwendet werden?",
+            WS_CHAR_TOOLTIP = "Welcher Charakter soll für die Waffenschmiedekunst verwendet werden?\n\'-\' bedeutet: Keiner",
 
             BS_CHAR_LABEL = "Schmiedekunst",
-            BS_CHAR_TOOLTIP = "Welcher Charakter soll für die Schmiedekunst verwendet werden?",
+            BS_CHAR_TOOLTIP = "Welcher Charakter soll für die Schmiedekunst verwendet werden?\n\'-\' bedeutet: Keiner",
 
             CL_CHAR_LABEL = "Schneiderei",
-            CL_CHAR_TOOLTIP = "Welcher Charakter soll für die Schneiderei verwendet werden?",
+            CL_CHAR_TOOLTIP = "Welcher Charakter soll für die Schneiderei verwendet werden?\n\'-\' bedeutet: Keiner",
 
             LW_CHAR_LABEL = "Lederschneiderei",
-            LW_CHAR_TOOLTIP = "Welcher Charakter soll für die Lederschneiderei verwendet werden?",
+            LW_CHAR_TOOLTIP = "Welcher Charakter soll für die Lederschneiderei verwendet werden?\n\'-\' bedeutet: Keiner",
 
             WW_CHAR_LABEL = "Schreinerei",
-            WW_CHAR_TOOLTIP = "Welcher Charakter soll für die Schreinerei verwendet werden?",
+            WW_CHAR_TOOLTIP = "Welcher Charakter soll für die Schreinerei verwendet werden?\n\'-\' bedeutet: Keiner",
 
             JC_CHAR_LABEL = "Schmuck Handwerk",
-            JC_CHAR_TOOLTIP = "Welcher Charakter soll für das Schmuck Handwerk verwendet werden?",
+            JC_CHAR_TOOLTIP = "Welcher Charakter soll für das Schmuck Handwerk verwendet werden?\n\'-\' bedeutet: Keiner",
 
             USE_ACCOUNTWIDE_RESEARCH_CHARS      = "Account-weit Analyse Charaktere identisch",
             USE_ACCOUNTWIDE_RESEARCH_CHARS_TT   = "ACHTUNG: Verändern dieser Option lädt die Benutzeroberfläche sofort neu!\n\nIst diese Option aktiviert so werden für diesen Account dieselben Analyse Charaktere für alle Handwerke benutzt (Standard Einstellung).\nDeaktivierst du diese Option so kannst du je Charakter deines Accounts unterschiedliche Analyse Charaktere je Handwerk festlegen.",
@@ -187,17 +187,17 @@ RA_Strings = {
         SETTINGS = {
             GENERAL_HEADER = "Options Générales",
             COLORS_HEADER = "Options pour les couleurs",
-            HIDDEN_HEADER = "Hide Icon Options",
-            CHARACTER_HEADER = "Options pour l\'artisanat des personnages",
+            HIDDEN_HEADER = "Options d'icônes",
+            CHARACTER_HEADER = "L\'artisanat des personnages",
 
             ICON_LABEL = "Style des icones",
             ICON_TOOLTIP = "Choisir l\'apparence de l\'icone de l\'Assistant de Recherche.",
 
-            ICON_SIZE = "Icon size",
-            ICON_SIZE_TOOLTIP = "Choose the size of the research icon",
+            ICON_SIZE = "Taille de l'icône",
+            ICON_SIZE_TOOLTIP = "Choisissez la taille de l'icône de recherche",
 
-            ICON_OFFSET = "Icon position",
-            ICON_OFFSET_TOOLTIP = "Choose the position of the research icon on the X-axis of inventories",
+            ICON_OFFSET = "Position de l'icône",
+            ICON_OFFSET_TOOLTIP = "Choisissez la position de l'icône de recherche sur l'axe X des inventaires",
             RESEARCHABLE_LABEL = "Couleur pour la recherche",
             RESEARCHABLE_TOOLTIP = "Choisir la couleur de l\'icone qui s\'affiche lorsque le trait n\'est pas encore connu.",
 
@@ -238,26 +238,40 @@ RA_Strings = {
             SHOW_IN_GRID_TOOLTIP = "Afficher avec Inventory Grid View Add-on?",
 
             WS_CHAR_LABEL = "Fabricant d\'armes",
-            WS_CHAR_TOOLTIP = "Quel personnage est fabricant d\'armes?",
+            WS_CHAR_TOOLTIP = "Quel personnage est fabricant d\'armes?\n\'-\' signifie: Aucun",
 
             BS_CHAR_LABEL = "Fabricant d\'armures",
-            BS_CHAR_TOOLTIP = "Quel personnage est fabricant d\'armures?",
+            BS_CHAR_TOOLTIP = "Quel personnage est fabricant d\'armures?\n\'-\' signifie: Aucun",
 
             CL_CHAR_LABEL = "Couturier",
-            CL_CHAR_TOOLTIP = "Quel personnage est Couturier?",
+            CL_CHAR_TOOLTIP = "Quel personnage est Couturier?\n\'-\' signifie: Aucun",
 
             LW_CHAR_LABEL = "Artisan du cuir",
-            LW_CHAR_TOOLTIP = "Quel personnage est Artisan du cuir?",
+            LW_CHAR_TOOLTIP = "Quel personnage est Artisan du cuir?\n\'-\' signifie: Aucun",
 
             WW_CHAR_LABEL = "Ebéniste",
-            WW_CHAR_TOOLTIP = "Quel personnage est ébéniste?",
+            WW_CHAR_TOOLTIP = "Quel personnage est ébéniste?\n\'-\' signifie: Aucun",
+
+            JC_CHAR_LABEL = "Fabrication de bijoux",
+            JC_CHAR_TOOLTIP = "Quel personnage est bijoutier?\n\'-\' signifie: Aucun",
+
+            USE_ACCOUNTWIDE_RESEARCH_CHARS      = "Account-wide same research characters",
+            USE_ACCOUNTWIDE_RESEARCH_CHARS_TT   = "Attention: Change of this option will reload the UI directly!\n\nWith this option enabled all your characters of the current acocunt will use the same research characters for each crafting type (default setting).\nWith this option disabled you can specify different research characters for each crafting type at each of your characters.",
+
+            PROTECTION                  = "Protection",
+            SKIP_ZOS_MARKED             = "Skip ZOs marked",
+            SKIP_ZOS_MARKED_TOOLTIP     = "Skip items at the researchable scans and Research Assistant markers if the item is marked with the ZOs lock icon.",
+            SKIP_FCOIS_MARKED           = "Skip FCOItemSaver marked",
+            SKIP_FCOIS_MARKED_TOOLTIP   = "Skip items at the researchable scans and Research Assistant markers if the item is marked with the FCOIS icons.\nExclusion: The research marker icon of FCOIS is allowed!",
         },
         TOOLTIPS = {
+            knownBy = " \'%s\' known by:\n",
             ornate = "Orn\195\169",
             intricate = "Complexe",
-            duplicate = "En double trait connaissez de: ", --"Vous poss\195\169dez d\195\169j\195\160 un objet de moins bonne qualit\195\169 pour effectuer cette recherche !",
-            canResearch = "En trait ne connaissez, connaissez de: ", --"Vous ne connaissez pas encore ce trait !",
-            alreadyResearched = "En trait connaissez de: " --"Vous connaissez d\195\169j\195\160 ce trait !"
+            duplicate = "En double trait%s", --"Vous poss\195\169dez d\195\169j\195\160 un objet de moins bonne qualit\195\169 pour effectuer cette recherche !",
+            canResearch = "En trait ne connaissez%s", --"Vous ne connaissez pas encore ce trait !",
+            alreadyResearched = "En trait%s", --"Vous connaissez d\195\169j\195\160 ce trait !"
+            notScannedWithNeededCharYet = "ERREUR: le personnage de recherche [%s] n'était pas encore connecté!",
         }
     },
     ["es"] = {
@@ -270,11 +284,11 @@ RA_Strings = {
             ICON_LABEL = "Estilo de icono",
             ICON_TOOLTIP = "Elige el icono que quieres mostrar para los objetos investigables.",
 
-            ICON_SIZE = "Icon size",
-            ICON_SIZE_TOOLTIP = "Choose the size of the research icon",
+            ICON_SIZE = "Tamaño de ícono",
+            ICON_SIZE_TOOLTIP = "Elige el tamaño del icono de investigación",
 
-            ICON_OFFSET = "Icon position",
-            ICON_OFFSET_TOOLTIP = "Choose the position of the research icon on the X-axis of inventories",
+            ICON_OFFSET = "Posición del icono",
+            ICON_OFFSET_TOOLTIP = "Elige la posición del icono de investigación en el eje X de los inventarios.",
             SEPARATE_LW_LABEL = "Separar sastrería y peletería",
             SEPARATE_LW_TOOLTIP = "En caso de querer investigar armadura ligera y media por separado con personajes diferentes",
 
@@ -315,26 +329,31 @@ RA_Strings = {
             SHOW_IN_GRID_TOOLTIP = "Mostrar los iconos de Research Assistant con el addon Inventory Grid View (ignorar si no usas dicho addon)",
 
             WS_CHAR_LABEL = "Herrero de armas",
-            WS_CHAR_TOOLTIP = "Elige tu personaje fabricante de armas de metal",
+            WS_CHAR_TOOLTIP = "Elige tu personaje fabricante de armas de metal.\n\'-\' significa: Ninguno",
 
             BS_CHAR_LABEL = "Herrero de armaduras pesadas",
-            BS_CHAR_TOOLTIP = "Elige tu personaje fabricante de armaduras pesadas",
+            BS_CHAR_TOOLTIP = "Elige tu personaje fabricante de armaduras pesadas.\n\'-\' significa: Ninguno",
 
             LW_CHAR_LABEL = "Peletero",
-            LW_CHAR_TOOLTIP = "Elige tu personaje fabricante de armaduras medias",
+            LW_CHAR_TOOLTIP = "Elige tu personaje fabricante de armaduras medias.\n\'-\' significa: Ninguno",
 
             CL_CHAR_LABEL = "Sastre",
-            CL_CHAR_TOOLTIP = "Elige tu personaje fabricante de armaduras ligeras",
+            CL_CHAR_TOOLTIP = "Elige tu personaje fabricante de armaduras ligeras.\n\'-\' significa: Ninguno",
 
             WW_CHAR_LABEL = "Carpintero",
-            WW_CHAR_TOOLTIP = "Elige tu personaje fabricante de escudos y armas de madera"
+            WW_CHAR_TOOLTIP = "Elige tu personaje fabricante de escudos y armas de madera.\n\'-\' significa: Ninguno",
+
+            JC_CHAR_LABEL = "Elaboración de joyas",
+            JC_CHAR_TOOLTIP = "Elige tu personaje fabricante de joyería.\n\'-\' significa: Ninguno",
         },
         TOOLTIPS = {
+            knownBy = " \'%s\' known by:\n",
             ornate = "Ornamentado",
             intricate = "Intrincado",
-            duplicate = "Rasgo duplicado; conocido por: ",
-            canResearch = "Rasgo desconocido; conocido por: ",
-            alreadyResearched = "Rasgo conocido por: ",
+            duplicate = "Rasgo duplicado%s",
+            canResearch = "Rasgo desconocido%s",
+            alreadyResearched = "Rasgo conocido%s",
+            notScannedWithNeededCharYet = "ERROR: ¡El personaje de investigación [%s] aún no había iniciado sesión!",
         }
     },
     ["jp"] = {
@@ -392,29 +411,41 @@ RA_Strings = {
             SHOW_IN_GRID_TOOLTIP = "Should the research assistant icon show up with Inventory Grid View toggled on? (Ignore this if you don't use Inventory Grid View)",
 
             WS_CHAR_LABEL = "Weaponsmithing Character",
-            WS_CHAR_TOOLTIP = "Which character is your weaponsmithing character?",
+            WS_CHAR_TOOLTIP = "Which character is your weaponsmithing character?\n\'-\' means: None",
 
             BS_CHAR_LABEL = "Blacksmithing Character",
-            BS_CHAR_TOOLTIP = "Which character is your blacksmithing character?",
+            BS_CHAR_TOOLTIP = "Which character is your blacksmithing character?\n\'-\' means: None",
 
             LW_CHAR_LABEL = "Leatherworking Character",
-            LW_CHAR_TOOLTIP = "Which character is your leatherworking character?",
+            LW_CHAR_TOOLTIP = "Which character is your leatherworking character?\n\'-\' means: None",
 
             CL_CHAR_LABEL = "Clothier Character",
-            CL_CHAR_TOOLTIP = "Which character is your clothier character?",
+            CL_CHAR_TOOLTIP = "Which character is your clothier character?\n\'-\' means: None",
 
             WW_CHAR_LABEL = "Woodworking Character",
-            WW_CHAR_TOOLTIP = "Which character is your woodworking character?",
+            WW_CHAR_TOOLTIP = "Which character is your woodworking character?\n\'-\' means: None",
 
             JC_CHAR_LABEL = "Jewelry crafting Character",
-            JC_CHAR_TOOLTIP = "Which character is your jewelry crafting character?",
+            JC_CHAR_TOOLTIP = "Which character is your jewelry crafting character?\n\'-\' means: None",
+
+            USE_ACCOUNTWIDE_RESEARCH_CHARS      = "Account-wide same research characters",
+            USE_ACCOUNTWIDE_RESEARCH_CHARS_TT   = "Attention: Change of this option will reload the UI directly!\n\nWith this option enabled all your characters of the current acocunt will use the same research characters for each crafting type (default setting).\nWith this option disabled you can specify different research characters for each crafting type at each of your characters.",
+
+            PROTECTION                  = "Protection",
+            SKIP_ZOS_MARKED             = "Skip ZOs marked",
+            SKIP_ZOS_MARKED_TOOLTIP     = "Skip items at the researchable scans and Research Assistant markers if the item is marked with the ZOs lock icon.",
+            SKIP_FCOIS_MARKED           = "Skip FCOItemSaver marked",
+            SKIP_FCOIS_MARKED_TOOLTIP   = "Skip items at the researchable scans and Research Assistant markers if the item is marked with the FCOIS icons.\nExclusion: The research marker icon of FCOIS is allowed!",
+
         },
         TOOLTIPS = {
+            knownBy = " \'%s\' known by:\n",
             ornate = "Ornate",
             intricate = "Intricate",
-            duplicate = "Duplicate trait known by: ",
-            canResearch = "Unknown trait known by: ",
-            alreadyResearched = "Trait known by: "
+            duplicate = "Duplicate trait%s",
+            canResearch = "Unknown trait%s",
+            alreadyResearched = "Trait%s",
+            notScannedWithNeededCharYet = "ERROR: Research character [%s] was not logged in yet!",
         }
     },
 }
