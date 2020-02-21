@@ -80,6 +80,7 @@ RA_Strings = {
             SKIP_FCOIS_MARKED           = "Skip FCOItemSaver marked",
             SKIP_FCOIS_MARKED_TOOLTIP   = "Skip items at the researchable scans and Research Assistant markers if the item is marked with the FCOIS icons.\nExclusion: The research marker icon of FCOIS is allowed!",
 
+            ERROR_CONFIGURE_ADDON = "Please configure the addon, choose a research character in the settings!",
         },
         TOOLTIPS = {
             knownBy = " \'%s\' known by:\n",
@@ -172,6 +173,7 @@ RA_Strings = {
             SKIP_FCOIS_MARKED           = "FCOItemSaver markierte ausschließen",
             SKIP_FCOIS_MARKED_TOOLTIP   = "Schließt durch FCOItemSaver markierte Gegenstände von den Research Assistant Scan und Markierungen aus.\nAußname: Mit dem Analyse Symbol markierte werden berücksichtigt!",
 
+            ERROR_CONFIGURE_ADDON = "Bitte konfiguriere das AddOn, wähle einen Analyse Charakter in den Einstellungen!",
         },
         TOOLTIPS = {
             knownBy = " \'%s\' analysiert:\n",
@@ -263,6 +265,8 @@ RA_Strings = {
             SKIP_ZOS_MARKED_TOOLTIP     = "Skip items at the researchable scans and Research Assistant markers if the item is marked with the ZOs lock icon.",
             SKIP_FCOIS_MARKED           = "Skip FCOItemSaver marked",
             SKIP_FCOIS_MARKED_TOOLTIP   = "Skip items at the researchable scans and Research Assistant markers if the item is marked with the FCOIS icons.\nExclusion: The research marker icon of FCOIS is allowed!",
+
+            ERROR_CONFIGURE_ADDON = "Please configure the addon, choose a research character in the settings!",
         },
         TOOLTIPS = {
             knownBy = " \'%s\' known by:\n",
@@ -345,6 +349,8 @@ RA_Strings = {
 
             JC_CHAR_LABEL = "Elaboración de joyas",
             JC_CHAR_TOOLTIP = "Elige tu personaje fabricante de joyería.\n\'-\' significa: Ninguno",
+
+            ERROR_CONFIGURE_ADDON = "Please configure the addon, choose a research character in the settings!",
         },
         TOOLTIPS = {
             knownBy = " \'%s\' known by:\n",
@@ -437,6 +443,7 @@ RA_Strings = {
             SKIP_FCOIS_MARKED           = "Skip FCOItemSaver marked",
             SKIP_FCOIS_MARKED_TOOLTIP   = "Skip items at the researchable scans and Research Assistant markers if the item is marked with the FCOIS icons.\nExclusion: The research marker icon of FCOIS is allowed!",
 
+            ERROR_CONFIGURE_ADDON = "Please configure the addon, choose a research character in the settings!",
         },
         TOOLTIPS = {
             knownBy = " \'%s\' known by:\n",

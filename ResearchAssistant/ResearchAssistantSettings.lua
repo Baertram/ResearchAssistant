@@ -3,7 +3,7 @@ local RA = ResearchAssistant
 
 local _
 
-local currentlyLoggedInCharId = GetCurrentCharacterId()
+local currentlyLoggedInCharId = RA.currentlyLoggedInCharId or GetCurrentCharacterId()
 
 local CAN_RESEARCH_TEXTURES = {
     ["Classic"] = {

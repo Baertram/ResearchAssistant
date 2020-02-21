@@ -633,8 +633,58 @@ local function RA_HookTrading()
 	end
 end
 
+local function RA_Event_Player_Activated(event, isA)
+	--Only fire once after login!
+	EVENT_MANAGER:UnregisterForEvent("RA_PLAYER_ACTIVATED", EVENT_PLAYER_ACTIVATED)
+	if RA.libResearch == nil then d(string.format(libErrorText, "LibResearch")) return end
+	if RA.lam == nil then d(string.format(libErrorText, "LibAddonMenu-2.0")) return end
+
+	local noCraftingCharWasChosenYetAtAll = false
+	if RA.settings and RA.settings.sv then
+		local settings = RA.settings.sv
+		local CONST_OFF_VALUE = RA.settings.CONST_OFF_VALUE
+		if settings.useAccountWideResearchChars == true then
+			--Is the value 0 (CONST_OFF_VALUE) set for all crafting chars? No char was chosen yet!
+			if settings.blacksmithCharacter[CONST_OFF_VALUE]       		 == CONST_OFF_VALUE
+					and settings.weaponsmithCharacter[CONST_OFF_VALUE]      == CONST_OFF_VALUE
+					and settings.woodworkingCharacter[CONST_OFF_VALUE]      == CONST_OFF_VALUE
+					and settings.clothierCharacter[CONST_OFF_VALUE]         == CONST_OFF_VALUE
+					and settings.leatherworkerCharacter[CONST_OFF_VALUE]    == CONST_OFF_VALUE
+					and settings.jewelryCraftingCharacter[CONST_OFF_VALUE]  == CONST_OFF_VALUE then
+				noCraftingCharWasChosenYetAtAll = true
+			end
+		else
+			--Use different research characters for each of your characters
+			local currentlyLoggedInChar = RA.currentlyLoggedInCharId
+			if settings.blacksmithCharacter[currentlyLoggedInChar]       		  == CONST_OFF_VALUE
+					and settings.weaponsmithCharacter[currentlyLoggedInChar]      == CONST_OFF_VALUE
+					and settings.woodworkingCharacter[currentlyLoggedInChar]      == CONST_OFF_VALUE
+					and settings.clothierCharacter[currentlyLoggedInChar]         == CONST_OFF_VALUE
+					and settings.leatherworkerCharacter[currentlyLoggedInChar]    == CONST_OFF_VALUE
+					and settings.jewelryCraftingCharacter[currentlyLoggedInChar]  == CONST_OFF_VALUE then
+				noCraftingCharWasChosenYetAtAll = true
+			end
+		end
+		if noCraftingCharWasChosenYetAtAll == true then
+			local alertText
+			alertText = RA_Strings[RAlang].SETTINGS.ERROR_CONFIGURE_ADDON or "Please configure the addon, choose a research character in the settings!"
+			alertText = "["..RA.name.."]" .. alertText
+			if alertText and alertText ~= "" then
+				local params = CENTER_SCREEN_ANNOUNCE:CreateMessageParams(CSA_CATEGORY_SMALL_TEXT, SOUNDS.NONE)
+				params:SetCSAType(CENTER_SCREEN_ANNOUNCE_TYPE_DISPLAY_ANNOUNCEMENT )
+				params:SetText(alertText)
+				CENTER_SCREEN_ANNOUNCE:AddMessageWithParams(params)
+				d(alertText)
+			end
+		end
+	end
+
+end
+
 local function ResearchAssistant_Loaded(eventCode, addOnName)
 	if addOnName ~= RA.name then return end
+	EVENT_MANAGER:RegisterForEvent("RA_PLAYER_ACTIVATED", EVENT_PLAYER_ACTIVATED, RA_Event_Player_Activated)
+
 	local libResearch = LibResearch
 	if libResearch == nil then d(string.format(libErrorText, "LibResearch")) return end
 	RA.libResearch = libResearch
@@ -644,6 +694,8 @@ local function ResearchAssistant_Loaded(eventCode, addOnName)
 	RA.lam = LAM
 
 	wasInCombatAsWantedToScan = false
+
+	RA.currentlyLoggedInCharId = GetCurrentCharacterId()
 
 	RASettings = ResearchAssistantSettings:New()
 	RAScanner = ResearchAssistantScanner:New(RASettings)
