@@ -138,8 +138,8 @@ function ResearchAssistantScanner:IsItemProtectedAgainstResearch(bagId, slotInde
 	if not bagId or not slotIndex then return false end
 	--Setting to exclude protected items is enabled?
 	local settings = self.settingsPtr
-	local respectZOs = settings.respechtItemProtectionByZOs
-	local respectFCOIS = settings.respechtItemProtectionByFCOIS
+	local respectZOs = settings.respectItemProtectionByZOs
+	local respectFCOIS = settings.respectItemProtectionByFCOIS
 	local isLocked = false
 	if respectZOs == true or respectFCOIS == true then
 		if respectZOs == true then

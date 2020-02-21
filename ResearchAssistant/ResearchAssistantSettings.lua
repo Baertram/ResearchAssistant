@@ -145,8 +145,8 @@ function ResearchAssistantSettings:Initialize()
         leatherworkerCharacter = {},
         jewelryCraftingCharacter = {},
 
-        respechtItemProtectionByZOs     = false,
-        respechtItemProtectionByFCOIS   = false,
+        respectItemProtectionByZOs     = false,
+        respectItemProtectionByFCOIS   = false,
 
         --non settings variables
         acquiredTraits = {},
@@ -278,11 +278,11 @@ function ResearchAssistantSettings:GetResearchCharIdDependingOnSettings()
 end
 
 function ResearchAssistantSettings:IsItemProtectedByZOsSkipped()
-    return settings.respechtItemProtectionByZOs
+    return settings.respectItemProtectionByZOs
 end
 
 function ResearchAssistantSettings:IsItemProtectedByFCOISSkipped()
-    return settings.respechtItemProtectionByFCOIS
+    return settings.respectItemProtectionByFCOIS
 end
 
 function ResearchAssistantSettings:IsItemProtectedByAnySkipped()
@@ -754,9 +754,9 @@ function ResearchAssistantSettings:CreateOptionsMenu()
         type = "checkbox",
         name = str.SKIP_ZOS_MARKED,
         tooltip = str.SKIP_ZOS_MARKED_TTOLTIP,
-        getFunc = function() return settings.respechtItemProtectionByZOs end,
+        getFunc = function() return settings.respectItemProtectionByZOs end,
         setFunc = function(value)
-            settings.respechtItemProtectionByZOs = value
+            settings.respectItemProtectionByZOs = value
             ResearchAssistant_InvUpdate()
         end,
     })
@@ -764,9 +764,9 @@ function ResearchAssistantSettings:CreateOptionsMenu()
         type = "checkbox",
         name = str.SKIP_FCOIS_MARKED,
         tooltip = str.SKIP_FCOIS_MARKED_TOOLTIP,
-        getFunc = function() return settings.respechtItemProtectionByFCOIS end,
+        getFunc = function() return settings.respectItemProtectionByFCOIS end,
         setFunc = function(value)
-            settings.respechtItemProtectionByFCOIS = value
+            settings.respectItemProtectionByFCOIS = value
             ResearchAssistant_InvUpdate()
         end,
         disabled = function() return FCOIS == nil end,

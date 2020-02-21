@@ -481,8 +481,8 @@ local function AddResearchIndicatorToSlot(control, linkFunction)
 		end
 	end
 
-	--Item is protected agaisnt research so do not add any marker
-	if RA.scanner:IsItemProtectedAgainstResearch(bagId, slotIndex, itemLink) == false then
+	--Item is protected against research so do not add any marker
+	if RA.scanner:IsItemProtectedAgainstResearch(bagId, slotIndex, itemLink) == true then
 		indicatorControl:SetHidden(true)
 		return
 	end
