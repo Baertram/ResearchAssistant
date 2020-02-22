@@ -666,19 +666,27 @@ local function RA_Event_Player_Activated(event, isA)
 			end
 		end
 		if noCraftingCharWasChosenYetAtAll == true then
-			local alertText
-			alertText = RA_Strings[RAlang].SETTINGS.ERROR_CONFIGURE_ADDON or "Please configure the addon, choose a research character in the settings!"
-			alertText = "["..RA.name.."]" .. alertText
+			local alertTextHeader = "["..RA.name.."]"
+			local alertText = RA_Strings[RASettings:GetLanguage()].SETTINGS.ERROR_CONFIGURE_ADDON .. "\n" .. RA_Strings[RASettings:GetLanguage()].SETTINGS.ERROR_LOGIN_ALL_CHARS
 			if alertText and alertText ~= "" then
+				--Output the text as Center Screen Announcement
 				local params = CENTER_SCREEN_ANNOUNCE:CreateMessageParams(CSA_CATEGORY_SMALL_TEXT, SOUNDS.NONE)
 				params:SetCSAType(CENTER_SCREEN_ANNOUNCE_TYPE_DISPLAY_ANNOUNCEMENT )
-				params:SetText(alertText)
+				params:SetText(alertTextHeader .. " " .. alertText)
+				params:SetLifespanMS(3000)
 				CENTER_SCREEN_ANNOUNCE:AddMessageWithParams(params)
+				--Output the text to the chat
 				d(alertText)
 			end
+
+			--Set the text of the dialog
+			ESO_Dialogs[RA.dialogName].mainText = {
+					text = alertText,
+			}
+			--Output the text as dialog which is able to open the settings directly via "Yes" button
+			ZO_Dialogs_ShowDialog(RA.dialogName, {})
 		end
 	end
-
 end
 
 local function ResearchAssistant_Loaded(eventCode, addOnName)
@@ -759,6 +767,34 @@ local function ResearchAssistant_Loaded(eventCode, addOnName)
 	EVENT_MANAGER:RegisterForEvent("RA_INV_SLOT_UPDATE", EVENT_INVENTORY_SINGLE_SLOT_UPDATE, ResearchAssistant_InvUpdate)
 	--Add event filter to only scan upon updates of real items and not on durability changes etc.
 	EVENT_MANAGER:AddFilterForEvent("RA_INV_SLOT_UPDATE", EVENT_INVENTORY_SINGLE_SLOT_UPDATE, REGISTER_FILTER_INVENTORY_UPDATE_REASON, INVENTORY_UPDATE_REASON_DEFAULT)
+
+	--Register the ESO dialog for ResearchAssistant
+	RA.dialogName = RA.name.."_Dialog"
+	ESO_Dialogs[RA.dialogName] = {
+		canQueue = true,
+		uniqueIdentifier = RA.dialogName,
+		title = {
+			text = "ResearchAssistant",
+		},
+		mainText = {
+			text = "",
+		},
+		buttons = {
+			[1] = {
+				text = SI_DIALOG_CONFIRM,
+				callback = function(dialog)
+					if RA.lam and RA.settingsPanel then
+						RA.lam:OpenToPanel(RA.settingsPanel)
+					end
+				end,
+			},
+			[2] = {
+				text = SI_DIALOG_CANCEL,
+				callback = function(dialog) end,
+			}
+		},
+		setup = function(dialog, data) end,
+	}
 end
 
 EVENT_MANAGER:RegisterForEvent(RA.name .."Loaded", EVENT_ADD_ON_LOADED, ResearchAssistant_Loaded)

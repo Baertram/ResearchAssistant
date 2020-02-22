@@ -772,7 +772,7 @@ function ResearchAssistantSettings:CreateOptionsMenu()
         end,
     })
 
-    LAM:RegisterAddonPanel("ResearchAssistantSettingsPanel", panel)
+    RA.settingsPanel = LAM:RegisterAddonPanel("ResearchAssistantSettingsPanel", panel)
     LAM:RegisterOptionControls("ResearchAssistantSettingsPanel", optionsData)
 
     CALLBACK_MANAGER:RegisterCallback("LAM-PanelControlsCreated", function()

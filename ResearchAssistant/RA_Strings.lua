@@ -81,6 +81,7 @@ RA_Strings = {
             SKIP_FCOIS_MARKED_TOOLTIP   = "Skip items at the researchable scans and Research Assistant markers if the item is marked with the FCOIS icons.\nExclusion: The research marker icon of FCOIS is allowed!",
 
             ERROR_CONFIGURE_ADDON = "Please configure the addon, choose a research character in the settings!",
+            ERROR_LOGIN_ALL_CHARS = "Login all your characters to read their research data.",
         },
         TOOLTIPS = {
             knownBy = " \'%s\' known by:\n",
@@ -174,6 +175,7 @@ RA_Strings = {
             SKIP_FCOIS_MARKED_TOOLTIP   = "Schließt durch FCOItemSaver markierte Gegenstände von den Research Assistant Scan und Markierungen aus.\nAußname: Mit dem Analyse Symbol markierte werden berücksichtigt!",
 
             ERROR_CONFIGURE_ADDON = "Bitte konfiguriere das AddOn, wähle einen Analyse Charakter in den Einstellungen!",
+            ERROR_LOGIN_ALL_CHARS = "Logge alle Charaktere ein, um ihre Analyse Daten einzulesen.",
         },
         TOOLTIPS = {
             knownBy = " \'%s\' analysiert:\n",
@@ -266,7 +268,8 @@ RA_Strings = {
             SKIP_FCOIS_MARKED           = "Skip FCOItemSaver marked",
             SKIP_FCOIS_MARKED_TOOLTIP   = "Skip items at the researchable scans and Research Assistant markers if the item is marked with the FCOIS icons.\nExclusion: The research marker icon of FCOIS is allowed!",
 
-            ERROR_CONFIGURE_ADDON = "Please configure the addon, choose a research character in the settings!",
+            ERROR_CONFIGURE_ADDON = "Veuillez configurer l'addon, choisissez un personnage de recherche dans les paramètres!",
+            ERROR_LOGIN_ALL_CHARS = "Connectez-vous à tous vos personnages pour lire leurs données de recherche.",
         },
         TOOLTIPS = {
             knownBy = " \'%s\' known by:\n",
@@ -350,7 +353,8 @@ RA_Strings = {
             JC_CHAR_LABEL = "Elaboración de joyas",
             JC_CHAR_TOOLTIP = "Elige tu personaje fabricante de joyería.\n\'-\' significa: Ninguno",
 
-            ERROR_CONFIGURE_ADDON = "Please configure the addon, choose a research character in the settings!",
+            ERROR_CONFIGURE_ADDON = "¡Configura el AddOn, elige un personaje de investigación en la configuración!",
+            ERROR_LOGIN_ALL_CHARS = "Inicia sesión con todos tus personajes para leer sus datos de investigación.",
         },
         TOOLTIPS = {
             knownBy = " \'%s\' known by:\n",
@@ -444,6 +448,7 @@ RA_Strings = {
             SKIP_FCOIS_MARKED_TOOLTIP   = "Skip items at the researchable scans and Research Assistant markers if the item is marked with the FCOIS icons.\nExclusion: The research marker icon of FCOIS is allowed!",
 
             ERROR_CONFIGURE_ADDON = "Please configure the addon, choose a research character in the settings!",
+            ERROR_LOGIN_ALL_CHARS = "Login all your characters to read their research data.",
         },
         TOOLTIPS = {
             knownBy = " \'%s\' known by:\n",
