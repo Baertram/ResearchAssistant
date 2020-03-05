@@ -116,8 +116,8 @@ function ResearchAssistantSettings:Initialize()
         debug = false,
 
         useAccountWideResearchChars = true,
-        raToggle = true,
-        multiCharacter = false,
+        allowNoCharsForResearch = false,
+        useLoggedInCharForResearch = false,
 
         textureName = "Modern",
         textureSize = 16,
@@ -213,10 +213,6 @@ function ResearchAssistantSettings:Initialize()
     self.sv = settings
     --Create the LAM settings menu
     self:CreateOptionsMenu()
-end
-
-function ResearchAssistantSettings:IsActivated()
-    return self.sv.raToggle
 end
 
 function ResearchAssistantSettings:GetCanResearchColor()
@@ -441,6 +437,39 @@ function ResearchAssistantSettings:CreateOptionsMenu()
     })
     table.insert(optionsData, {
         type = "checkbox",
+        name = str.USE_CURRENT_LOGGED_IN_CHAR_FOR_RESEARCH,
+        tooltip = str.USE_CURRENT_LOGGED_IN_CHAR_FOR_RESEARCH_TT,
+        getFunc = function() return self.sv.useLoggedInCharForResearch end,
+        setFunc = function(value)
+            self.sv.useLoggedInCharForResearch = value
+            if value == true then
+                if not self.sv.useAccountWideResearchChars then
+                    --Use different research characters for each of your characters
+                    local currentlyLoggedInChar = RA.currentlyLoggedInCharId
+                    self.sv.blacksmithCharacter[currentlyLoggedInChar]       = currentlyLoggedInChar
+                    self.sv.weaponsmithCharacter[currentlyLoggedInChar]      = currentlyLoggedInChar
+                    self.sv.woodworkingCharacter[currentlyLoggedInChar]      = currentlyLoggedInChar
+                    self.sv.clothierCharacter[currentlyLoggedInChar]         = currentlyLoggedInChar
+                    self.sv.leatherworkerCharacter[currentlyLoggedInChar]    = currentlyLoggedInChar
+                    self.sv.jewelryCraftingCharacter[currentlyLoggedInChar]  = currentlyLoggedInChar
+                end
+            end
+        end,
+        disabled = function() return self.sv.useAccountWideResearchChars end
+    })
+    --[[
+    table.insert(optionsData, {
+        type = "checkbox",
+        name = str.ALLOW_NO_CHARACTER_CHOSEN_FOR_RESEARCH,
+        tooltip = str.ALLOW_NO_CHARACTER_CHOSEN_FOR_RESEARCH_TT,
+        getFunc = function() return self.sv.allowNoCharsForResearch end,
+        setFunc = function(value)
+            self.sv.allowNoCharsForResearch = value
+        end,
+    })
+    ]]
+    table.insert(optionsData, {
+        type = "checkbox",
         name = str.SEPARATE_SMITH_LABEL,
         tooltip = str.SEPARATE_SMITH_TOOLTIP,
         getFunc = function() return self.sv.separateSmithing end,
@@ -450,7 +479,7 @@ function ResearchAssistantSettings:CreateOptionsMenu()
             end
             self.sv.separateSmithing = value
             ResearchAssistant_InvUpdate()
-        end
+        end,
     })
     table.insert(optionsData, {
         type = "dropdown",

@@ -3,7 +3,7 @@ local RA = ResearchAssistant
 
 --Addon variables
 RA.name		= "ResearchAssistant"
-RA.version 	= "0.9.4.8"
+RA.version 	= "0.9.4.9"
 RA.author   = "ingeniousclown, katkat42, Randactyl, Baertram"
 RA.website	= "https://www.esoui.com/downloads/info111-ResearchAssistant.html"
 
@@ -643,49 +643,62 @@ local function RA_Event_Player_Activated(event, isA)
 	if RA.settings and RA.settings.sv then
 		local settings = RA.settings.sv
 		local CONST_OFF_VALUE = RA.settings.CONST_OFF_VALUE
-		if settings.useAccountWideResearchChars == true then
-			--Is the value 0 (CONST_OFF_VALUE) set for all crafting chars? No char was chosen yet!
-			if settings.blacksmithCharacter[CONST_OFF_VALUE]       		 == CONST_OFF_VALUE
-					and settings.weaponsmithCharacter[CONST_OFF_VALUE]      == CONST_OFF_VALUE
-					and settings.woodworkingCharacter[CONST_OFF_VALUE]      == CONST_OFF_VALUE
-					and settings.clothierCharacter[CONST_OFF_VALUE]         == CONST_OFF_VALUE
-					and settings.leatherworkerCharacter[CONST_OFF_VALUE]    == CONST_OFF_VALUE
-					and settings.jewelryCraftingCharacter[CONST_OFF_VALUE]  == CONST_OFF_VALUE then
-				noCraftingCharWasChosenYetAtAll = true
+		--if not settings.allowNoCharsForResearch then
+			if settings.useAccountWideResearchChars == true then
+				--Is the value 0 (CONST_OFF_VALUE) set for all crafting chars? No char was chosen yet!
+				if settings.blacksmithCharacter[CONST_OFF_VALUE]       		 == CONST_OFF_VALUE
+						and settings.weaponsmithCharacter[CONST_OFF_VALUE]      == CONST_OFF_VALUE
+						and settings.woodworkingCharacter[CONST_OFF_VALUE]      == CONST_OFF_VALUE
+						and settings.clothierCharacter[CONST_OFF_VALUE]         == CONST_OFF_VALUE
+						and settings.leatherworkerCharacter[CONST_OFF_VALUE]    == CONST_OFF_VALUE
+						and settings.jewelryCraftingCharacter[CONST_OFF_VALUE]  == CONST_OFF_VALUE then
+					noCraftingCharWasChosenYetAtAll = true
+				end
+			else
+				--Use different research characters for each of your characters
+				local currentlyLoggedInChar = RA.currentlyLoggedInCharId
+				if settings.useLoggedInCharForResearch == true then
+					--Use different research characters for each of your characters
+					settings.blacksmithCharacter[currentlyLoggedInChar]       = currentlyLoggedInChar
+					settings.weaponsmithCharacter[currentlyLoggedInChar]      = currentlyLoggedInChar
+					settings.woodworkingCharacter[currentlyLoggedInChar]      = currentlyLoggedInChar
+					settings.clothierCharacter[currentlyLoggedInChar]         = currentlyLoggedInChar
+					settings.leatherworkerCharacter[currentlyLoggedInChar]    = currentlyLoggedInChar
+					settings.jewelryCraftingCharacter[currentlyLoggedInChar]  = currentlyLoggedInChar
+					noCraftingCharWasChosenYetAtAll = false
+				else
+					if settings.blacksmithCharacter[currentlyLoggedInChar]       		  == CONST_OFF_VALUE
+							and settings.weaponsmithCharacter[currentlyLoggedInChar]      == CONST_OFF_VALUE
+							and settings.woodworkingCharacter[currentlyLoggedInChar]      == CONST_OFF_VALUE
+							and settings.clothierCharacter[currentlyLoggedInChar]         == CONST_OFF_VALUE
+							and settings.leatherworkerCharacter[currentlyLoggedInChar]    == CONST_OFF_VALUE
+							and settings.jewelryCraftingCharacter[currentlyLoggedInChar]  == CONST_OFF_VALUE then
+						noCraftingCharWasChosenYetAtAll = true
+					end
+				end
 			end
-		else
-			--Use different research characters for each of your characters
-			local currentlyLoggedInChar = RA.currentlyLoggedInCharId
-			if settings.blacksmithCharacter[currentlyLoggedInChar]       		  == CONST_OFF_VALUE
-					and settings.weaponsmithCharacter[currentlyLoggedInChar]      == CONST_OFF_VALUE
-					and settings.woodworkingCharacter[currentlyLoggedInChar]      == CONST_OFF_VALUE
-					and settings.clothierCharacter[currentlyLoggedInChar]         == CONST_OFF_VALUE
-					and settings.leatherworkerCharacter[currentlyLoggedInChar]    == CONST_OFF_VALUE
-					and settings.jewelryCraftingCharacter[currentlyLoggedInChar]  == CONST_OFF_VALUE then
-				noCraftingCharWasChosenYetAtAll = true
-			end
-		end
-		if noCraftingCharWasChosenYetAtAll == true then
-			local alertTextHeader = "["..RA.name.."]"
-			local alertText = RA_Strings[RASettings:GetLanguage()].SETTINGS.ERROR_CONFIGURE_ADDON .. "\n" .. RA_Strings[RASettings:GetLanguage()].SETTINGS.ERROR_LOGIN_ALL_CHARS
-			if alertText and alertText ~= "" then
-				--Output the text as Center Screen Announcement
-				local params = CENTER_SCREEN_ANNOUNCE:CreateMessageParams(CSA_CATEGORY_SMALL_TEXT, SOUNDS.NONE)
-				params:SetCSAType(CENTER_SCREEN_ANNOUNCE_TYPE_DISPLAY_ANNOUNCEMENT )
-				params:SetText(alertTextHeader .. " " .. alertText)
-				params:SetLifespanMS(3000)
-				CENTER_SCREEN_ANNOUNCE:AddMessageWithParams(params)
-				--Output the text to the chat
-				d(alertText)
-			end
+			if noCraftingCharWasChosenYetAtAll == true then
+				local alertTextHeader = "["..RA.name.."]"
+				local alertText = RA_Strings[RASettings:GetLanguage()].SETTINGS.ERROR_CONFIGURE_ADDON .. "\n" .. RA_Strings[RASettings:GetLanguage()].SETTINGS.ERROR_LOGIN_ALL_CHARS
+				if alertText and alertText ~= "" then
+					--Output the text as Center Screen Announcement
+					local params = CENTER_SCREEN_ANNOUNCE:CreateMessageParams(CSA_CATEGORY_SMALL_TEXT, SOUNDS.NONE)
+					params:SetCSAType(CENTER_SCREEN_ANNOUNCE_TYPE_DISPLAY_ANNOUNCEMENT )
+					params:SetText(alertTextHeader .. " " .. alertText)
+					params:SetLifespanMS(3000)
+					CENTER_SCREEN_ANNOUNCE:AddMessageWithParams(params)
+					--Output the text to the chat
+					d(alertText)
+				end
 
-			--Set the text of the dialog
-			ESO_Dialogs[RA.dialogName].mainText = {
-					text = alertText,
-			}
-			--Output the text as dialog which is able to open the settings directly via "Yes" button
-			ZO_Dialogs_ShowDialog(RA.dialogName, {})
-		end
+				--Set the text of the dialog
+				ESO_Dialogs[RA.dialogName].mainText = {
+						text = alertText,
+				}
+				--Output the text as dialog which is able to open the settings directly via "Yes" button
+				ZO_Dialogs_ShowDialog(RA.dialogName, {})
+			end
+		--end
 	end
 end
 

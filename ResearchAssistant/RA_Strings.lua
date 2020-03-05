@@ -73,6 +73,10 @@ RA_Strings = {
 
             USE_ACCOUNTWIDE_RESEARCH_CHARS      = "Account-wide same research characters",
             USE_ACCOUNTWIDE_RESEARCH_CHARS_TT   = "Attention: Change of this option will reload the UI directly!\n\nWith this option enabled all your characters of the current acocunt will use the same research characters for each crafting type (default setting).\nWith this option disabled you can specify different research characters for each crafting type at each of your characters.",
+            ALLOW_NO_CHARACTER_CHOSEN_FOR_RESEARCH      = "No warning w/o research character selected",
+            ALLOW_NO_CHARACTER_CHOSEN_FOR_RESEARCH_TT   = "Do not sbow a warning dialog if you have chosen no character for research of any crafting type.",
+            USE_CURRENT_LOGGED_IN_CHAR_FOR_RESEARCH     = "Use logged in char for all researches",
+            USE_CURRENT_LOGGED_IN_CHAR_FOR_RESEARCH_TT  = "Use the currently logged in character for all researches and crafting types.\n\nOnly works if the 'account-wide same research characters' setting is disabled!",
 
             PROTECTION                  = "Protection",
             SKIP_ZOS_MARKED             = "Skip ZOs marked",
@@ -167,6 +171,8 @@ RA_Strings = {
 
             USE_ACCOUNTWIDE_RESEARCH_CHARS      = "Account-weit Analyse Charaktere identisch",
             USE_ACCOUNTWIDE_RESEARCH_CHARS_TT   = "ACHTUNG: Verändern dieser Option lädt die Benutzeroberfläche sofort neu!\n\nIst diese Option aktiviert so werden für diesen Account dieselben Analyse Charaktere für alle Handwerke benutzt (Standard Einstellung).\nDeaktivierst du diese Option so kannst du je Charakter deines Accounts unterschiedliche Analyse Charaktere je Handwerk festlegen.",
+            USE_CURRENT_LOGGED_IN_CHAR_FOR_RESEARCH     = "Nutze eingeloggten User für alle Analysen",
+            USE_CURRENT_LOGGED_IN_CHAR_FOR_RESEARCH_TT  = "Nutzt den aktuell eingeloggten Benutzer für alle Analysen aller Handwerke.\n\nFunktioniert nur wenn die 'Account-weit Analyse Charaktere identisch' Einstellung aus ist!",
 
             PROTECTION                  = "Schutz",
             SKIP_ZOS_MARKED             = "ZOs markierte ausschließen",
@@ -176,6 +182,8 @@ RA_Strings = {
 
             ERROR_CONFIGURE_ADDON = "Bitte konfiguriere das AddOn, wähle einen Analyse Charakter in den Einstellungen!",
             ERROR_LOGIN_ALL_CHARS = "Logge alle Charaktere ein, um ihre Analyse Daten einzulesen.",
+            ALLOW_NO_CHARACTER_CHOSEN_FOR_RESEARCH      = "Keine Warnung ohne Analyse Char. gewählt",
+            ALLOW_NO_CHARACTER_CHOSEN_FOR_RESEARCH_TT   = "Zeige keine Warnung beim Einloggen an, wenn nicht wenigstens ein Analyse Charakter für ein Handwerk ausgewählt wurde.",
         },
         TOOLTIPS = {
             knownBy = " \'%s\' analysiert:\n",
