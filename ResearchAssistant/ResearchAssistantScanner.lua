@@ -3,14 +3,10 @@ local BLACKSMITH 		= CRAFTING_TYPE_BLACKSMITHING
 local CLOTHIER 			= CRAFTING_TYPE_CLOTHIER
 local WOODWORK 			= CRAFTING_TYPE_WOODWORKING
 local JEWELRY_CRAFTING 	= CRAFTING_TYPE_JEWELRYCRAFTING
+
 --LibResearch reasons
-local LIBRESEARCH_REASON_ALREADY_KNOWN 		= "AlreadyKnown"
-local LIBRESEARCH_REASON_WRONG_ITEMTYPE 	= "WrongItemType"
---[[
-local LIBRESEARCH_REASON_ORNATE 			= "Ornate"
-local LIBRESEARCH_REASON_INTRICATE 			= "Intricate"
-local LIBRESEARCH_REASON_TRAITLESS 			= "Traitless"
-]]
+local libResearch_Reason_ALREADY_KNOWN 	= LIBRESEARCH_REASON_ALREADY_KNOWN or "AlreadyKnown"
+local libResearch_Reason_WRONG_ITEMTYPE = LIBRESEARCH_REASON_WRONG_ITEMTYPE or "WrongItemType"
 
 --House bank bags
 local maxHouseBankBag = BAG_HOUSE_BANK_TEN
@@ -104,6 +100,10 @@ function ResearchAssistantScanner:CreateItemPreferenceValue(itemLink, bagId, slo
 		level = 1
 	end
 
+	local isSet = GetItemLinkSetInfo(itemLink, false)
+	isSet = isSet or false
+	local set = (isSet == true and 1) or 0
+
 	local bagToWhere = {
 		[BAG_BANK] 				= 1,
 		[BAG_SUBSCRIBER_BANK] 	= 1,
@@ -111,16 +111,54 @@ function ResearchAssistantScanner:CreateItemPreferenceValue(itemLink, bagId, slo
 		[BAG_GUILDBANK] 		= 3,
 	}
 	for bagHouseBank = BAG_HOUSE_BANK_ONE, maxHouseBankBag, 1 do
-		bagToWhere[bagHouseBank] = 1
+		bagToWhere[bagHouseBank] = 4
 	end
 	local where = bagToWhere[bagId] or 1
 
 	--wxxxyzzz
-	--the lowest preference value is the "preferred" value
+	--The lowest preference value is the "preferred" value for a research!
+	--
+	--Standard checks are:
+	--level
+	--quality
+	--set item (no set=0, set=1)
+	--
+	--Where is the item located:
 	--bank is lowest number, will be orange if you have a dupe in your inventory
 	--bag is middle number, will be yellow if you have a dupe in the inventory
-	--gbank is highest number, will be yellow if you have a dupe in the inventory
-	return quality * 10000000 + level * 10000 + where * 1000 + (slotIndex or 0)
+	--gbank is 2nd highest number, will be yellow if you have a dupe in the inventory
+	--housebank is highest number, will be yellow if you have a dupe in the inventory
+	return quality * 10000000 + set * 1000000 + level * 10000 + where * 1000 + (slotIndex or 0)
+end
+
+--Is the item protected against research by any means?
+--e.g. item is locked by ZOs lock functionality, or by other addons like
+--FCOItemSaver
+function ResearchAssistantScanner:IsItemProtectedAgainstResearch(bagId, slotIndex, itemLink)
+	if not bagId or not slotIndex then return false end
+	--Setting to exclude protected items is enabled?
+	local settings = self.settingsPtr.sv
+	local respectZOs = settings.respectItemProtectionByZOs
+	local respectFCOIS = settings.respectItemProtectionByFCOIS
+	local isLocked = false
+	if respectZOs == true or respectFCOIS == true then
+		if respectZOs == true then
+			isLocked = IsItemPlayerLocked(bagId, slotIndex)
+		end
+		if respectFCOIS == true and FCOIS ~= nil then
+			if itemLink == nil or itemLink == "" then
+				itemLink = GetItemLink(bagId, slotIndex)
+			end
+			local equipType = GetItemLinkEquipType(itemLink)
+			if equipType == EQUIP_TYPE_NECK or equipType == EQUIP_TYPE_RING then
+				isLocked = FCOIS.IsJewelryResearchLocked(bagId, slotIndex)
+			else
+				isLocked = FCOIS.IsResearchLocked(bagId, slotIndex)
+			end
+		end
+		return isLocked
+	end
+	return false
 end
 
 function ResearchAssistantScanner:ScanBag(bagId)
@@ -132,28 +170,34 @@ function ResearchAssistantScanner:ScanBag(bagId)
 	for i = 0, numSlots do
 		local itemLink = GetItemLink(bagId, i)
 		if itemLink ~= "" then
+			--Is the item protected against research by any means?
 			local traitKey, isResearchable, reason = self:CheckIsItemResearchable(itemLink)
-			local prefValue = self:CreateItemPreferenceValue(itemLink, bagId, i)
-			if self.debug == true then
-				if bagId == BAG_BACKPACK and reason ~= LIBRESEARCH_REASON_WRONG_ITEMTYPE then
-					d(">>"..tostring(i).." "..GetItemLinkName(itemLink)..": trait "..tostring(traitKey).." can? "..tostring(isResearchable).." why? "..tostring(reason).." pref: "..prefValue)
+			if self:IsItemProtectedAgainstResearch(bagId, i, itemLink) == false then
+				local prefValue = self:CreateItemPreferenceValue(itemLink, bagId, i)
+				if self.debug == true then
+					if bagId == BAG_BACKPACK and reason ~= libResearch_Reason_WRONG_ITEMTYPE then
+						d(">>"..tostring(i).." "..GetItemLinkName(itemLink)..": trait "..tostring(traitKey).." can? "..tostring(isResearchable).." why? "..tostring(reason).." pref: "..prefValue)
+					end
 				end
-			end
-			--is this item researchable?
-			if isResearchable then
-				-- if so, is this item preferable to the one we already have on record?
-				if prefValue < (traits[traitKey] or 999999999999999999) then
-					traits[traitKey] = prefValue
+				--is this item researchable?
+				if isResearchable then
+					-- if so, is this item preferable to the one we already have on record?
+					if prefValue < (traits[traitKey] or 999999999999999999) then
+						traits[traitKey] = prefValue
+					end
+				else
+					--if we're here,
+					if reason == libResearch_Reason_ALREADY_KNOWN then
+						--either we already know it
+						traits[traitKey] = true
+					else
+						--or it has no trait, in which case we ignore it
+						traits[traitKey] = nil
+					end
 				end
 			else
-				--if we're here,
-				if reason == LIBRESEARCH_REASON_ALREADY_KNOWN then
-					--either we already know it
-					traits[traitKey] = true
-				else
-					--or it has no trait, in which case we ignore it
-					traits[traitKey] = nil
-				end
+				--or it is protected, in which case we ignore it
+				traits[traitKey] = nil
 			end
 		end
 	end

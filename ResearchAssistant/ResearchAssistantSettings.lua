@@ -1,10 +1,9 @@
 if ResearchAssistant == nil then ResearchAssistant = {} end
 local RA = ResearchAssistant
 
-local settings = nil
 local _
 
-local charName = GetUnitName("player")
+local currentlyLoggedInCharId = RA.currentlyLoggedInCharId or GetCurrentCharacterId()
 
 local CAN_RESEARCH_TEXTURES = {
     ["Classic"] = {
@@ -50,6 +49,52 @@ local function HexToRGBA(hex)
     return tonumber(rhex, 16)/255, tonumber(ghex, 16)/255, tonumber(bhex, 16)/255, tonumber(ahex, 16)/255
 end
 
+local function getClassIcon(classId)
+    --* GetClassInfo(*luaindex* _index_)
+    -- @return defId integer,lore string,normalIconKeyboard textureName,pressedIconKeyboard textureName,mouseoverIconKeyboard textureName,isSelectable bool,ingameIconKeyboard textureName,ingameIconGamepad textureName,normalIconGamepad textureName,pressedIconGamepad textureName
+    local classLuaIndex = GetClassIndexById(classId)
+    local _, _, textureName, _, _, _, ingameIconKeyboard, _, _, _= GetClassInfo(classLuaIndex)
+    return ingameIconKeyboard or textureName or ""
+end
+
+local function decorateCharName(charName, classId, decorate)
+    if not charName or charName == "" then return "" end
+    if not classId then return charName end
+    decorate = decorate or false
+    if not decorate then return charName end
+    local charNameDecorated
+    --Get the class color
+    local charColorDef = GetClassColor(classId)
+    --Apply the class color to the charname
+    if nil ~= charColorDef then charNameDecorated = charColorDef:Colorize(charName) end
+    --Apply the class textures to the charname
+    charNameDecorated = zo_iconTextFormatNoSpace(getClassIcon(classId), 20, 20, charNameDecorated)
+    return charNameDecorated
+end
+
+--Build the table of all characters of the account
+local function getCharactersOfAccount(keyIsCharName, decorate)
+    decorate = decorate or false
+    keyIsCharName = keyIsCharName or false
+    local charactersOfAccount
+    --Check all the characters of the account
+    for i = 1, GetNumCharacters() do
+        --GetCharacterInfo() -> *string* _name_, *[Gender|#Gender]* _gender_, *integer* _level_, *integer* _classId_, *integer* _raceId_, *[Alliance|#Alliance]* _alliance_, *string* _id_, *integer* _locationId_
+        local name, gender, level, classId, raceId, alliance, characterId, location = GetCharacterInfo(i)
+        local charName = zo_strformat(SI_UNIT_NAME, name)
+        if characterId ~= nil and charName ~= "" then
+            if charactersOfAccount == nil then charactersOfAccount = {} end
+            charName = decorateCharName(charName, classId, decorate)
+            if keyIsCharName then
+                charactersOfAccount[charName]   = characterId
+            else
+                charactersOfAccount[characterId]= charName
+            end
+        end
+    end
+    return charactersOfAccount
+end
+
 ------------------------------
 --OBJECT FUNCTIONS
 ------------------------------
@@ -62,9 +107,17 @@ function ResearchAssistantSettings:New()
 end
 
 function ResearchAssistantSettings:Initialize()
+    --Constants
+    self.CONST_CHARACTER_NOT_SCANNED_YET = -100
+    self.CONST_OFF = "-"
+    self.CONST_OFF_VALUE = 0
+
     local defaults = {
-        raToggle = true,
-        multiCharacter = false,
+        debug = false,
+
+        useAccountWideResearchChars = true,
+        allowNoCharsForResearch = false,
+        useLoggedInCharForResearch = false,
 
         textureName = "Modern",
         textureSize = 16,
@@ -77,15 +130,13 @@ function ResearchAssistantSettings:Initialize()
         duplicateUnresearchedColor = RGBAToHex(1, 1, 0, 1),
         alreadyResearchedColor = RGBAToHex(.5, .5, .5, 1),
         ornateColor = RGBAToHex(1, 1, 0, 1),
-				intricateColor = RGBAToHex(0, 1, 1, 1),
+        intricateColor = RGBAToHex(0, 1, 1, 1),
 
         showResearched = true,
         showTraitless = true,
         showUntrackedOrnate = true,
         showUntrackedIntricate = true,
 
-        --knownCharacters = { "off", "all" },
-        knownCharacters = { "off" },
         blacksmithCharacter = {},
         weaponsmithCharacter = {},
         woodworkingCharacter = {},
@@ -93,13 +144,17 @@ function ResearchAssistantSettings:Initialize()
         leatherworkerCharacter = {},
         jewelryCraftingCharacter = {},
 
-        debug = false,
+        respectItemProtectionByZOs     = false,
+        respectItemProtectionByFCOIS   = false,
 
         --non settings variables
         acquiredTraits = {},
-		}
-
-    settings = ZO_SavedVars:NewAccountWide("ResearchAssistant_Settings", 2, nil, defaults)
+    }
+    --Old non-server dependent character name settings
+    --local settings = ZO_SavedVars:NewAccountWide("ResearchAssistant_Settings", 2, nil, defaults)
+    --New server dependent character unique ID settings
+    --ZO_SavedVars:NewAccountWide(savedVariableTable, version, namespace, defaults, profile, displayName)
+    local settings = ZO_SavedVars:NewAccountWide("ResearchAssistant_Settings_Server", 2, nil, defaults, GetWorldName(), nil)
 
     if settings.isBlacksmith then settings.isBlacksmith = nil end
     if settings.isWoodworking then settings.isWoodworking = nil end
@@ -109,187 +164,209 @@ function ResearchAssistantSettings:Initialize()
     if settings.useCrossCharacter then settings.useCrossCharacter = nil end
     if settings.showInGrid then settings.showInGrid = nil end
 
-    if (not settings.showResearched) and settings.showTraitless then
+    if (not settings.showResearched) and settings.showTraitless == true then
         settings.showTraitless = false
     end
 
-    if(not settings.blacksmithCharacter[charName]) then
-        settings.blacksmithCharacter[charName] = charName
-    end
-    if (not settings.weaponsmithCharacter[charName]) then
-        settings.weaponsmithCharacter[charName] = settings.blacksmithCharacter[charName]
-    end
-    if (not settings.woodworkingCharacter[charName]) then
-        settings.woodworkingCharacter[charName] = charName
-    end
-    if (not settings.clothierCharacter[charName]) then
-        settings.clothierCharacter[charName] = charName
-    end
-    if (not settings.leatherworkerCharacter[charName]) then
-        settings.leatherworkerCharacter[charName] = settings.clothierCharacter[charName]
-    end
-    if (not settings.jewelryCraftingCharacter[charName]) then
-        settings.jewelryCraftingCharacter[charName] = charName
-    end
-    if (not settings.acquiredTraits[charName]) then
-        settings.acquiredTraits[charName] = { }
+    settings.acquiredTraits[currentlyLoggedInCharId] = settings.acquiredTraits[currentlyLoggedInCharId] or { }
+
+    --Use the same research characters for each of your characters
+    if settings.useAccountWideResearchChars == true then
+        --Use the value 0 (self.CONST_OFF_VALUE) as key for the account wide same chars
+        settings.blacksmithCharacter[self.CONST_OFF_VALUE]       = settings.blacksmithCharacter[self.CONST_OFF_VALUE]         or self.CONST_OFF_VALUE
+        settings.weaponsmithCharacter[self.CONST_OFF_VALUE]      = settings.weaponsmithCharacter[self.CONST_OFF_VALUE]        or self.CONST_OFF_VALUE
+        settings.woodworkingCharacter[self.CONST_OFF_VALUE]      = settings.woodworkingCharacter[self.CONST_OFF_VALUE]        or self.CONST_OFF_VALUE
+        settings.clothierCharacter[self.CONST_OFF_VALUE]         = settings.clothierCharacter[self.CONST_OFF_VALUE]           or self.CONST_OFF_VALUE
+        settings.leatherworkerCharacter[self.CONST_OFF_VALUE]    = settings.leatherworkerCharacter[self.CONST_OFF_VALUE]      or self.CONST_OFF_VALUE
+        settings.jewelryCraftingCharacter[self.CONST_OFF_VALUE]  = settings.jewelryCraftingCharacter[self.CONST_OFF_VALUE]    or self.CONST_OFF_VALUE
+    else
+        --Use different research characters for each of your characters
+        -->Makes no sense imo but was the standard setting in older ResearchAssistant.
+        -->Would only make sense if you level a small toon and whant it to research stuff. But even than changing it globally for
+        -->all chars would be fine in order to collect the items for this small toon on all of your chars
+        --Preset each selected research char with "none" for new added characters of the account
+        settings.blacksmithCharacter[currentlyLoggedInCharId]       = settings.blacksmithCharacter[currentlyLoggedInCharId]         or self.CONST_OFF_VALUE
+        settings.weaponsmithCharacter[currentlyLoggedInCharId]      = settings.weaponsmithCharacter[currentlyLoggedInCharId]        or self.CONST_OFF_VALUE
+        settings.woodworkingCharacter[currentlyLoggedInCharId]      = settings.woodworkingCharacter[currentlyLoggedInCharId]        or self.CONST_OFF_VALUE
+        settings.clothierCharacter[currentlyLoggedInCharId]         = settings.clothierCharacter[currentlyLoggedInCharId]           or self.CONST_OFF_VALUE
+        settings.leatherworkerCharacter[currentlyLoggedInCharId]    = settings.leatherworkerCharacter[currentlyLoggedInCharId]      or self.CONST_OFF_VALUE
+        settings.jewelryCraftingCharacter[currentlyLoggedInCharId]  = settings.jewelryCraftingCharacter[currentlyLoggedInCharId]    or self.CONST_OFF_VALUE
     end
 
-    local addme = true
-    local addoff = true
-    --local addany = true
-    for k, v in pairs(settings.knownCharacters) do
-        if v == charName then addme = false end
-        if v == "off" then addoff = false end
-        --if v == "any" then addany = false end
+    --Build a list of characters of the current acount
+    --Key is the unique character Id, value is the name
+    self.charId2Name = getCharactersOfAccount(false, true)
+    --Key is the name, value the unique character Id
+    self.charName2Id = getCharactersOfAccount(true, true)
+    --The LAM settings character values table
+    self.lamCharNamesTable = {}
+    --Build the known characters table for the LAM dropdown controls
+    self.lamCharIdTable = {}
+    table.insert(self.lamCharNamesTable, 1, self.CONST_OFF)
+    table.insert(self.lamCharIdTable, 1, self.CONST_OFF_VALUE)
+    for l_charId, l_charName in pairs(self.charId2Name) do
+        table.insert(self.lamCharNamesTable, l_charName)
+        table.insert(self.lamCharIdTable, l_charId)
     end
-    if addme then table.insert(settings.knownCharacters, charName) end
-    if addoff then table.insert(settings.knownCharacters, "off") end
-    --if addany then table.insert(settings.knownCharacters, "any") end
 
+    --Pass the SavedVariables to the settings object
+    self.sv = settings
+    --Create the LAM settings menu
     self:CreateOptionsMenu()
 end
 
-function ResearchAssistantSettings:IsActivated()
-    return settings.raToggle
-end
-
 function ResearchAssistantSettings:GetCanResearchColor()
-    local r, g, b, a = HexToRGBA(settings.canResearchColor)
+    local r, g, b, a = HexToRGBA(self.sv.canResearchColor)
     return {r, g, b, a}
 end
 
 function ResearchAssistantSettings:GetDuplicateUnresearchedColor()
-    local r, g, b, a = HexToRGBA(settings.duplicateUnresearchedColor)
+    local r, g, b, a = HexToRGBA(self.sv.duplicateUnresearchedColor)
     return {r, g, b, a}
 end
 
 function ResearchAssistantSettings:GetAlreadyResearchedColor()
-    local r, g, b, a = HexToRGBA(settings.alreadyResearchedColor)
+    local r, g, b, a = HexToRGBA(self.sv.alreadyResearchedColor)
     return {r, g, b, a}
 end
 
 function ResearchAssistantSettings:GetOrnateColor()
-    local r, g, b, a = HexToRGBA(settings.ornateColor)
+    local r, g, b, a = HexToRGBA(self.sv.ornateColor)
     return {r, g, b, a}
 end
 
 function ResearchAssistantSettings:GetIntricateColor()
-    local r, g, b, a = HexToRGBA(settings.intricateColor)
+    local r, g, b, a = HexToRGBA(self.sv.intricateColor)
+    return {r, g, b, a}
+end
+
+function ResearchAssistantSettings:GetNotScannedColor()
+    local r, g, b, a = 1, 1, 1, 1
     return {r, g, b, a}
 end
 
 function ResearchAssistantSettings:ShowResearched()
-    return settings.showResearched
+    return self.sv.showResearched
 end
 
 function ResearchAssistantSettings:ShowTraitless()
-    return settings.showTraitless
+    return self.sv.showTraitless
 end
 
 function ResearchAssistantSettings:ShowUntrackedOrnate()
-    return settings.showUntrackedOrnate
+    return self.sv.showUntrackedOrnate
 end
 
 function ResearchAssistantSettings:ShowUntrackedIntricate()
-    return settings.showUntrackedIntricate
+    return self.sv.showUntrackedIntricate
 end
 
 function ResearchAssistantSettings:ShowTooltips()
-    return settings.showTooltips
+    return self.sv.showTooltips
+end
+
+function ResearchAssistantSettings:GetResearchCharIdDependingOnSettings()
+    if self.sv.useAccountWideResearchChars == true then
+        return self.CONST_OFF_VALUE
+    else
+        return currentlyLoggedInCharId
+    end
+end
+
+function ResearchAssistantSettings:IsItemProtectedByZOsSkipped()
+    return self.sv.respectItemProtectionByZOs
+end
+
+function ResearchAssistantSettings:IsItemProtectedByFCOISSkipped()
+    return self.sv.respectItemProtectionByFCOIS
+end
+
+function ResearchAssistantSettings:IsItemProtectedByAnySkipped()
+    return (self:IsItemProtectedByZOsSkipped() and self:IsItemProtectedByFCOISSkipped()) or false
 end
 
 function ResearchAssistantSettings:SetKnownTraits(traitsTable)
-    settings.acquiredTraits[GetUnitName("player")] = traitsTable
+    self.sv.acquiredTraits[currentlyLoggedInCharId] = traitsTable
 end
 
 function ResearchAssistantSettings:GetCharsWhoKnowTrait(traitKey)
+    local knownCharIds = {}
     local knowers = ""
-    for curChar, traitList in pairs(settings.acquiredTraits) do
-        if traitList[traitKey] == true then knowers = knowers .. ", " .. curChar end
+    for curCharId, traitList in pairs(self.sv.acquiredTraits) do
+        if curCharId ~= self.CONST_OFF_VALUE then
+            if traitList and traitList[traitKey] == true then
+                local curCharName = self.charId2Name[curCharId]
+                table.insert(knownCharIds, curCharName)
+            end
+        end
     end
-    return string.sub(knowers, 3)
+    if #knownCharIds > 0 then
+        table.sort(knownCharIds)
+        for _, curCharName in ipairs(knownCharIds) do
+            if knowers == "" then
+                knowers = curCharName
+            else
+                knowers = knowers .. "\n" .. curCharName
+            end
+        end
+    end
+    return knowers
+end
+
+function ResearchAssistantSettings:GetTrackedCharForSkill(craftingSkillType, itemType, getCrafterName)
+    getCrafterName = getCrafterName or false
+    local crafter
+    if(craftingSkillType == CRAFTING_TYPE_BLACKSMITHING and itemType > 7) then
+        crafter = self.sv.blacksmithCharacter[self:GetResearchCharIdDependingOnSettings()]
+    elseif(craftingSkillType == CRAFTING_TYPE_BLACKSMITHING and itemType <= 7) then
+        crafter = self.sv.weaponsmithCharacter[self:GetResearchCharIdDependingOnSettings()]
+    elseif(craftingSkillType == CRAFTING_TYPE_CLOTHIER and itemType <= 7) then
+        crafter = self.sv.clothierCharacter[self:GetResearchCharIdDependingOnSettings()]
+    elseif(craftingSkillType == CRAFTING_TYPE_CLOTHIER and itemType > 7) then
+        crafter = self.sv.leatherworkerCharacter[self:GetResearchCharIdDependingOnSettings()]
+    elseif(craftingSkillType == CRAFTING_TYPE_WOODWORKING) then
+        crafter = self.sv.woodworkingCharacter[self:GetResearchCharIdDependingOnSettings()]
+    elseif(craftingSkillType == CRAFTING_TYPE_JEWELRYCRAFTING) then
+        crafter = self.sv.jewelryCraftingCharacter[self:GetResearchCharIdDependingOnSettings()]
+    else
+        crafter = self.CONST_OFF_VALUE
+    end
+    --Shall we return the name instead of the unique id?
+    if getCrafterName == true and (crafter ~= nil and crafter ~= "" and crafter ~= self.CONST_OFF_VALUE) then
+        local charNameDecorated = self.charId2Name[crafter]
+        if charNameDecorated and charNameDecorated ~= "" then return charNameDecorated end
+    end
+    return crafter
 end
 
 function ResearchAssistantSettings:GetCraftingCharacterTraits(craftingSkillType, itemType)
-    local crafter
-    if(craftingSkillType == CRAFTING_TYPE_BLACKSMITHING and itemType > 7) then
-        crafter = settings.blacksmithCharacter[charName]
-    elseif(craftingSkillType == CRAFTING_TYPE_BLACKSMITHING and itemType <= 7) then
-        crafter = settings.weaponsmithCharacter[charName]
-    elseif(craftingSkillType == CRAFTING_TYPE_CLOTHIER and itemType <= 7) then
-        crafter = settings.clothierCharacter[charName]
-    elseif(craftingSkillType == CRAFTING_TYPE_CLOTHIER and itemType > 7) then
-        crafter = settings.leatherworkerCharacter[charName]
-    elseif(craftingSkillType == CRAFTING_TYPE_WOODWORKING) then
-        crafter = settings.woodworkingCharacter[charName]
-    elseif(craftingSkillType == CRAFTING_TYPE_JEWELRYCRAFTING) then
-        crafter = settings.jewelryCraftingCharacter[charName]
-    else
-        crafter = charName
-    end
-
-    if crafter == "off" then
+    local crafter = self:GetTrackedCharForSkill(craftingSkillType, itemType)
+    if crafter == self.CONST_OFF_VALUE then
       return
-    --[[elseif crafter == "any" then
-        local retarray
-        for _, charname in pairs(settings.knownCharacters) do
-            if charname ~= "any" and charname ~= "off" then
-                for trait, pref in pairs(settings.acquiredTraits[charname]) do
-                    if (retarray[trait] == nil) or (type(retarray[trait]) == "boolean" and type(pref) ~= "boolean") or retarray[trait] > pref then
-                        retarray[trait] = pref
-                    end
-                end
-            end
-        end
-        return retarray]]
     else
-        return settings.acquiredTraits[crafter]
+        if self.sv.acquiredTraits and self.sv.acquiredTraits[crafter] then
+            return self.sv.acquiredTraits[crafter]
+        else
+            return
+        end
     end
-end
-
-function ResearchAssistantSettings:GetPlayerTraits()
-    return settings.acquiredTraits[GetUnitName("player")]
-end
-
-function ResearchAssistantSettings:GetTraits()
-    return settings.acquiredTraits
 end
 
 function ResearchAssistantSettings:IsMultiCharSkillOff(craftingSkillType, itemType)
-    if(craftingSkillType == CRAFTING_TYPE_BLACKSMITHING and itemType > 7) then
-        return settings.blacksmithCharacter[charName] == "off"
-    elseif(craftingSkillType == CRAFTING_TYPE_BLACKSMITHING and itemType <= 7) then
-        return settings.weaponsmithCharacter[charName] == "off"
-    elseif(craftingSkillType == CRAFTING_TYPE_CLOTHIER and itemType <= 7) then
-        return settings.clothierCharacter[charName] == "off"
-    elseif(craftingSkillType == CRAFTING_TYPE_CLOTHIER and itemType > 7) then
-        return settings.leatherworkerCharacter[charName] == "off"
-    elseif(craftingSkillType == CRAFTING_TYPE_WOODWORKING) then
-        return settings.woodworkingCharacter[charName] == "off"
-    elseif(craftingSkillType == CRAFTING_TYPE_JEWELRYCRAFTING) then
-        return settings.jewelryCraftingCharacter[charName] == "off"
-    else
-        return true
+    local retVar = false
+    local charIdForCraftSkill = self:GetTrackedCharForSkill(craftingSkillType, itemType, false)
+    if charIdForCraftSkill == self.CONST_OFF_VALUE then
+        retVar = true
     end
+    return retVar
 end
 
-function ResearchAssistantSettings:GetTrackedCharForSkill(craftingSkillType, itemType)
-    if(craftingSkillType == CRAFTING_TYPE_BLACKSMITHING and itemType > 7) then
-        return settings.blacksmithCharacter[charName]
-    elseif(craftingSkillType == CRAFTING_TYPE_BLACKSMITHING and itemType <= 7) then
-        return settings.weaponsmithCharacter[charName]
-    elseif(craftingSkillType == CRAFTING_TYPE_CLOTHIER and itemType <= 7) then
-        return settings.clothierCharacter[charName]
-    elseif(craftingSkillType == CRAFTING_TYPE_CLOTHIER and itemType > 7) then
-        return settings.leatherworkerCharacter[charName]
-    elseif(craftingSkillType == CRAFTING_TYPE_WOODWORKING) then
-        return settings.woodworkingCharacter[charName]
-    elseif(craftingSkillType == CRAFTING_TYPE_JEWELRYCRAFTING) then
-        return settings.jewelryCraftingCharacter[charName] == "off"
-    else
-        return "off"
-    end
+function ResearchAssistantSettings:GetPlayerTraits()
+    return self.sv.acquiredTraits[currentlyLoggedInCharId]
+end
+
+function ResearchAssistantSettings:GetTraits()
+    return self.sv.acquiredTraits
 end
 
 function ResearchAssistantSettings:GetPreferenceValueForTrait(traitKey)
@@ -297,23 +374,28 @@ function ResearchAssistantSettings:GetPreferenceValueForTrait(traitKey)
     local craft = zo_floor(traitKey / 10000)
     local item = zo_floor((traitKey - (craft * 10000)) / 100)
     local traits = self:GetCraftingCharacterTraits(craft, item)
+    --if the traits are nil the selected character was not yet loggedIn!
+    if traits == nil then
+        --Char was not logged in yet. Return special value -100
+        return self.CONST_CHARACTER_NOT_SCANNED_YET
+    end
     return traits[traitKey]
 end
 
 function ResearchAssistantSettings:GetTexturePath()
-    return CAN_RESEARCH_TEXTURES[settings.textureName].texturePath
+    return CAN_RESEARCH_TEXTURES[self.sv.textureName].texturePath
 end
 
 function ResearchAssistantSettings:GetTextureSize()
-    return settings.textureSize
+    return self.sv.textureSize
 end
 
 function ResearchAssistantSettings:GetTextureOffset()
-    return settings.textureOffset + 70
+    return self.sv.textureOffset + 70
 end
 
 function ResearchAssistantSettings:IsDebug()
-    return settings.debug
+    return self.sv.debug
 end
 
 function ResearchAssistantSettings:CreateOptionsMenu()
@@ -333,82 +415,101 @@ function ResearchAssistantSettings:CreateOptionsMenu()
     local icon = WINDOW_MANAGER:CreateControl("RA_Icon", ZO_OptionsWindowSettingsScrollChild, CT_TEXTURE)
     icon:SetColor(1, 1, 1, 1)
     icon:SetHandler("OnShow", function()
-        self:SetTexture(CAN_RESEARCH_TEXTURES[settings.textureName].texturePath)
-        icon:SetDimensions(settings.textureSize, settings.textureSize)
+        self:SetTexture(CAN_RESEARCH_TEXTURES[self.sv.textureName].texturePath)
+        icon:SetDimensions(self.sv.textureSize, self.sv.textureSize)
     end)
 
     local optionsData = { }
     table.insert(optionsData, {
         type = "header",
-        name = "Debug",
+        name = str.CHARACTER_HEADER,
     })
     table.insert(optionsData, {
         type = "checkbox",
-        name = "Debug",
-        tooltip = "Debug",
-        getFunc = function() return settings.debug end,
+        name = str.USE_ACCOUNTWIDE_RESEARCH_CHARS,
+        tooltip = str.USE_ACCOUNTWIDE_RESEARCH_CHARS_TT,
+        getFunc = function() return self.sv.useAccountWideResearchChars end,
         setFunc = function(value)
-            settings.debug = value
-            RA.scanner:SetDebug(value)
+            self.sv.useAccountWideResearchChars = value
+            ReloadUI()
         end,
+        requiresReload = true,
     })
     table.insert(optionsData, {
-        type = "header",
-        name = str.GENERAL_HEADER,
+        type = "checkbox",
+        name = str.USE_CURRENT_LOGGED_IN_CHAR_FOR_RESEARCH,
+        tooltip = str.USE_CURRENT_LOGGED_IN_CHAR_FOR_RESEARCH_TT,
+        getFunc = function() return self.sv.useLoggedInCharForResearch end,
+        setFunc = function(value)
+            self.sv.useLoggedInCharForResearch = value
+            if value == true then
+                if not self.sv.useAccountWideResearchChars then
+                    --Use different research characters for each of your characters
+                    local currentlyLoggedInChar = RA.currentlyLoggedInCharId
+                    self.sv.blacksmithCharacter[currentlyLoggedInChar]       = currentlyLoggedInChar
+                    self.sv.weaponsmithCharacter[currentlyLoggedInChar]      = currentlyLoggedInChar
+                    self.sv.woodworkingCharacter[currentlyLoggedInChar]      = currentlyLoggedInChar
+                    self.sv.clothierCharacter[currentlyLoggedInChar]         = currentlyLoggedInChar
+                    self.sv.leatherworkerCharacter[currentlyLoggedInChar]    = currentlyLoggedInChar
+                    self.sv.jewelryCraftingCharacter[currentlyLoggedInChar]  = currentlyLoggedInChar
+                end
+            end
+        end,
+        disabled = function() return self.sv.useAccountWideResearchChars end
+    })
+    --[[
+    table.insert(optionsData, {
+        type = "checkbox",
+        name = str.ALLOW_NO_CHARACTER_CHOSEN_FOR_RESEARCH,
+        tooltip = str.ALLOW_NO_CHARACTER_CHOSEN_FOR_RESEARCH_TT,
+        getFunc = function() return self.sv.allowNoCharsForResearch end,
+        setFunc = function(value)
+            self.sv.allowNoCharsForResearch = value
+        end,
+    })
+    ]]
+    table.insert(optionsData, {
+        type = "checkbox",
+        name = str.SEPARATE_SMITH_LABEL,
+        tooltip = str.SEPARATE_SMITH_TOOLTIP,
+        getFunc = function() return self.sv.separateSmithing end,
+        setFunc = function(value)
+            if not value then
+                self.sv.weaponsmithCharacter[self:GetResearchCharIdDependingOnSettings()] = self.sv.blacksmithCharacter[self:GetResearchCharIdDependingOnSettings()]
+            end
+            self.sv.separateSmithing = value
+            ResearchAssistant_InvUpdate()
+        end,
     })
     table.insert(optionsData, {
         type = "dropdown",
-        name = str.ICON_LABEL,
-        tooltip = str.ICON_TOOLTIP,
-        choices = TEXTURE_OPTIONS,
-        getFunc = function() return settings.textureName end,
+        name = str.WS_CHAR_LABEL,
+        tooltip = str.WS_CHAR_TOOLTIP,
+        choices = self.lamCharNamesTable,
+        choicesValues = self.lamCharIdTable,
+        sort = "name-up",
+        scrollable = true,
+        getFunc = function() return self.sv.weaponsmithCharacter[self:GetResearchCharIdDependingOnSettings()] end,
         setFunc = function(value)
-            settings.textureName = value
-            settings.textureSize = CAN_RESEARCH_TEXTURES[value].textureSize
-            icon:SetTexture(CAN_RESEARCH_TEXTURES[value].texturePath)
-            icon:SetDimensions(settings.textureSize, settings.textureSize)
+            self.sv.weaponsmithCharacter[self:GetResearchCharIdDependingOnSettings()] = value
             ResearchAssistant_InvUpdate()
         end,
-        reference = "RA_Icon_Dropdown"
+        disabled = function() return not self.sv.separateSmithing end,
     })
     table.insert(optionsData, {
-        type = "slider",
-        name = str.ICON_SIZE,
-        tooltip = str.ICON_SIZE_TOOLTIP,
-        min = 8,
-        max = 64,
-        step = 4,
-        getFunc = function() return settings.textureSize end,
-        setFunc = function(size)
-            settings.textureSize = size
-            icon:SetDimensions(size, size)
-            ResearchAssistant_InvUpdate()
-        end,
-        width="full",
-        default = settings.textureSize,
-    })
-    table.insert(optionsData, {
-        type = "slider",
-        name = str.ICON_OFFSET,
-        tooltip = str.ICON_OFFSET_TOOLTIP,
-        min = -490,
-        max = 60,
-        step = 1,
-        getFunc = function() return settings.textureOffset end,
-        setFunc = function(offset)
-            settings.textureOffset = offset
-            ResearchAssistant_InvUpdate()
-        end,
-        width="full",
-        default = settings.textureOffset,
-    })
-    table.insert(optionsData, {
-        type = "checkbox",
-        name = str.SHOW_TOOLTIPS_LABEL,
-        tooltip = str.SHOW_TOOLTIPS_TOOLTIP,
-        getFunc = function() return settings.showTooltips end,
+        type = "dropdown",
+        name = str.BS_CHAR_LABEL,
+        tooltip = str.BS_CHAR_TOOLTIP,
+        choices = self.lamCharNamesTable,
+        choicesValues = self.lamCharIdTable,
+        sort = "name-up",
+        scrollable = true,
+        getFunc = function() return self.sv.blacksmithCharacter[self:GetResearchCharIdDependingOnSettings()] end,
         setFunc = function(value)
-            settings.showTooltips = value
+            self.sv.blacksmithCharacter[self:GetResearchCharIdDependingOnSettings()] = value
+            if not self.sv.separateSmithing then
+                self.sv.weaponsmithCharacter[self:GetResearchCharIdDependingOnSettings()] = value
+            end
             ResearchAssistant_InvUpdate()
         end,
     })
@@ -416,55 +517,12 @@ function ResearchAssistantSettings:CreateOptionsMenu()
         type = "checkbox",
         name = str.SEPARATE_LW_LABEL,
         tooltip = str.SEPARATE_LW_TOOLTIP,
-        getFunc = function() return settings.separateClothier end,
+        getFunc = function() return self.sv.separateClothier end,
         setFunc = function(value)
             if not value then
-                settings.leatherworkerCharacter[charName] = settings.clothierCharacter[charName]
+                self.sv.leatherworkerCharacter[self:GetResearchCharIdDependingOnSettings()] = self.sv.clothierCharacter[self:GetResearchCharIdDependingOnSettings()]
             end
-            settings.separateClothier = value
-            ResearchAssistant_InvUpdate()
-        end,
-    })
-    table.insert(optionsData, {
-        type = "checkbox",
-        name = str.SEPARATE_SMITH_LABEL,
-        tooltip = str.SEPARATE_SMITH_TOOLTIP,
-        getFunc = function() return settings.separateSmithing end,
-        setFunc = function(value)
-            if not value then
-                settings.weaponsmithCharacter[charName] = settings.blacksmithCharacter[charName]
-            end
-            settings.separateSmithing = value
-            ResearchAssistant_InvUpdate()
-        end
-    })
-    table.insert(optionsData, {
-        type = "header",
-        name = str.CHARACTER_HEADER,
-    })
-    table.insert(optionsData, {
-        type = "dropdown",
-        name = str.WS_CHAR_LABEL,
-        tooltip = str.WS_CHAR_TOOLTIP,
-        choices = settings.knownCharacters,
-        getFunc = function() return settings.weaponsmithCharacter[charName] end,
-        setFunc = function(value)
-            settings.weaponsmithCharacter[charName] = value
-            ResearchAssistant_InvUpdate()
-        end,
-        disabled = function() return not settings.separateSmithing end,
-    })
-    table.insert(optionsData, {
-        type = "dropdown",
-        name = str.BS_CHAR_LABEL,
-        tooltip = str.BS_CHAR_TOOLTIP,
-        choices = settings.knownCharacters,
-        getFunc = function() return settings.blacksmithCharacter[charName] end,
-        setFunc = function(value)
-            settings.blacksmithCharacter[charName] = value
-            if not settings.separateSmithing then
-                settings.weaponsmithCharacter[charName] = value
-            end
+            self.sv.separateClothier = value
             ResearchAssistant_InvUpdate()
         end,
     })
@@ -472,24 +530,30 @@ function ResearchAssistantSettings:CreateOptionsMenu()
         type = "dropdown",
         name = str.LW_CHAR_LABEL,
         tooltip = str.LW_CHAR_TOOLTIP,
-        choices = settings.knownCharacters,
-        getFunc = function() return settings.leatherworkerCharacter[charName] end,
+        choices = self.lamCharNamesTable,
+        choicesValues = self.lamCharIdTable,
+        sort = "name-up",
+        scrollable = true,
+        getFunc = function() return self.sv.leatherworkerCharacter[self:GetResearchCharIdDependingOnSettings()] end,
         setFunc = function(value)
-            settings.leatherworkerCharacter[charName] = value
+            self.sv.leatherworkerCharacter[self:GetResearchCharIdDependingOnSettings()] = value
             ResearchAssistant_InvUpdate()
         end,
-        disabled = function() return not settings.separateClothier end,
+        disabled = function() return not self.sv.separateClothier end,
     })
     table.insert(optionsData, {
         type = "dropdown",
         name = str.CL_CHAR_LABEL,
         tooltip = str.CL_CHAR_TOOLTIP,
-        choices = settings.knownCharacters,
-        getFunc = function() return settings.clothierCharacter[charName] end,
+        choices = self.lamCharNamesTable,
+        choicesValues = self.lamCharIdTable,
+        sort = "name-up",
+        scrollable = true,
+        getFunc = function() return self.sv.clothierCharacter[self:GetResearchCharIdDependingOnSettings()] end,
         setFunc = function(value)
-            settings.clothierCharacter[charName] = value
-            if not settings.separateClothier then
-                settings.leatherworkerCharacter[charName] = value
+            self.sv.clothierCharacter[self:GetResearchCharIdDependingOnSettings()] = value
+            if not self.sv.separateClothier then
+                self.sv.leatherworkerCharacter[self:GetResearchCharIdDependingOnSettings()] = value
             end
             ResearchAssistant_InvUpdate()
         end,
@@ -498,10 +562,13 @@ function ResearchAssistantSettings:CreateOptionsMenu()
         type = "dropdown",
         name = str.WW_CHAR_LABEL,
         tooltip = str.WW_CHAR_TOOLTIP,
-        choices = settings.knownCharacters,
-        getFunc = function() return settings.woodworkingCharacter[charName] end,
+        choices = self.lamCharNamesTable,
+        choicesValues = self.lamCharIdTable,
+        sort = "name-up",
+        scrollable = true,
+        getFunc = function() return self.sv.woodworkingCharacter[self:GetResearchCharIdDependingOnSettings()] end,
         setFunc = function(value)
-            settings.woodworkingCharacter[charName] = value
+            self.sv.woodworkingCharacter[self:GetResearchCharIdDependingOnSettings()] = value
             ResearchAssistant_InvUpdate()
         end,
     })
@@ -509,10 +576,13 @@ function ResearchAssistantSettings:CreateOptionsMenu()
         type = "dropdown",
         name = str.JC_CHAR_LABEL,
         tooltip = str.JC_CHAR_TOOLTIP,
-        choices = settings.knownCharacters,
-        getFunc = function() return settings.jewelryCraftingCharacter[charName] end,
+        choices = self.lamCharNamesTable,
+        choicesValues = self.lamCharIdTable,
+        sort = "name-up",
+        scrollable = true,
+        getFunc = function() return self.sv.jewelryCraftingCharacter[self:GetResearchCharIdDependingOnSettings()] end,
         setFunc = function(value)
-            settings.jewelryCraftingCharacter[charName] = value
+            self.sv.jewelryCraftingCharacter[self:GetResearchCharIdDependingOnSettings()] = value
             ResearchAssistant_InvUpdate()
         end,
     })
@@ -524,10 +594,10 @@ function ResearchAssistantSettings:CreateOptionsMenu()
         type = "checkbox",
         name = str.SHOW_RESEARCHED_LABEL,
         tooltip = str.SHOW_RESEARCHED_TOOLTIP,
-        getFunc = function() return settings.showResearched end,
+        getFunc = function() return self.sv.showResearched end,
         setFunc = function(value)
-            settings.showResearched = value
-            if not value then settings.showTraitless = false end
+            self.sv.showResearched = value
+            if not value then self.sv.showTraitless = false end
             ResearchAssistant_InvUpdate()
         end,
     })
@@ -535,20 +605,20 @@ function ResearchAssistantSettings:CreateOptionsMenu()
         type = "checkbox",
         name = str.SHOW_TRAITLESS_LABEL,
         tooltip = str.SHOW_TRAITLESS_TOOLTIP,
-        getFunc = function() return settings.showTraitless end,
+        getFunc = function() return self.sv.showTraitless end,
         setFunc = function(value)
-            settings.showTraitless = value
+            self.sv.showTraitless = value
             ResearchAssistant_InvUpdate()
         end,
-        disabled = function() return not settings.showResearched end
+        disabled = function() return not self.sv.showResearched end
     })
     table.insert(optionsData, {
         type = "checkbox",
         name = str.SHOW_ORNATE_LABEL,
         tooltip = str.SHOW_ORNATE_TOOLTIP,
-        getFunc = function() return settings.showUntrackedOrnate end,
+        getFunc = function() return self.sv.showUntrackedOrnate end,
         setFunc = function(value)
-            settings.showUntrackedOrnate = value
+            self.sv.showUntrackedOrnate = value
             ResearchAssistant_InvUpdate()
         end,
     })
@@ -556,9 +626,69 @@ function ResearchAssistantSettings:CreateOptionsMenu()
         type = "checkbox",
         name = str.SHOW_INTRICATE_LABEL,
         tooltip = str.SHOW_INTRICATE_TOOLTIP,
-        getFunc = function() return settings.showUntrackedIntricate end,
+        getFunc = function() return self.sv.showUntrackedIntricate end,
         setFunc = function(value)
-            settings.showUntrackedIntricate = value
+            self.sv.showUntrackedIntricate = value
+            ResearchAssistant_InvUpdate()
+        end,
+    })
+    table.insert(optionsData, {
+        type = "header",
+        name = str.GENERAL_HEADER,
+    })
+    table.insert(optionsData, {
+        type = "dropdown",
+        name = str.ICON_LABEL,
+        tooltip = str.ICON_TOOLTIP,
+        choices = TEXTURE_OPTIONS,
+        getFunc = function() return self.sv.textureName end,
+        setFunc = function(value)
+            self.sv.textureName = value
+            self.sv.textureSize = CAN_RESEARCH_TEXTURES[value].textureSize
+            icon:SetTexture(CAN_RESEARCH_TEXTURES[value].texturePath)
+            icon:SetDimensions(self.sv.textureSize, self.sv.textureSize)
+            ResearchAssistant_InvUpdate()
+        end,
+        reference = "RA_Icon_Dropdown"
+    })
+    table.insert(optionsData, {
+        type = "slider",
+        name = str.ICON_SIZE,
+        tooltip = str.ICON_SIZE_TOOLTIP,
+        min = 8,
+        max = 64,
+        step = 4,
+        getFunc = function() return self.sv.textureSize end,
+        setFunc = function(size)
+            self.sv.textureSize = size
+            icon:SetDimensions(size, size)
+            ResearchAssistant_InvUpdate()
+        end,
+        width="full",
+        default = self.sv.textureSize,
+    })
+    table.insert(optionsData, {
+        type = "slider",
+        name = str.ICON_OFFSET,
+        tooltip = str.ICON_OFFSET_TOOLTIP,
+        min = -490,
+        max = 60,
+        step = 1,
+        getFunc = function() return self.sv.textureOffset end,
+        setFunc = function(offset)
+            self.sv.textureOffset = offset
+            ResearchAssistant_InvUpdate()
+        end,
+        width="full",
+        default = self.sv.textureOffset,
+    })
+    table.insert(optionsData, {
+        type = "checkbox",
+        name = str.SHOW_TOOLTIPS_LABEL,
+        tooltip = str.SHOW_TOOLTIPS_TOOLTIP,
+        getFunc = function() return self.sv.showTooltips end,
+        setFunc = function(value)
+            self.sv.showTooltips = value
             ResearchAssistant_InvUpdate()
         end,
     })
@@ -571,11 +701,11 @@ function ResearchAssistantSettings:CreateOptionsMenu()
         name = str.RESEARCHABLE_LABEL,
         tooltip = str.RESEARCHABLE_TOOLTIP,
         getFunc = function()
-            local r, g, b, a = HexToRGBA(settings.canResearchColor)
+            local r, g, b, a = HexToRGBA(self.sv.canResearchColor)
             return r, g, b
         end,
         setFunc = function(r, g, b)
-            settings.canResearchColor = RGBAToHex(r, g, b, 1)
+            self.sv.canResearchColor = RGBAToHex(r, g, b, 1)
             ResearchAssistant_InvUpdate()
         end,
     })
@@ -584,11 +714,11 @@ function ResearchAssistantSettings:CreateOptionsMenu()
         name = str.DUPLICATE_LABEL,
         tooltip = str.DUPLICATE_TOOLTIP,
         getFunc = function()
-            local r, g, b, a = HexToRGBA(settings.duplicateUnresearchedColor)
+            local r, g, b, a = HexToRGBA(self.sv.duplicateUnresearchedColor)
             return r, g, b
         end,
         setFunc = function(r, g, b)
-            settings.duplicateUnresearchedColor = RGBAToHex(r, g, b, 1)
+            self.sv.duplicateUnresearchedColor = RGBAToHex(r, g, b, 1)
             ResearchAssistant_InvUpdate()
         end,
     })
@@ -597,11 +727,11 @@ function ResearchAssistantSettings:CreateOptionsMenu()
         name = str.RESEARCHED_LABEL,
         tooltip = str.RESEARCHED_TOOLTIP,
         getFunc = function()
-            local r, g, b, a = HexToRGBA(settings.alreadyResearchedColor)
+            local r, g, b, a = HexToRGBA(self.sv.alreadyResearchedColor)
             return r, g, b
         end,
         setFunc = function(r, g, b)
-            settings.alreadyResearchedColor = RGBAToHex(r, g, b, 1)
+            self.sv.alreadyResearchedColor = RGBAToHex(r, g, b, 1)
             ResearchAssistant_InvUpdate()
         end,
     })
@@ -610,11 +740,11 @@ function ResearchAssistantSettings:CreateOptionsMenu()
         name = str.ORNATE_LABEL,
         tooltip = str.ORNATE_TOOLTIP,
         getFunc = function()
-            local r, g, b, a = HexToRGBA(settings.ornateColor)
+            local r, g, b, a = HexToRGBA(self.sv.ornateColor)
             return r, g, b
         end,
         setFunc = function(r, g, b)
-            settings.ornateColor = RGBAToHex(r, g, b, 1)
+            self.sv.ornateColor = RGBAToHex(r, g, b, 1)
             ResearchAssistant_InvUpdate()
         end,
     })
@@ -623,21 +753,61 @@ function ResearchAssistantSettings:CreateOptionsMenu()
         name = str.INTRICATE_LABEL,
         tooltip = str.INTRICATE_TOOLTIP,
         getFunc = function()
-            local r, g, b, a = HexToRGBA(settings.intricateColor)
+            local r, g, b, a = HexToRGBA(self.sv.intricateColor)
             return r, g, b
         end,
         setFunc = function(r, g, b)
-            settings.intricateColor = RGBAToHex(r, g, b, 1)
+            self.sv.intricateColor = RGBAToHex(r, g, b, 1)
             ResearchAssistant_InvUpdate()
         end,
     })
-    LAM:RegisterAddonPanel("ResearchAssistantSettingsPanel", panel)
+    table.insert(optionsData, {
+        type = "header",
+        name = str.PROTECTION,
+    })
+    table.insert(optionsData, {
+        type = "checkbox",
+        name = str.SKIP_ZOS_MARKED,
+        tooltip = str.SKIP_ZOS_MARKED_TOOLTIP,
+        getFunc = function() return self.sv.respectItemProtectionByZOs end,
+        setFunc = function(value)
+            self.sv.respectItemProtectionByZOs = value
+            ResearchAssistant_InvUpdate()
+        end,
+    })
+    table.insert(optionsData, {
+        type = "checkbox",
+        name = str.SKIP_FCOIS_MARKED,
+        tooltip = str.SKIP_FCOIS_MARKED_TOOLTIP,
+        getFunc = function() return self.sv.respectItemProtectionByFCOIS end,
+        setFunc = function(value)
+            self.sv.respectItemProtectionByFCOIS = value
+            ResearchAssistant_InvUpdate()
+        end,
+        disabled = function() return FCOIS == nil end,
+    })
+    table.insert(optionsData, {
+        type = "header",
+        name = "Debug",
+    })
+    table.insert(optionsData, {
+        type = "checkbox",
+        name = "Debug",
+        tooltip = "Debug",
+        getFunc = function() return self.sv.debug end,
+        setFunc = function(value)
+            self.sv.debug = value
+            RA.scanner:SetDebug(value)
+        end,
+    })
+
+    RA.settingsPanel = LAM:RegisterAddonPanel("ResearchAssistantSettingsPanel", panel)
     LAM:RegisterOptionControls("ResearchAssistantSettingsPanel", optionsData)
 
     CALLBACK_MANAGER:RegisterCallback("LAM-PanelControlsCreated", function()
         icon:SetParent(RA_Icon_Dropdown)
-        icon:SetTexture(CAN_RESEARCH_TEXTURES[settings.textureName].texturePath)
-        icon:SetDimensions(settings.textureSize, settings.textureSize)
+        icon:SetTexture(CAN_RESEARCH_TEXTURES[self.sv.textureName].texturePath)
+        icon:SetDimensions(self.sv.textureSize, self.sv.textureSize)
         icon:SetAnchor(CENTER, RA_Icon_Dropdown, CENTER, 36, 0)
     end)
 end
