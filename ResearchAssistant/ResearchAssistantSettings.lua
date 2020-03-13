@@ -146,6 +146,7 @@ function ResearchAssistantSettings:Initialize()
 
         respectItemProtectionByZOs     = false,
         respectItemProtectionByFCOIS   = false,
+        skipSets = false,
 
         --non settings variables
         acquiredTraits = {},
@@ -764,6 +765,16 @@ function ResearchAssistantSettings:CreateOptionsMenu()
     table.insert(optionsData, {
         type = "header",
         name = str.PROTECTION,
+    })
+    table.insert(optionsData, {
+        type = "checkbox",
+        name = str.SKIP_SETS,
+        tooltip = str.SKIP_SETS_TOOLTIP,
+        getFunc = function() return self.sv.skipSets end,
+        setFunc = function(value)
+            self.sv.skipSets = value
+            ResearchAssistant_InvUpdate()
+        end,
     })
     table.insert(optionsData, {
         type = "checkbox",

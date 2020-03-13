@@ -1,3 +1,6 @@
+if ResearchAssistant == nil then ResearchAssistant = {} end
+local RA = ResearchAssistant
+
 --Local variables for the class
 local BLACKSMITH 		= CRAFTING_TYPE_BLACKSMITHING
 local CLOTHIER 			= CRAFTING_TYPE_CLOTHIER
@@ -89,7 +92,17 @@ function ResearchAssistantScanner:IsScanning()
 	return self.isScanning
 end
 
+function ResearchAssistantScanner:Log(msgText)
+	if not self:IsDebug() == true then return end
+	local logger = RA.logger
+	if logger then logger:Info(msgText)
+	else
+		d("[ResearchAssistant]"..tostring(msgText))
+	end
+end
+
 function ResearchAssistantScanner:CreateItemPreferenceValue(itemLink, bagId, slotIndex)
+	self:Log("CreateItemPreferenceValue: " ..itemLink)
 	local quality = GetItemLinkQuality(itemLink)
 	if not quality then
 		quality = 1
@@ -114,6 +127,8 @@ function ResearchAssistantScanner:CreateItemPreferenceValue(itemLink, bagId, slo
 		bagToWhere[bagHouseBank] = 4
 	end
 	local where = bagToWhere[bagId] or 1
+
+	self:Log(string.format("Quality: %s, Level: %s, IsSet: %s, Bag: %s, slotIndex: %s", tostring(quality), tostring(level), tostring(isSet), tostring(where), tostring(slotIndex)))
 
 	--wxxxyzzz
 	--The lowest preference value is the "preferred" value for a research!
@@ -140,7 +155,16 @@ function ResearchAssistantScanner:IsItemProtectedAgainstResearch(bagId, slotInde
 	local settings = self.settingsPtr.sv
 	local respectZOs = settings.respectItemProtectionByZOs
 	local respectFCOIS = settings.respectItemProtectionByFCOIS
+	local skipSets = settings.skipSets
 	local isLocked = false
+	local itemLink
+	if skipSets == true then
+		itemLink = GetItemLink(bagId, slotIndex)
+		local isSet = GetItemLinkSetInfo(itemLink, false)
+		if isSet == true then
+			return true
+		end
+	end
 	if respectZOs == true or respectFCOIS == true then
 		if respectZOs == true then
 			isLocked = IsItemPlayerLocked(bagId, slotIndex)

@@ -83,6 +83,8 @@ RA_Strings = {
             SKIP_ZOS_MARKED_TOOLTIP     = "Skip items at the researchable scans and Research Assistant markers if the item is marked with the ZOs lock icon.",
             SKIP_FCOIS_MARKED           = "Skip FCOItemSaver marked",
             SKIP_FCOIS_MARKED_TOOLTIP   = "Skip items at the researchable scans and Research Assistant markers if the item is marked with the FCOIS icons.\nExclusion: The research marker icon of FCOIS is allowed!",
+            SKIP_SETS                   = "Skip set items",
+            SKIP_SETS_TOOLTIP           = "Skip items which belong to a set and do not mark them with any ResearchAssistant",
 
             ERROR_CONFIGURE_ADDON = "Please configure the addon, choose a research character in the settings!",
             ERROR_LOGIN_ALL_CHARS = "Login all your characters to read their research data.",
@@ -179,6 +181,8 @@ RA_Strings = {
             SKIP_ZOS_MARKED_TOOLTIP     = "Schließt durch ZOs markierte (Schloß Symbol) Gegenstände von den Research Assistant Scan und Markierungen aus.",
             SKIP_FCOIS_MARKED           = "FCOItemSaver markierte ausschließen",
             SKIP_FCOIS_MARKED_TOOLTIP   = "Schließt durch FCOItemSaver markierte Gegenstände von den Research Assistant Scan und Markierungen aus.\nAußname: Mit dem Analyse Symbol markierte werden berücksichtigt!",
+            SKIP_SETS                   = "Set Gegenstände ausnehmen",
+            SKIP_SETS_TOOLTIP           = "Set Gegenstände mit keinem ResearchAssistant markieren",
 
             ERROR_CONFIGURE_ADDON = "Bitte konfiguriere das AddOn, wähle einen Analyse Charakter in den Einstellungen!",
             ERROR_LOGIN_ALL_CHARS = "Logge alle Charaktere ein, um ihre Analyse Daten einzulesen.",

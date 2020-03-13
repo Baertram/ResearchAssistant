@@ -3,7 +3,7 @@ local RA = ResearchAssistant
 
 --Addon variables
 RA.name		= "ResearchAssistant"
-RA.version 	= "0.9.4.9"
+RA.version 	= "0.9.5.0"
 RA.author   = "ingeniousclown, katkat42, Randactyl, Baertram"
 RA.website	= "https://www.esoui.com/downloads/info111-ResearchAssistant.html"
 
@@ -131,6 +131,26 @@ RA.trackingStates = {
 	[TRACKING_STATE_CHARACTER_NOT_SCANNED_YET] = TRACKING_STATE_CHARACTER_NOT_SCANNED_YET,
 }
 
+--If not created yet: Create a ResearchAssistant Settings
+--Return the RAscanner
+function RA.GetOrCreateRASettings()
+	RA.settings = RA.settings or ResearchAssistantSettings:New()
+	RASettings = RA.settings
+	return RASettings
+end
+
+--If not created yet: Create an ResearchAssistant Scanner
+--Return the RAscanner
+function RA.GetOrCreateRAScanner()
+	if RA.settings == nil then
+		RA.settings = RA.GetOrCreateRASettings()
+	end
+	if not RA.settings then return end
+	RA.scanner = RA.scanner or ResearchAssistantScanner:New(RA.settings)
+	RAScanner = RA.scanner
+	return RAScanner
+end
+
 local function AddTooltips(control, text)
 	control:SetHandler("OnMouseEnter", function(self)
 		ZO_Tooltips_ShowTextTooltip(self, TOP, text)
@@ -239,6 +259,11 @@ end
 --Returns true if the given item at bag and slot can be researched with the the character set in the
 --ResearchAssistant settings for the crafting type. Otherwise it returns false!
 function RA.IsItemResearchableWithSettingsCharacter(bagId, slotIndex)
+	--ResearchAssistant Scanner and Settings are already provided? Else create them
+	RAScanner = RAScanner or RA.GetOrCreateRAScanner()
+	RASettings = RASettings or RA.GetOrCreateRASettings()
+	if not RAScanner or not RASettings then return end
+
 	--Return value, preset with "Not researchable with char" = false
 	local isResearchableWithSettingsChar = false
 	local itemLink = bagId and GetItemLink(bagId, slotIndex) or GetItemLink(slotIndex)
@@ -326,10 +351,15 @@ end
 --If the item is a duplicate the return value will be "duplicate".
 --Otherwise it returns false!
 function RA.IsItemResearchableOrDuplicateWithSettingsCharacter(bagId, slotIndex)
+	--ResearchAssistant Scanner and Settings are already provided? Else create them
+	RAScanner = RAScanner or RA.GetOrCreateRAScanner()
+	RASettings = RASettings or RA.GetOrCreateRASettings()
+	if not RAScanner or not RASettings then return end
+
 	--Return value, preset with "Not researchable with char" = false
 	local isNoDuplicateResearchableWithSettingsChar = false
 	local itemLink = bagId and GetItemLink(bagId, slotIndex) or GetItemLink(slotIndex)
-
+	if not itemLink or itemLink == "" then return end
 	--returns int traitKey, bool isResearchable, string reason
 	local traitKey, isResearchable, reason = RAScanner:CheckIsItemResearchable(itemLink)
 
@@ -713,16 +743,18 @@ local function ResearchAssistant_Loaded(eventCode, addOnName)
 	if not LAM and LibStub then LibStub("LibAddonMenu-2.0", true) end
 	if LAM == nil then d(string.format(libErrorText, "LibAddonMenu-2.0")) return end
 	RA.lam = LAM
+	if LibDebugLogger then
+		RA.logger = LibDebugLogger(RA.name)
+	end
 
 	wasInCombatAsWantedToScan = false
 
 	RA.currentlyLoggedInCharId = GetCurrentCharacterId()
 
-	RASettings = ResearchAssistantSettings:New()
-	RAScanner = ResearchAssistantScanner:New(RASettings)
+	--Settings and Scanner
+	RASettings = RASettings or RA.GetOrCreateRASettings()
+	RAScanner = RAScanner or RA.GetOrCreateRAScanner()
 	RAScanner:SetDebug(RASettings:IsDebug())
-	RA.scanner = RAScanner
-	RA.settings = RASettings
 
 	--Get the language of the client
 	RAlang = RASettings:GetLanguage()
@@ -808,6 +840,47 @@ local function ResearchAssistant_Loaded(eventCode, addOnName)
 		},
 		setup = function(dialog, data) end,
 	}
+
+	--Add context menu entries
+	if LibCustomMenu ~= nil then
+		local function RA_OnContextMenu(inventorySlot, slotActions)
+			RAScanner = RAScanner or RA.GetOrCreateRAScanner()
+			if RAScanner ~= nil and RAScanner:IsDebug() == true and RASettings ~= nil then
+				local function doDebugTask(taskName)
+					if not taskName or taskName == "" then return end
+					local bagId, slotIndex = ZO_Inventory_GetBagAndIndex(inventorySlot)
+					local itemLink = GetItemLink(bagId, slotIndex)
+					if not itemLink or itemLink == "" then return end
+					if taskName == "ps" then
+						RAScanner:Log("Preference value of " ..itemLink..": " ..tostring(RAScanner:CreateItemPreferenceValue(itemLink, bagId, slotIndex)))
+					elseif taskName == "ir" then
+						local traitKey, isResearchable, reason = RAScanner:CheckIsItemResearchable(itemLink)
+						RAScanner:Log("Is rearchable " ..itemLink..": " ..tostring(isResearchable) .. ", traitKey: " ..tostring(traitKey) .. ", reason: " ..tostring(reason))
+					elseif taskName == "ip" then
+						local isProtected = RAScanner:IsItemProtectedAgainstResearch(bagId, slotIndex, itemLink)
+						RAScanner:Log("Is protected " ..itemLink..": " ..tostring(isProtected) .. ", settings ZOs/FCOIS/noSets: " ..tostring(RASettings.sv.respectItemProtectionByZOs).."/"..tostring(RASettings.sv.respectItemProtectionByFCOIS).."/"..tostring(RASettings.sv.skipSets))
+					end
+				end
+				local entries = {
+				  {
+					label = "Get preference score",
+					callback = function() doDebugTask("ps") end,
+				  },
+				  {
+					label = "Is item researchable",
+					callback = function() doDebugTask("ir") end,
+				  },
+				  {
+					label = "Is item protected",
+					callback = function() doDebugTask("ip") end,
+				  },
+				}
+				AddCustomSubMenuItem("["..RA.name.."] - DEBUG", entries)
+				ShowMenu(inventorySlot)
+			end
+		end
+		LibCustomMenu:RegisterContextMenu(RA_OnContextMenu, LibCustomMenu.CATEGORY_QUATERNARY)
+	end
 end
 
 EVENT_MANAGER:RegisterForEvent(RA.name .."Loaded", EVENT_ADD_ON_LOADED, ResearchAssistant_Loaded)
