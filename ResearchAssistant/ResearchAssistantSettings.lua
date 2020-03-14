@@ -147,6 +147,7 @@ function ResearchAssistantSettings:Initialize()
         respectItemProtectionByZOs     = false,
         respectItemProtectionByFCOIS   = false,
         skipSets = false,
+        skipSetsOnlyMaxLevel = false,
 
         --non settings variables
         acquiredTraits = {},
@@ -775,6 +776,17 @@ function ResearchAssistantSettings:CreateOptionsMenu()
             self.sv.skipSets = value
             ResearchAssistant_InvUpdate()
         end,
+    })
+    table.insert(optionsData, {
+        type = "checkbox",
+        name = str.SKIP_SETS_ONLY_MAX_LEVEL,
+        tooltip = str.SKIP_SETS_ONLY_MAX_LEVEL_TOOLTIP,
+        getFunc = function() return self.sv.skipSetsOnlyMaxLevel end,
+        setFunc = function(value)
+            self.sv.skipSetsOnlyMaxLevel = value
+            ResearchAssistant_InvUpdate()
+        end,
+        disabled = function() return not self.sv.skipSets end,
     })
     table.insert(optionsData, {
         type = "checkbox",

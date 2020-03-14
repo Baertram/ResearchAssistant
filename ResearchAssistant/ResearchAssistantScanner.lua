@@ -156,13 +156,24 @@ function ResearchAssistantScanner:IsItemProtectedAgainstResearch(bagId, slotInde
 	local respectZOs = settings.respectItemProtectionByZOs
 	local respectFCOIS = settings.respectItemProtectionByFCOIS
 	local skipSets = settings.skipSets
+	local skipSetsMaxLevelOnly = settings.skipSetsOnlyMaxLevel
 	local isLocked = false
 	local itemLink
 	if skipSets == true then
 		itemLink = GetItemLink(bagId, slotIndex)
 		local isSet = GetItemLinkSetInfo(itemLink, false)
 		if isSet == true then
-			return true
+			if skipSetsMaxLevelOnly == true then
+				local itemLevel = GetItemLinkRequiredLevel(itemLink)
+				local maxLevel = GetMaxLevel() or 50
+				local itemCP = GetItemLinkRequiredChampionPoints()
+				local maxCPs = GetChampionPointsPlayerProgressionCap() or 160
+				if itemLevel and itemLevel >= maxLevel and itemCP and itemCP >= maxCPs then
+					return true
+				end
+			else
+				return true
+			end
 		end
 	end
 	if respectZOs == true or respectFCOIS == true then

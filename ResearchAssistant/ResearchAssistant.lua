@@ -876,10 +876,10 @@ local function ResearchAssistant_Loaded(eventCode, addOnName)
 				  },
 				}
 				AddCustomSubMenuItem("["..RA.name.."] - DEBUG", entries)
-				ShowMenu(inventorySlot)
+				--ShowMenu(inventorySlot)
 			end
 		end
-		LibCustomMenu:RegisterContextMenu(RA_OnContextMenu, LibCustomMenu.CATEGORY_QUATERNARY)
+		LibCustomMenu:RegisterContextMenu(RA_OnContextMenu, LibCustomMenu.CATEGORY_EARLY)
 	end
 end
 
