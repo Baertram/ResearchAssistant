@@ -1,6 +1,3 @@
-if ResearchAssistant == nil then ResearchAssistant = {} end
-local RA = ResearchAssistant
-
 --Local variables for the class
 local BLACKSMITH 		= CRAFTING_TYPE_BLACKSMITHING
 local CLOTHIER 			= CRAFTING_TYPE_CLOTHIER
@@ -92,17 +89,7 @@ function ResearchAssistantScanner:IsScanning()
 	return self.isScanning
 end
 
-function ResearchAssistantScanner:Log(msgText)
-	if not self:IsDebug() == true then return end
-	local logger = RA.logger
-	if logger then logger:Info(msgText)
-	else
-		d("[ResearchAssistant]"..tostring(msgText))
-	end
-end
-
 function ResearchAssistantScanner:CreateItemPreferenceValue(itemLink, bagId, slotIndex)
-	self:Log("CreateItemPreferenceValue: " ..itemLink)
 	local quality = GetItemLinkQuality(itemLink)
 	if not quality then
 		quality = 1
@@ -127,8 +114,6 @@ function ResearchAssistantScanner:CreateItemPreferenceValue(itemLink, bagId, slo
 		bagToWhere[bagHouseBank] = 4
 	end
 	local where = bagToWhere[bagId] or 1
-
-	self:Log(string.format("Quality: %s, Level: %s, IsSet: %s, Bag: %s, slotIndex: %s", tostring(quality), tostring(level), tostring(isSet), tostring(where), tostring(slotIndex)))
 
 	--wxxxyzzz
 	--The lowest preference value is the "preferred" value for a research!
@@ -155,27 +140,7 @@ function ResearchAssistantScanner:IsItemProtectedAgainstResearch(bagId, slotInde
 	local settings = self.settingsPtr.sv
 	local respectZOs = settings.respectItemProtectionByZOs
 	local respectFCOIS = settings.respectItemProtectionByFCOIS
-	local skipSets = settings.skipSets
-	local skipSetsMaxLevelOnly = settings.skipSetsOnlyMaxLevel
 	local isLocked = false
-	local itemLink
-	if skipSets == true then
-		itemLink = GetItemLink(bagId, slotIndex)
-		local isSet = GetItemLinkSetInfo(itemLink, false)
-		if isSet == true then
-			if skipSetsMaxLevelOnly == true then
-				local itemLevel = GetItemLinkRequiredLevel(itemLink)
-				local maxLevel = GetMaxLevel() or 50
-				local itemCP = GetItemLinkRequiredChampionPoints()
-				local maxCPs = GetChampionPointsPlayerProgressionCap() or 160
-				if itemLevel and itemLevel >= maxLevel and itemCP and itemCP >= maxCPs then
-					return true
-				end
-			else
-				return true
-			end
-		end
-	end
 	if respectZOs == true or respectFCOIS == true then
 		if respectZOs == true then
 			isLocked = IsItemPlayerLocked(bagId, slotIndex)
@@ -217,7 +182,7 @@ function ResearchAssistantScanner:ScanBag(bagId)
 				--is this item researchable?
 				if isResearchable then
 					-- if so, is this item preferable to the one we already have on record?
-					if prefValue < (traits[traitKey] or 999999999999999999) then
+					if prefValue < (traits[traitKey] or RA_CON_MAX_PREFRENCE_VALUE) then
 						traits[traitKey] = prefValue
 					end
 				else
@@ -242,7 +207,13 @@ end
 function ResearchAssistantScanner:JoinCachedOwnedTraits(traits)
 	if not traits then return end
 	for traitKey, value in pairs(traits) do
-		if value == true or value < (self.ownedTraits[traitKey] or 999999999999999999)  then
+		local valType = type(value)
+		local valIsNumber = (valType == "number") or false
+		local ownedTraitsOfKey = self.ownedTraits[traitKey]
+		local compareValue = ((valIsNumber and ownedTraitsOfKey ~= nil) and ownedTraitsOfKey) or RA_CON_MAX_PREFRENCE_VALUE
+		--Value boolean true: Known
+		--Value number: Preference number
+		if value == nil and (value == true or (value < compareValue)) then
 			self.ownedTraits[traitKey] = value
 		end
 	end

@@ -2,10 +2,9 @@
 ## Author: ingeniousclown, katkat42, Randactyl, Baertram
 ## Version: 0.9.5.0
 ## AddOnVersion: 0950
-## APIVersion: 100030 100031
+## APIVersion: 100035 101031
 ## SavedVariables: ResearchAssistant_Settings_Server
-## DependsOn: LibResearch LibAddonMenu-2.0
-## OptionalDependsOn: LibCustomMenu LibDebugLogger
+## DependsOn: LibResearch>=042 LibAddonMenu-2.0>=32
 
 RA_Strings.lua
 ResearchAssistantSettings.lua
