@@ -123,6 +123,9 @@ function ResearchAssistantSettings:Initialize()
         textureSize = 16,
         textureOffset = 0,
         showTooltips = false,
+        showTooltipsType = false,
+        showTooltipsArmorWeight = false,
+
         separateClothier = false,
         separateSmithing = false,
 
@@ -146,9 +149,16 @@ function ResearchAssistantSettings:Initialize()
 
         respectItemProtectionByZOs     = false,
         respectItemProtectionByFCOIS   = false,
+        skipSets = false,
+        skipSetsOnlyMaxLevel = false,
+
+        alwaysShowResearchIcon = false,
+        alwaysShowResearchIconExcludeNotTracked = true,
 
         --non settings variables
         acquiredTraits = {},
+
+        hideVanillaUIResearchableTexture = false,
     }
     --Old non-server dependent character name settings
     --local settings = ZO_SavedVars:NewAccountWide("ResearchAssistant_Settings", 2, nil, defaults)
@@ -265,6 +275,14 @@ function ResearchAssistantSettings:ShowTooltips()
     return self.sv.showTooltips
 end
 
+function ResearchAssistantSettings:ShowTooltipsType()
+    return self.sv.showTooltipsType
+end
+
+function ResearchAssistantSettings:ShowTooltipsArmorWeight()
+    return self.sv.showTooltipsArmorWeight
+end
+
 function ResearchAssistantSettings:GetResearchCharIdDependingOnSettings()
     if self.sv.useAccountWideResearchChars == true then
         return self.CONST_OFF_VALUE
@@ -352,6 +370,7 @@ function ResearchAssistantSettings:GetCraftingCharacterTraits(craftingSkillType,
     end
 end
 
+--Check if any character is trackng this craftskill. If not the function will return true
 function ResearchAssistantSettings:IsMultiCharSkillOff(craftingSkillType, itemType)
     local retVar = false
     local charIdForCraftSkill = self:GetTrackedCharForSkill(craftingSkillType, itemType, false)
@@ -398,17 +417,32 @@ function ResearchAssistantSettings:IsDebug()
     return self.sv.debug
 end
 
+function ResearchAssistantSettings:GetHideVanillaUIResearchableTexture()
+    return self.sv.hideVanillaUIResearchableTexture
+end
+
+function ResearchAssistantSettings:GetAlwaysShowResearchIcon()
+    return self.sv.alwaysShowResearchIcon
+end
+
+function ResearchAssistantSettings:GetAlwaysShowResearchIconExcludeNonTracked()
+    return self.sv.alwaysShowResearchIconExcludeNotTracked
+end
+
+
 function ResearchAssistantSettings:CreateOptionsMenu()
     local LAM = RA.lam
     local str = RA_Strings[self:GetLanguage()].SETTINGS
 
     local panel = {
-        type = "panel",
-        name = RA.name,
-        author = RA.author,
-        version = RA.version,
-        website = RA.website,
-        slashCommand = "/researchassistant",
+        type            = "panel",
+        name            = RA.name,
+        author          = RA.author,
+        version         = RA.version,
+        website         = RA.website,
+        donation        = RA.donation,
+        feedback        = RA.feedback,
+        slashCommand    = "/researchassistant",
         registerForRefresh = true
     }
 
@@ -445,13 +479,12 @@ function ResearchAssistantSettings:CreateOptionsMenu()
             if value == true then
                 if not self.sv.useAccountWideResearchChars then
                     --Use different research characters for each of your characters
-                    local currentlyLoggedInChar = RA.currentlyLoggedInCharId
-                    self.sv.blacksmithCharacter[currentlyLoggedInChar]       = currentlyLoggedInChar
-                    self.sv.weaponsmithCharacter[currentlyLoggedInChar]      = currentlyLoggedInChar
-                    self.sv.woodworkingCharacter[currentlyLoggedInChar]      = currentlyLoggedInChar
-                    self.sv.clothierCharacter[currentlyLoggedInChar]         = currentlyLoggedInChar
-                    self.sv.leatherworkerCharacter[currentlyLoggedInChar]    = currentlyLoggedInChar
-                    self.sv.jewelryCraftingCharacter[currentlyLoggedInChar]  = currentlyLoggedInChar
+                    self.sv.blacksmithCharacter[currentlyLoggedInCharId]       = currentlyLoggedInCharId
+                    self.sv.weaponsmithCharacter[currentlyLoggedInCharId]      = currentlyLoggedInCharId
+                    self.sv.woodworkingCharacter[currentlyLoggedInCharId]      = currentlyLoggedInCharId
+                    self.sv.clothierCharacter[currentlyLoggedInCharId]         = currentlyLoggedInCharId
+                    self.sv.leatherworkerCharacter[currentlyLoggedInCharId]    = currentlyLoggedInCharId
+                    self.sv.jewelryCraftingCharacter[currentlyLoggedInCharId]  = currentlyLoggedInCharId
                 end
             end
         end,
@@ -603,6 +636,27 @@ function ResearchAssistantSettings:CreateOptionsMenu()
     })
     table.insert(optionsData, {
         type = "checkbox",
+        name = str.SHOW_ICON_EVEN_IF_PROTECTED,
+        tooltip = str.SHOW_ICON_EVEN_IF_PROTECTED_TOOLTIP,
+        getFunc = function() return self.sv.alwaysShowResearchIcon end,
+        setFunc = function(value)
+            self.sv.alwaysShowResearchIcon = value
+            ResearchAssistant_InvUpdate()
+        end,
+    })
+    table.insert(optionsData, {
+        type = "checkbox",
+        name = str.SHOW_ICON_EVEN_IF_PROTECTED_EXCLUDE_NON_TRACKED,
+        tooltip = str.SHOW_ICON_EVEN_IF_PROTECTED_EXCLUDE_NON_TRACKED_TOOLTIP,
+        getFunc = function() return self.sv.alwaysShowResearchIconExcludeNotTracked end,
+        setFunc = function(value)
+            self.sv.alwaysShowResearchIconExcludeNotTracked = value
+            ResearchAssistant_InvUpdate()
+        end,
+        disabled = function() return not self.sv.alwaysShowResearchIcon end,
+    })
+    table.insert(optionsData, {
+        type = "checkbox",
         name = str.SHOW_TRAITLESS_LABEL,
         tooltip = str.SHOW_TRAITLESS_TOOLTIP,
         getFunc = function() return self.sv.showTraitless end,
@@ -683,6 +737,10 @@ function ResearchAssistantSettings:CreateOptionsMenu()
         default = self.sv.textureOffset,
     })
     table.insert(optionsData, {
+        type = "header",
+        name = str.SETTINGS_HEADER_TOOLTIPS,
+    })
+    table.insert(optionsData, {
         type = "checkbox",
         name = str.SHOW_TOOLTIPS_LABEL,
         tooltip = str.SHOW_TOOLTIPS_TOOLTIP,
@@ -690,6 +748,43 @@ function ResearchAssistantSettings:CreateOptionsMenu()
         setFunc = function(value)
             self.sv.showTooltips = value
             ResearchAssistant_InvUpdate()
+        end,
+    })
+    table.insert(optionsData, {
+        type = "checkbox",
+        name = str.SHOW_TYPE_IN_TOOLTIP,
+        tooltip = str.SHOW_TYPE_IN_TOOLTIP_TOOLTIP,
+        getFunc = function() return self.sv.showTooltipsType end,
+        setFunc = function(value)
+            self.sv.showTooltipsType = value
+            ResearchAssistant_InvUpdate()
+        end,
+        disabled = function() return not self.sv.showTooltips end,
+    })
+    table.insert(optionsData, {
+        type = "checkbox",
+        name = str.SHOW_ARMORWEIGHT_IN_TOOLTIP,
+        tooltip = str.SHOW_ARMORWEIGHT_IN_TOOLTIP_TOOLTIP,
+        getFunc = function() return self.sv.showTooltipsArmorWeight end,
+        setFunc = function(value)
+            self.sv.showTooltipsArmorWeight = value
+            ResearchAssistant_InvUpdate()
+        end,
+        disabled = function() return not self.sv.showTooltips end,
+    })
+    table.insert(optionsData, {
+        type = "header",
+        name = str.SETTINGS_HEADER_VANILLAUI,
+    })
+    table.insert(optionsData, {
+        type = "checkbox",
+        name = str.HIDE_VANILLA_UI_RESEARCHABLE_TEXTURE,
+        tooltip = str.HIDE_VANILLA_UI_RESEARCHABLE_TEXTURE_TOOLTIP,
+        getFunc = function()
+            return self.sv.hideVanillaUIResearchableTexture
+        end,
+        setFunc = function(value)
+            self.sv.hideVanillaUIResearchableTexture = value
         end,
     })
     table.insert(optionsData, {
@@ -767,6 +862,27 @@ function ResearchAssistantSettings:CreateOptionsMenu()
     })
     table.insert(optionsData, {
         type = "checkbox",
+        name = str.SKIP_SETS,
+        tooltip = str.SKIP_SETS_TOOLTIP,
+        getFunc = function() return self.sv.skipSets end,
+        setFunc = function(value)
+            self.sv.skipSets = value
+            ResearchAssistant_InvUpdate()
+        end,
+    })
+    table.insert(optionsData, {
+        type = "checkbox",
+        name = str.SKIP_SETS_ONLY_MAX_LEVEL,
+        tooltip = str.SKIP_SETS_ONLY_MAX_LEVEL_TOOLTIP,
+        getFunc = function() return self.sv.skipSetsOnlyMaxLevel end,
+        setFunc = function(value)
+            self.sv.skipSetsOnlyMaxLevel = value
+            ResearchAssistant_InvUpdate()
+        end,
+        disabled = function() return not self.sv.skipSets end,
+    })
+    table.insert(optionsData, {
+        type = "checkbox",
         name = str.SKIP_ZOS_MARKED,
         tooltip = str.SKIP_ZOS_MARKED_TOOLTIP,
         getFunc = function() return self.sv.respectItemProtectionByZOs end,
@@ -820,6 +936,7 @@ function ResearchAssistantSettings:GetLanguage()
         ["es"] = "es",
         ["fr"] = "fr",
         ["jp"] = "jp",
+        ["ru"] = "ru",
     }
     --return english if not supported
     local langSupported = supportedLanguages[lang] or "en"

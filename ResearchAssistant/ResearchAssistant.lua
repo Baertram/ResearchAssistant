@@ -1,11 +1,25 @@
+--TODOs
+--2021-07-21
+-- Tooltips at inventory does not update if proteciton is removed or crafting char is changed in settings
+-- Protected icon and data.dataEntry.researchAssistant does not change if protection is removed or crafting char is changed in settings
+-- more tests!!!
+
 if ResearchAssistant == nil then ResearchAssistant = {} end
 local RA = ResearchAssistant
 
+RA.currentlyLoggedInCharId = RA.currentlyLoggedInCharId or GetCurrentCharacterId()
+local currentlyLoggedInCharId = RA.currentlyLoggedInCharId
+local unknownStr = "n/a"
+RA.unknownStr = unknownStr
+
 --Addon variables
+local portalWebsite = ""
 RA.name		= "ResearchAssistant"
-RA.version 	= "0.9.5.9"
+RA.version 	= "0.9.5.1"
 RA.author   = "ingeniousclown,katkat42,Randactyl,Baertram"
 RA.website	= "https://www.esoui.com/downloads/info111-ResearchAssistant.html"
+RA.donation = "https://www.esoui.com/portal.php?id=136&a=faq&faqid=131"
+RA.feedback = "https://www.esoui.com/portal.php?id=136&a=bugreport"
 
 local libErrorText = "[ResearchAssistant]Needed library \'%s\' was not loaded. This addon won't work without this library!"
 
@@ -15,6 +29,8 @@ local ORNATE_TEXTURE = [[/esoui/art/tradinghouse/tradinghouse_sell_tabicon_disab
 local ornateTextureSizeMax = 28
 local INTRICATE_TEXTURE = [[/esoui/art/progression/progression_indexicon_guilds_up.dds]]
 local intricateTextureSizeMax = 30
+local PROTECTED_TEXTURE = [[/esoui/art/campaign/campaignbrowser_fullpop.dds]]
+local protectedTextureSizeMax = 40
 local traitTypes = {
 	[ITEM_TRAIT_TYPE_NONE] = GetString(SI_ITEMTRAITTYPE0), --None
 	[ITEM_TRAIT_TYPE_WEAPON_POWERED] = GetString(SI_ITEMTRAITTYPE1), --Powered
@@ -103,9 +119,16 @@ local RASettings = nil
 local RAScanner = nil
 
 local RAlang = 'en'
+local STRINGS = RA_Strings
+local TOOLTIPS
+
+local armorTypeToName
+local equipmentTypeToName
+local weaponTypeToName
 
 --Global Constants
-RA_CON_MAX_PREFRENCE_VALUE = 999999999999999999
+RA_CON_BEST_PREFERENCE_VALUE = 999999999
+RA_CON_MAX_PREFERENCE_VALUE  = 999999999999999999
 
 --LibResearch reasons
 local libResearch_Reason_ALREADY_KNOWN 	= LIBRESEARCH_REASON_ALREADY_KNOWN 	or "AlreadyKnown"
@@ -124,6 +147,7 @@ local TRACKING_STATE_RESEARCHABLE			= "researchable"
 local TRACKING_STATE_DUPLICATE				= "duplicate"
 local TRACKING_STATE_TRAITLESS				= LIBRESEARCH_REASON_TRAITLESSlower
 local TRACKING_STATE_UNTRACKED				= "untracked"
+local TRACKING_STATE_PROTECTED				= "protected"
 local TRACKING_STATE_CHARACTER_NOT_SCANNED_YET = "CharacterNotScannedYet"
 RA.trackingStates = {
 	[TRACKING_STATE_KNOWN] 			= TRACKING_STATE_KNOWN,
@@ -134,9 +158,30 @@ RA.trackingStates = {
 	[TRACKING_STATE_CHARACTER_NOT_SCANNED_YET] = TRACKING_STATE_CHARACTER_NOT_SCANNED_YET,
 }
 
-local function AddTooltips(control, text)
+--If not created yet: Create a ResearchAssistant Settings
+--Return the RAscanner
+function RA.GetOrCreateRASettings()
+	RA.settings = RA.settings or ResearchAssistantSettings:New()
+	RASettings = RA.settings
+	return RASettings
+end
+
+--If not created yet: Create an ResearchAssistant Scanner
+--Return the RAscanner
+function RA.GetOrCreateRAScanner()
+	if RA.settings == nil then
+		RA.settings = RA.GetOrCreateRASettings()
+	end
+	if not RA.settings then return end
+	RA.scanner = RA.scanner or ResearchAssistantScanner:New(RA.settings)
+	RAScanner = RA.scanner
+	return RAScanner
+end
+
+local function AddTooltips(control, textFunc)
 	control:SetHandler("OnMouseEnter", function(self)
-		ZO_Tooltips_ShowTextTooltip(self, TOP, text)
+		local ttText = textFunc()
+		ZO_Tooltips_ShowTextTooltip(self, TOP, ttText)
 	end)
 	control:SetHandler("OnMouseExit", function(self)
 		ZO_Tooltips_HideTextTooltip()
@@ -148,10 +193,10 @@ local function RemoveTooltips(control)
 	control:SetHandler("OnMouseExit", nil)
 end
 
-local function HandleTooltips(control, text)
-	if RASettings:ShowTooltips() and text ~= "" then
+local function HandleTooltips(control, textFunc)
+	if RASettings:ShowTooltips() and textFunc ~= nil then
 		control:SetMouseEnabled(true)
-		AddTooltips(control, text)
+		AddTooltips(control, textFunc)
 	else
 		control:SetMouseEnabled(false)
 		RemoveTooltips(control)
@@ -160,7 +205,6 @@ end
 
 local function SetToOrnate(indicatorControl)
 	local textureSize = RASettings:GetTextureSize() + 12
-
 	if textureSize > ornateTextureSizeMax then textureSize = ornateTextureSizeMax end
 
 	indicatorControl:SetTexture(ORNATE_TEXTURE)
@@ -168,12 +212,11 @@ local function SetToOrnate(indicatorControl)
 	indicatorControl:SetDimensions(textureSize, textureSize)
 	indicatorControl:SetHidden(false)
 
-	HandleTooltips(indicatorControl, RA_Strings[RAlang].TOOLTIPS.ornate)
+	HandleTooltips(indicatorControl, function() return TOOLTIPS.ornate end)
 end
 
 local function SetToIntricate(indicatorControl)
 	local textureSize = RASettings:GetTextureSize() + 10
-
 	if textureSize > intricateTextureSizeMax then textureSize = intricateTextureSizeMax end
 
 	indicatorControl:SetTexture(INTRICATE_TEXTURE)
@@ -181,7 +224,17 @@ local function SetToIntricate(indicatorControl)
 	indicatorControl:SetDimensions(textureSize, textureSize)
 	indicatorControl:SetHidden(false)
 
-	HandleTooltips(indicatorControl, RA_Strings[RAlang].TOOLTIPS.intricate)
+	HandleTooltips(indicatorControl, function() return TOOLTIPS.intricate end)
+end
+
+local function SetToProtected(indicatorControl)
+	local textureSize = RASettings:GetTextureSize() + 10
+	if textureSize > protectedTextureSizeMax then textureSize = protectedTextureSizeMax end
+
+	indicatorControl:SetTexture(PROTECTED_TEXTURE)
+	indicatorControl:SetColor(1, 0, 0, 1)
+	indicatorControl:SetDimensions(textureSize, textureSize)
+	indicatorControl:SetHidden(true)
 end
 
 local function SetToNormal(indicatorControl)
@@ -242,6 +295,11 @@ end
 --Returns true if the given item at bag and slot can be researched with the the character set in the
 --ResearchAssistant settings for the crafting type. Otherwise it returns false!
 function RA.IsItemResearchableWithSettingsCharacter(bagId, slotIndex)
+	--ResearchAssistant Scanner and Settings are already provided? Else create them
+	RAScanner = RAScanner or RA.GetOrCreateRAScanner()
+	RASettings = RASettings or RA.GetOrCreateRASettings()
+	if not RAScanner or not RASettings then return end
+
 	--Return value, preset with "Not researchable with char" = false
 	local isResearchableWithSettingsChar = false
 	local itemLink = bagId and GetItemLink(bagId, slotIndex) or GetItemLink(slotIndex)
@@ -287,7 +345,7 @@ function RA.IsItemResearchableWithSettingsCharacter(bagId, slotIndex)
 		if reason == libResearch_Reason_TRAITLESS then
 			bestTraitPreferenceScore = true
 		else
-			bestTraitPreferenceScore = 999999999
+			bestTraitPreferenceScore = RA_CON_BEST_PREFERENCE_VALUE
 		end
 	end
 
@@ -329,10 +387,15 @@ end
 --If the item is a duplicate the return value will be "duplicate".
 --Otherwise it returns false!
 function RA.IsItemResearchableOrDuplicateWithSettingsCharacter(bagId, slotIndex)
+	--ResearchAssistant Scanner and Settings are already provided? Else create them
+	RAScanner = RAScanner or RA.GetOrCreateRAScanner()
+	RASettings = RASettings or RA.GetOrCreateRASettings()
+	if not RAScanner or not RASettings then return end
+
 	--Return value, preset with "Not researchable with char" = false
 	local isNoDuplicateResearchableWithSettingsChar = false
 	local itemLink = bagId and GetItemLink(bagId, slotIndex) or GetItemLink(slotIndex)
-
+	if not itemLink or itemLink == "" then return end
 	--returns int traitKey, bool isResearchable, string reason
 	local traitKey, isResearchable, reason = RAScanner:CheckIsItemResearchable(itemLink)
 
@@ -374,7 +437,7 @@ function RA.IsItemResearchableOrDuplicateWithSettingsCharacter(bagId, slotIndex)
 		if reason == libResearch_Reason_TRAITLESS then
 			bestTraitPreferenceScore = true
 		else
-			bestTraitPreferenceScore = 999999999
+			bestTraitPreferenceScore = RA_CON_BEST_PREFERENCE_VALUE
 		end
 	end
 
@@ -412,14 +475,107 @@ end
 local function getWhoKnowsAndTraitTextAndTexture(p_itemLink, p_traitKey)
 	local r_traitName
 	local r_whoKnows = RASettings:GetCharsWhoKnowTrait(p_traitKey)
-	if r_whoKnows and r_whoKnows ~= "" then
-		local traitId = GetItemLinkTraitType(p_itemLink)
-		if traitId then
-			r_traitName = traitTypes[traitId]
-			r_traitName = buildItemTraitIconText(r_traitName, traitId)
-		end
+--d(">getWhoKnowsAndTraitTextAndTexture: " .. p_itemLink .. ", whoKnows: " ..tostring(r_whoKnows))
+	local traitId = GetItemLinkTraitType(p_itemLink)
+	if traitId then
+		r_traitName = traitTypes[traitId]
+		r_traitName = buildItemTraitIconText(r_traitName, traitId)
 	end
 	return r_whoKnows, r_traitName
+end
+
+local function getTooltipText(showTooltips, bagId, slotIndex, itemLink, stackSize, bestTraitPreferenceScore, whoKnows, traitName, researchCharOfCraftingTypeNameDecorated, protectedStr, craftingNotTracked)
+	researchCharOfCraftingTypeNameDecorated = researchCharOfCraftingTypeNameDecorated or unknownStr
+	local tooltipText = ""
+	if not showTooltips then return tooltipText end
+
+	local armorType
+	local weaponType
+	local equipType
+	local typeText = ""
+	local showTooltipsType = RASettings:ShowTooltipsType()
+	if showTooltipsType == true then
+		weaponType = GetItemLinkWeaponType(itemLink)
+		if weaponType == WEAPONTYPE_NONE then
+			equipType = GetItemLinkEquipType(itemLink)
+			typeText = equipmentTypeToName[equipType]
+		else
+			typeText = weaponTypeToName[weaponType]
+		end
+		typeText = typeText or ""
+	end
+	local armorWeightText = ""
+	local showTooltipsArmorWeight = RASettings:ShowTooltipsArmorWeight()
+	if showTooltipsArmorWeight == true then
+		if weaponType == nil or weaponType == WEAPONTYPE_NONE then
+			armorType = GetItemLinkArmorType(itemLink)
+			if armorType ~= ARMORTYPE_NONE then
+				armorWeightText = armorTypeToName[armorWeightText]
+			end
+		end
+		armorWeightText = armorWeightText or ""
+	end
+
+
+d(">" .. itemLink .. "-equipType: " ..tostring(equipType) ..", weaponType: " ..tostring(weaponType) .. ", armorType: " ..tostring(armorType) .. ", typeText: " ..tostring(typeText) .. ", armorWeightText: " ..tostring(armorWeightText))
+
+	--rafting of the current item is not tracked?
+	if craftingNotTracked == true then
+		if showTooltips == true and whoKnows ~= "" then
+			tooltipText = string.format(TOOLTIPS.alreadyResearched, TOOLTIPS.notTrackedCharName, (traitName ~= nil and string.format(TOOLTIPS.knownBy, traitName)) or "") .. whoKnows .. protectedStr
+		else
+			tooltipText = string.format(TOOLTIPS.alreadyResearched, TOOLTIPS.notTrackedCharName, ((traitName ~= nil and " \'" .. traitName .. "\'") or "")) .. protectedStr
+		end
+	else
+		--We do not know the item?
+		if bestTraitPreferenceScore ~= true then
+			--Not scanned data at the current character
+			if bestTraitPreferenceScore == RASettings.CONST_CHARACTER_NOT_SCANNED_YET then
+				if showTooltips == true and whoKnows ~= "" then
+					tooltipText = string.format(TOOLTIPS.notScannedWithNeededCharYet, researchCharOfCraftingTypeNameDecorated) .. "\n\n" .. string.format(TOOLTIPS.alreadyResearched, researchCharOfCraftingTypeNameDecorated, (traitName ~= nil and string.format(TOOLTIPS.knownBy, traitName)) or "") .. whoKnows .. protectedStr
+				else
+					tooltipText = string.format(TOOLTIPS.notScannedWithNeededCharYet, researchCharOfCraftingTypeNameDecorated) .. protectedStr
+				end
+			else
+				--preference value for the current item
+				local thisItemScore = RAScanner:CreateItemPreferenceValue(itemLink, bagId, slotIndex)
+				--Duplicate item
+				if (thisItemScore > bestTraitPreferenceScore or stackSize > 1) then
+					if showTooltips == true and whoKnows ~= "" then
+						tooltipText = string.format(TOOLTIPS.duplicate, researchCharOfCraftingTypeNameDecorated, (traitName ~= nil and string.format(TOOLTIPS.knownBy, traitName)) or "") .. whoKnows .. protectedStr
+					else
+						tooltipText = string.format(TOOLTIPS.duplicate, researchCharOfCraftingTypeNameDecorated, (traitName ~= nil and " \'" .. traitName .. "\'") or "") .. protectedStr
+					end
+				else
+					--Unknown item
+					if showTooltips == true and whoKnows ~= "" then
+						tooltipText = string.format(TOOLTIPS.canResearch, researchCharOfCraftingTypeNameDecorated, (traitName ~= nil and string.format(TOOLTIPS.knownBy, traitName)) or "") .. whoKnows .. protectedStr
+					else
+						tooltipText = string.format(TOOLTIPS.canResearch, researchCharOfCraftingTypeNameDecorated, (traitName ~= nil and " \'" .. traitName .. "\'") or "") .. protectedStr
+					end
+				end
+			end
+		else
+			--Known item
+			if showTooltips == true and whoKnows ~= "" then
+				tooltipText = string.format(TOOLTIPS.alreadyResearched, researchCharOfCraftingTypeNameDecorated, (traitName ~= nil and string.format(TOOLTIPS.knownBy, traitName)) or "") .. whoKnows .. protectedStr
+			else
+				tooltipText = string.format(TOOLTIPS.alreadyResearched, researchCharOfCraftingTypeNameDecorated, (traitName ~= nil and " \'" .. traitName .. "\'") or "") .. protectedStr
+			end
+		end
+	end
+	local preTooltipText = ""
+	if typeText ~= "" then
+		preTooltipText = typeText
+	end
+	if armorWeightText ~= "" then
+		armorWeightText = ((preTooltipText ~= "" and " - ") or "") .. " (" .. armorWeightText .. ")"
+		preTooltipText = preTooltipText .. armorWeightText
+	end
+	if preTooltipText ~= "" then
+		preTooltipText = preTooltipText .. "\n"
+	end
+	return preTooltipText .. tooltipText
 end
 
 --[[----------------------------------------------------------------------------
@@ -432,14 +588,29 @@ end
 		"known" "researchable" "duplicate" (tracked)
 --]]----------------------------------------------------------------------------
 local function AddResearchIndicatorToSlot(control, linkFunction)
-	local bagId = control.dataEntry.data.bagId
-	local slotIndex = control.dataEntry.data.slotIndex
+	local data = control.dataEntry.data
+	local bagId = data.bagId
+	local slotIndex = data.slotIndex
 	local itemLink = bagId and linkFunction(bagId, slotIndex) or linkFunction(slotIndex)
+
+--d("AddResearchIndicatorToSlot: " .. itemLink)
 
 	--get indicator control, or create one if it doesnt exist
 	local indicatorControl = control:GetNamedChild("Research")
 	if not indicatorControl then
 		indicatorControl = CreateIndicatorControl(control)
+	end
+
+	--Should the vanilla UI research itemSellInformation texture be hidden?
+	if RASettings:GetHideVanillaUIResearchableTexture() == true then
+		if data.sellInformation == ITEM_SELL_INFORMATION_CAN_BE_RESEARCHED then
+			local traitInfoControl = GetControl(control, "TraitInfo")
+			if traitInfoControl ~= nil then
+				traitInfoControl:ClearIcons()
+		--else
+		--	TraitInfoTexture:SetHidden(false)
+			end
+		end
 	end
 
 	--returns int traitKey, bool isResearchable, string reason
@@ -448,145 +619,175 @@ local function AddResearchIndicatorToSlot(control, linkFunction)
 	local craftingSkill = RAScanner:GetItemCraftingSkill(itemLink)
 	local itemType = RAScanner:GetResearchLineIndex(itemLink)
 
+	local hideNow = false
+	local returnNow = false
+
 	if not isResearchable then
 		-- if the item isn't armor or a weapon, hide and go away
 		if reason == libResearch_Reason_WRONG_ITEMTYPE then
-			control.dataEntry.data.researchAssistant = LIBRESEARCH_REASON_WRONG_ITEMTYPElower
-			indicatorControl:SetHidden(true)
-			return
+			data.researchAssistant = LIBRESEARCH_REASON_WRONG_ITEMTYPElower
+			hideNow = true
+			returnNow = true
+
 		-- if the item has no trait and we don't want to display icon for traitless items, hide and go away
 		elseif reason == libResearch_Reason_TRAITLESS then
-			control.dataEntry.data.researchAssistant = LIBRESEARCH_REASON_TRAITLESSlower
+			data.researchAssistant = LIBRESEARCH_REASON_TRAITLESSlower
 			if not RASettings:ShowTraitless() then
-				indicatorControl:SetHidden(true)
-				return
+				hideNow = true
+				returnNow = true
 			end
 		-- if the item is ornate, make icon ornate if we show ornate and hide/go away if we don't show it
 		elseif reason == libResearch_Reason_ORNATE then
-			control.dataEntry.data.researchAssistant = LIBRESEARCH_REASON_ORNATElower
+			data.researchAssistant = LIBRESEARCH_REASON_ORNATElower
 			if not RASettings:ShowUntrackedOrnate() or (craftingSkill == -1 or (RASettings:IsMultiCharSkillOff(craftingSkill, itemType) == true)) then
-				indicatorControl:SetHidden(true)
+				hideNow = true
 			else
 				SetToOrnate(indicatorControl)
 				DisplayIndicator(indicatorControl, LIBRESEARCH_REASON_ORNATElower)
 			end
-			return
+			returnNow = true
 		-- if the item is intricate, make icon intricate if we show that and hide/go away if we don't
 		elseif reason == libResearch_Reason_INTRICATE then
-			control.dataEntry.data.researchAssistant = LIBRESEARCH_REASON_INTRICATElower
+			data.researchAssistant = LIBRESEARCH_REASON_INTRICATElower
 			if not RASettings:ShowUntrackedIntricate() or (craftingSkill == -1 or (RASettings:IsMultiCharSkillOff(craftingSkill, itemType) == true))  then
-				indicatorControl:SetHidden(true)
+				hideNow = true
 			else
 				SetToIntricate(indicatorControl)
 				DisplayIndicator(indicatorControl, LIBRESEARCH_REASON_INTRICATElower)
 			end
-			return
+			returnNow = true
 		end
 	end
 
-	--Item is protected against research so do not add any marker
-	if RA.scanner:IsItemProtectedAgainstResearch(bagId, slotIndex, itemLink) == true then
+	if hideNow == true then
 		indicatorControl:SetHidden(true)
+--d("<<abort 1")
+	end
+	if returnNow == true then
 		return
+	end
+	hideNow = false
+	returnNow = false
+
+	--Item is protected against research so do not add any marker
+	local alwaysShowResearchIcon = RASettings:GetAlwaysShowResearchIcon()
+	local alwaysShowResearchIconExcludeNonTracked = RASettings:GetAlwaysShowResearchIconExcludeNonTracked()
+	local isProtected = RAScanner:IsItemProtectedAgainstResearch(bagId, slotIndex, itemLink)
+--d(">isProtected: " ..tostring(isProtected))
+	if isProtected == true then
+		if not alwaysShowResearchIcon then
+			indicatorControl:SetHidden(true)
+			return
+		else
+			--Marker should always be shown: Set the value internal to "protected" and show the protected lock icon
+			--and the normal tooltip telling us if the item is researchable etc.
+			data.researchAssistant = TRACKING_STATE_PROTECTED
+		end
 	end
 
 	--if we aren't tracking anybody for that skill, hide and go away
-	if RASettings:IsMultiCharSkillOff(craftingSkill, itemType) == true then
-		control.dataEntry.data.researchAssistant = TRACKING_STATE_UNTRACKED
-		indicatorControl:SetHidden(true)
-		return
+	local craftingNotTracked = RASettings:IsMultiCharSkillOff(craftingSkill, itemType)
+	if craftingNotTracked == true then
+		if not alwaysShowResearchIcon or (alwaysShowResearchIcon == true and alwaysShowResearchIconExcludeNonTracked == true) then
+			data.researchAssistant = TRACKING_STATE_UNTRACKED
+			indicatorControl:SetHidden(true)
+			return
+		end
 	end
 
 	--preference value for the "best" item candidate for the trait in question
 	local bestTraitPreferenceScore = RASettings:GetPreferenceValueForTrait(traitKey)
 	--research character of that item
 	local researchCharOfCraftingTypeNameDecorated = RASettings:GetTrackedCharForSkill(craftingSkill, itemType, true)
+	if researchCharOfCraftingTypeNameDecorated == RASettings.CONST_OFF_VALUE then
+		researchCharOfCraftingTypeNameDecorated = unknownStr
+	end
 
 	if bestTraitPreferenceScore == nil then
 		-- if the item is traitless, show "researched" color. if we've never seen this trait before, show "best" color.
 		if reason == libResearch_Reason_TRAITLESS then
 			bestTraitPreferenceScore = true
 		else
-			bestTraitPreferenceScore = 999999999
+			bestTraitPreferenceScore = RA_CON_BEST_PREFERENCE_VALUE
 		end
 	end
 
 	if bestTraitPreferenceScore == true and not RASettings:ShowResearched() then
-		control.dataEntry.data.researchAssistant = TRACKING_STATE_KNOWN
+		data.researchAssistant = TRACKING_STATE_KNOWN
 		indicatorControl:SetHidden(true)
 		return
 	end
 
 	--here's the "display it" section
-	SetToNormal(indicatorControl)
-	DisplayIndicator(indicatorControl)
+	local protectedStr = ""
+	local showNow = true
+	--Indicator controls will be hidden here!
+	if isProtected == true and alwaysShowResearchIcon == true then
+		SetToProtected(indicatorControl)
+		protectedStr = "\n"..TOOLTIPS.protected
+	else
+		SetToNormal(indicatorControl)
+		if craftingNotTracked == true then
+			showNow = false
+		end
+	end
+	--And now they are shown if needed
+	if showNow == true then
+		DisplayIndicator(indicatorControl)
+	end
 
-	local stackSize = control.dataEntry.data.stackCount or 0
+	local stackSize = data.stackCount or 0
 
 	--Who knows the trait already?
 	local whoKnows = ""
 	local traitName
 	local showTooltips = RASettings:ShowTooltips()
+	if showTooltips == true then
+		whoKnows, traitName = getWhoKnowsAndTraitTextAndTexture(itemLink, traitKey)
+		HandleTooltips(indicatorControl, function()
+			return getTooltipText(showTooltips, bagId, slotIndex, itemLink, stackSize, bestTraitPreferenceScore, whoKnows, traitName, researchCharOfCraftingTypeNameDecorated, protectedStr, craftingNotTracked)
+		end)
+	else
+		HandleTooltips(indicatorControl, nil)
+	end
+
 	--d(">" .. string.format("traitKey: %s, isResearchable: %s, reason: %s, score: %s, stackSize: %s, char: %s, whoKnows: %s", tostring(traitKey), tostring(isResearchable), tostring(reason), tostring(bestTraitPreferenceScore), tostring(stackSize), tostring(researchCharOfCraftingTypeNameDecorated), tostring(whoKnows)))
 
 	--pretty colors time!
 	--if we don't know it, color the icon something fun
 	if bestTraitPreferenceScore ~= true then
+		--Not scanned character
 		if bestTraitPreferenceScore == RASettings.CONST_CHARACTER_NOT_SCANNED_YET then
 			indicatorControl:SetColor(unpack(RASettings:GetNotScannedColor()))
-			if showTooltips == true then
-				whoKnows, traitName = getWhoKnowsAndTraitTextAndTexture(itemLink, traitKey)
+			if not isProtected == true then
+				data.researchAssistant = TRACKING_STATE_CHARACTER_NOT_SCANNED_YET
 			end
-			if showTooltips == true and whoKnows ~= "" then
-				HandleTooltips(indicatorControl, string.format(RA_Strings[RAlang].TOOLTIPS.notScannedWithNeededCharYet, researchCharOfCraftingTypeNameDecorated) .. "\n\n" .. string.format(RA_Strings[RAlang].TOOLTIPS.alreadyResearched, string.format(RA_Strings[RAlang].TOOLTIPS.knownBy, traitName)) .. whoKnows)
-			else
-				HandleTooltips(indicatorControl, string.format(RA_Strings[RAlang].TOOLTIPS.notScannedWithNeededCharYet, researchCharOfCraftingTypeNameDecorated))
-			end
-			control.dataEntry.data.researchAssistant = TRACKING_STATE_CHARACTER_NOT_SCANNED_YET
-			return
 		else
 			--preference value for the current item
 			local thisItemScore = RAScanner:CreateItemPreferenceValue(itemLink, bagId, slotIndex)
 			if (thisItemScore > bestTraitPreferenceScore or stackSize > 1) then
 				indicatorControl:SetColor(unpack(RASettings:GetDuplicateUnresearchedColor()))
-				if showTooltips == true then
-					whoKnows, traitName = getWhoKnowsAndTraitTextAndTexture(itemLink, traitKey)
+				if not isProtected == true then
+					data.researchAssistant = TRACKING_STATE_DUPLICATE
 				end
-				if showTooltips == true and whoKnows ~= "" then
-					HandleTooltips(indicatorControl, string.format(RA_Strings[RAlang].TOOLTIPS.duplicate, string.format(RA_Strings[RAlang].TOOLTIPS.knownBy, traitName)) .. whoKnows)
-				else
-					HandleTooltips(indicatorControl, string.format(RA_Strings[RAlang].TOOLTIPS.duplicate, ""))
-				end
-				control.dataEntry.data.researchAssistant = TRACKING_STATE_DUPLICATE
 			else
 				indicatorControl:SetColor(unpack(RASettings:GetCanResearchColor()))
-				if showTooltips == true then
-					whoKnows, traitName = getWhoKnowsAndTraitTextAndTexture(itemLink, traitKey)
+				if not isProtected == true then
+					data.researchAssistant = TRACKING_STATE_RESEARCHABLE
 				end
-				if showTooltips == true and whoKnows ~= "" then
-					HandleTooltips(indicatorControl, string.format(RA_Strings[RAlang].TOOLTIPS.canResearch, string.format(RA_Strings[RAlang].TOOLTIPS.knownBy, traitName)) .. whoKnows)
-				else
-					HandleTooltips(indicatorControl, string.format(RA_Strings[RAlang].TOOLTIPS.canResearch, ""))
-				end
-				control.dataEntry.data.researchAssistant = TRACKING_STATE_RESEARCHABLE
 			end
-			return
 		end
-	end
-	--in any other case, color it known
-	indicatorControl:SetColor(unpack(RASettings:GetAlreadyResearchedColor()))
-	if showTooltips == true then
-		whoKnows, traitName = getWhoKnowsAndTraitTextAndTexture(itemLink, traitKey)
-	end
-	if showTooltips == true and whoKnows ~= "" then
-		HandleTooltips(indicatorControl, string.format(RA_Strings[RAlang].TOOLTIPS.alreadyResearched, string.format(RA_Strings[RAlang].TOOLTIPS.knownBy, traitName)) .. whoKnows)
 	else
-		HandleTooltips(indicatorControl, string.format(RA_Strings[RAlang].TOOLTIPS.alreadyResearched, ""))
-	end
-	if reason == libResearch_Reason_TRAITLESS then
-		control.dataEntry.data.researchAssistant = TRACKING_STATE_TRAITLESS
-	else
-		control.dataEntry.data.researchAssistant = TRACKING_STATE_KNOWN
+		--Known item
+		--in any other case, color it known
+		indicatorControl:SetColor(unpack(RASettings:GetAlreadyResearchedColor()))
+		if not isProtected == true then
+			if reason == libResearch_Reason_TRAITLESS then
+				data.researchAssistant = TRACKING_STATE_TRAITLESS
+			else
+				data.researchAssistant = TRACKING_STATE_KNOWN
+			end
+		end
 	end
 end
 
@@ -644,6 +845,7 @@ local function RA_Event_Player_Activated(event, isA)
 
 	local noCraftingCharWasChosenYetAtAll = false
 	if RA.settings and RA.settings.sv then
+		local STRINGSettings = STRINGS[RASettings:GetLanguage()].SETTINGS
 		local settings = RA.settings.sv
 		local CONST_OFF_VALUE = RA.settings.CONST_OFF_VALUE
 		--if not settings.allowNoCharsForResearch then
@@ -659,30 +861,29 @@ local function RA_Event_Player_Activated(event, isA)
 				end
 			else
 				--Use different research characters for each of your characters
-				local currentlyLoggedInChar = RA.currentlyLoggedInCharId
 				if settings.useLoggedInCharForResearch == true then
 					--Use different research characters for each of your characters
-					settings.blacksmithCharacter[currentlyLoggedInChar]       = currentlyLoggedInChar
-					settings.weaponsmithCharacter[currentlyLoggedInChar]      = currentlyLoggedInChar
-					settings.woodworkingCharacter[currentlyLoggedInChar]      = currentlyLoggedInChar
-					settings.clothierCharacter[currentlyLoggedInChar]         = currentlyLoggedInChar
-					settings.leatherworkerCharacter[currentlyLoggedInChar]    = currentlyLoggedInChar
-					settings.jewelryCraftingCharacter[currentlyLoggedInChar]  = currentlyLoggedInChar
+					settings.blacksmithCharacter[currentlyLoggedInCharId]       = currentlyLoggedInCharId
+					settings.weaponsmithCharacter[currentlyLoggedInCharId]      = currentlyLoggedInCharId
+					settings.woodworkingCharacter[currentlyLoggedInCharId]      = currentlyLoggedInCharId
+					settings.clothierCharacter[currentlyLoggedInCharId]         = currentlyLoggedInCharId
+					settings.leatherworkerCharacter[currentlyLoggedInCharId]    = currentlyLoggedInCharId
+					settings.jewelryCraftingCharacter[currentlyLoggedInCharId]  = currentlyLoggedInCharId
 					noCraftingCharWasChosenYetAtAll = false
 				else
-					if settings.blacksmithCharacter[currentlyLoggedInChar]       		  == CONST_OFF_VALUE
-							and settings.weaponsmithCharacter[currentlyLoggedInChar]      == CONST_OFF_VALUE
-							and settings.woodworkingCharacter[currentlyLoggedInChar]      == CONST_OFF_VALUE
-							and settings.clothierCharacter[currentlyLoggedInChar]         == CONST_OFF_VALUE
-							and settings.leatherworkerCharacter[currentlyLoggedInChar]    == CONST_OFF_VALUE
-							and settings.jewelryCraftingCharacter[currentlyLoggedInChar]  == CONST_OFF_VALUE then
+					if settings.blacksmithCharacter[currentlyLoggedInCharId]       		 == CONST_OFF_VALUE
+							and settings.weaponsmithCharacter[currentlyLoggedInCharId]      == CONST_OFF_VALUE
+							and settings.woodworkingCharacter[currentlyLoggedInCharId]      == CONST_OFF_VALUE
+							and settings.clothierCharacter[currentlyLoggedInCharId]         == CONST_OFF_VALUE
+							and settings.leatherworkerCharacter[currentlyLoggedInCharId]    == CONST_OFF_VALUE
+							and settings.jewelryCraftingCharacter[currentlyLoggedInCharId]  == CONST_OFF_VALUE then
 						noCraftingCharWasChosenYetAtAll = true
 					end
 				end
 			end
 			if noCraftingCharWasChosenYetAtAll == true then
 				local alertTextHeader = "["..RA.name.."]"
-				local alertText = RA_Strings[RASettings:GetLanguage()].SETTINGS.ERROR_CONFIGURE_ADDON .. "\n" .. RA_Strings[RASettings:GetLanguage()].SETTINGS.ERROR_LOGIN_ALL_CHARS
+				local alertText = STRINGSettings.ERROR_CONFIGURE_ADDON .. "\n" .. STRINGSettings.ERROR_LOGIN_ALL_CHARS
 				if alertText and alertText ~= "" then
 					--Output the text as Center Screen Announcement
 					local params = CENTER_SCREEN_ANNOUNCE:CreateMessageParams(CSA_CATEGORY_SMALL_TEXT, SOUNDS.NONE)
@@ -713,22 +914,64 @@ local function ResearchAssistant_Loaded(eventCode, addOnName)
 	if libResearch == nil then d(string.format(libErrorText, "LibResearch")) return end
 	RA.libResearch = libResearch
 	local LAM = LibAddonMenu2
-	if not LAM and LibStub then LibStub("LibAddonMenu-2.0", true) end
 	if LAM == nil then d(string.format(libErrorText, "LibAddonMenu-2.0")) return end
 	RA.lam = LAM
+	if LibDebugLogger then
+		RA.logger = LibDebugLogger(RA.name)
+	end
+
+	RA.currentlyLoggedInCharId = RA.currentlyLoggedInCharId or GetCurrentCharacterId()
 
 	wasInCombatAsWantedToScan = false
 
-	RA.currentlyLoggedInCharId = GetCurrentCharacterId()
-
-	RASettings = ResearchAssistantSettings:New()
-	RAScanner = ResearchAssistantScanner:New(RASettings)
+	--Settings and Scanner
+	RASettings = RASettings or RA.GetOrCreateRASettings()
+	RAScanner = RAScanner or RA.GetOrCreateRAScanner()
 	RAScanner:SetDebug(RASettings:IsDebug())
-	RA.scanner = RAScanner
-	RA.settings = RASettings
 
 	--Get the language of the client
 	RAlang = RASettings:GetLanguage()
+
+	local stringsOfClientLang = STRINGS[RAlang]
+	local stringsOfFallbackLang = STRINGS["en"]
+
+	TOOLTIPS = stringsOfClientLang.TOOLTIPS
+	RA.tooltips = TOOLTIPS
+
+	armorTypeToName = {
+		[ARMORTYPE_LIGHT] 				= stringsOfClientLang.armorLight or stringsOfFallbackLang.armorLight,
+		[ARMORTYPE_MEDIUM] 				= stringsOfClientLang.armorMedium or stringsOfFallbackLang.armorMedium,
+		[ARMORTYPE_HEAVY]				= stringsOfClientLang.armorHeavy or stringsOfFallbackLang.armorHeavy,
+	}
+	weaponTypeToName = {
+		[WEAPONTYPE_AXE] 				= stringsOfClientLang.weaponAxe or stringsOfFallbackLang.weaponAxe,
+		[WEAPONTYPE_BOW] 				= stringsOfClientLang.weaponBow or stringsOfFallbackLang.weaponBow,
+		[WEAPONTYPE_DAGGER] 			= stringsOfClientLang.weaponDagger or stringsOfFallbackLang.weaponDagger,
+		[WEAPONTYPE_FIRE_STAFF]			= stringsOfClientLang.weaponFireStaff or stringsOfFallbackLang.weaponFireStaff,
+		[WEAPONTYPE_FROST_STAFF] 		= stringsOfClientLang.weaponFrostStaff or stringsOfFallbackLang.weaponFrostStaff,
+		[WEAPONTYPE_HAMMER] 			= stringsOfClientLang.weaponHammer or stringsOfFallbackLang.weaponHammer,
+		[WEAPONTYPE_HEALING_STAFF] 		= stringsOfClientLang.weaponHealingStaff or stringsOfFallbackLang.weaponHealingStaff,
+		[WEAPONTYPE_LIGHTNING_STAFF] 	= stringsOfClientLang.weaponLightningStaff or stringsOfFallbackLang.weaponLightningStaff,
+		[WEAPONTYPE_SHIELD] 			= stringsOfClientLang.weaponShield or stringsOfFallbackLang.weaponShield,
+		[WEAPONTYPE_SWORD] 				= stringsOfClientLang.weaponSword or stringsOfFallbackLang.weaponSword,
+		[WEAPONTYPE_TWO_HANDED_AXE] 	= stringsOfClientLang.weapon2hdAxe or stringsOfFallbackLang.weapon2hdAxe,
+		[WEAPONTYPE_TWO_HANDED_HAMMER] 	= stringsOfClientLang.weapon2hdHammer or stringsOfFallbackLang.weapon2hdHammer,
+		[WEAPONTYPE_TWO_HANDED_SWORD] 	= stringsOfClientLang.weapon2hdSword or stringsOfFallbackLang.weapon2hdSword,
+	}
+	equipmentTypeToName = {
+		[EQUIP_TYPE_CHEST] 				= stringsOfClientLang.equipChest or stringsOfFallbackLang.equipChest,
+		[EQUIP_TYPE_FEET] 				= stringsOfClientLang.equipFeet or stringsOfFallbackLang.equipFeet,
+		[EQUIP_TYPE_HAND] 				= stringsOfClientLang.equipHand or stringsOfFallbackLang.equipHand,
+		[EQUIP_TYPE_HEAD] 				= stringsOfClientLang.equipHead or stringsOfFallbackLang.equipHead,
+		[EQUIP_TYPE_LEGS] 				= stringsOfClientLang.equipLegs or stringsOfFallbackLang.equipLegs,
+		[EQUIP_TYPE_NECK] 				= stringsOfClientLang.equipNeck or stringsOfFallbackLang.equipNeck,
+		[EQUIP_TYPE_RING] 				= stringsOfClientLang.equipRing or stringsOfFallbackLang.equipRing,
+		[EQUIP_TYPE_SHOULDERS] 			= stringsOfClientLang.equipShoulders or stringsOfFallbackLang.equipShoulders,
+		[EQUIP_TYPE_WAIST] 				= stringsOfClientLang.equipWaist or stringsOfFallbackLang.equipWaist,
+	}
+	RA.armorTypeToName = armorTypeToName
+	RA.equipmentTypeToName = equipmentTypeToName
+	RA.weaponTypeToName = weaponTypeToName
 
 	--inventories hook
 	for _, v in pairs(PLAYER_INVENTORY.inventories) do
@@ -746,7 +989,7 @@ local function ResearchAssistant_Loaded(eventCode, addOnName)
 	end)
 
 	--EVENT_PLAYER_COMBAT_STATE callback function
-	local function RA_CombatState(eventCode, inCombat)
+	local function RA_CombatState(_, inCombat)
 		--d("[RA]Combat event, inCombat: " ..tostring(inCombat))
 		--Scan of bags was tried within combat but suppressed? Try after combat again
 		if inCombat == false then
@@ -811,6 +1054,57 @@ local function ResearchAssistant_Loaded(eventCode, addOnName)
 		},
 		setup = function(dialog, data) end,
 	}
+
+	--Add context menu entries
+	if LibCustomMenu ~= nil then
+		local function RA_OnContextMenu(inventorySlot, slotActions)
+			local isAllowed = false
+			RAScanner = RAScanner or RA.GetOrCreateRAScanner()
+			if RAScanner == nil or  RASettings == nil then return end
+			if not RAScanner:IsDebug() then return end
+
+			local bagId, slotIndex = ZO_Inventory_GetBagAndIndex(inventorySlot)
+			local itemLink = GetItemLink(bagId, slotIndex)
+			if not itemLink or itemLink == "" then return end
+			local itemType = GetItemLinkItemType(itemLink)
+			if not itemType then return end
+			if itemType ~= ITEMTYPE_ARMOR and itemType ~= ITEMTYPE_WEAPON then return end
+
+			isAllowed = true
+
+			if isAllowed == true then
+				local function doDebugTask(taskName)
+					if not taskName or taskName == "" then return end
+					if taskName == "ps" then
+						RAScanner:Log("Preference value of " ..itemLink..": " ..tostring(RAScanner:CreateItemPreferenceValue(itemLink, bagId, slotIndex)))
+					elseif taskName == "ir" then
+						local traitKey, isResearchable, reason = RAScanner:CheckIsItemResearchable(itemLink)
+						RAScanner:Log("Is rearchable " ..itemLink..": " ..tostring(isResearchable) .. ", traitKey: " ..tostring(traitKey) .. ", reason: " ..tostring(reason))
+					elseif taskName == "ip" then
+						local isProtected = RAScanner:IsItemProtectedAgainstResearch(bagId, slotIndex, itemLink)
+						RAScanner:Log("Is protected " ..itemLink..": " ..tostring(isProtected) .. ", settings ZOs/FCOIS/noSets: " ..tostring(RASettings.sv.respectItemProtectionByZOs).."/"..tostring(RASettings.sv.respectItemProtectionByFCOIS).."/"..tostring(RASettings.sv.skipSets))
+					end
+				end
+				local entries = {
+					{
+						label = "Get preference score",
+						callback = function() doDebugTask("ps") end,
+					},
+					{
+						label = "Is item researchable",
+						callback = function() doDebugTask("ir") end,
+					},
+					{
+						label = "Is item protected",
+						callback = function() doDebugTask("ip") end,
+					},
+				}
+				AddCustomSubMenuItem("["..RA.name.."] - DEBUG", entries)
+			end
+			--ShowMenu(inventorySlot)
+		end
+		LibCustomMenu:RegisterContextMenu(RA_OnContextMenu, LibCustomMenu.CATEGORY_EARLY)
+	end
 end
 
 EVENT_MANAGER:RegisterForEvent(RA.name .."Loaded", EVENT_ADD_ON_LOADED, ResearchAssistant_Loaded)

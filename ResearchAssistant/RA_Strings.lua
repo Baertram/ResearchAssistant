@@ -83,19 +83,67 @@ RA_Strings = {
             SKIP_ZOS_MARKED_TOOLTIP     = "Skip items at the researchable scans and Research Assistant markers if the item is marked with the ZOs lock icon.",
             SKIP_FCOIS_MARKED           = "Skip FCOItemSaver marked",
             SKIP_FCOIS_MARKED_TOOLTIP   = "Skip items at the researchable scans and Research Assistant markers if the item is marked with the FCOIS icons.\nExclusion: The research marker icon of FCOIS is allowed!",
+            SKIP_SETS                   = "Skip set items",
+            SKIP_SETS_TOOLTIP           = "Skip items which belong to a set and do not mark them with any ResearchAssistant",
+            SKIP_SETS_ONLY_MAX_LEVEL    = "Skip sets: Max level only",
+            SKIP_SETS_ONLY_MAX_LEVEL_TOOLTIP = "Skip the set items with the maximum level and CPs only, and mark lower levels for research.",
 
             ERROR_CONFIGURE_ADDON = "Please configure the addon, choose a research character in the settings!",
             ERROR_LOGIN_ALL_CHARS = "Login all your characters to read their research data.",
+
+            HIDE_VANILLA_UI_RESEARCHABLE_TEXTURE = "Hide ZOs vanilla UI researchable texture",
+            HIDE_VANILLA_UI_RESEARCHABLE_TEXTURE_TOOLTIP = "Hide the ZOs vanilla UI researchable texture at the inventory rows",
+
+            SHOW_ICON_EVEN_IF_PROTECTED = "Show research icon if protected",
+            SHOW_ICON_EVEN_IF_PROTECTED_TOOLTIP = "Always show the research icon, even though the item is protected. This way you are able to see the icon and it's tooltips. Research Assistants does not count these protected items as researchable!\n\nThis icon will respect the other settings like e.g. \'Show researched icon?\': If this is disabled and the item's trait was researched already the research assistant icon wont show!",
+            SHOW_ICON_EVEN_IF_PROTECTED_EXCLUDE_NON_TRACKED = "Exclude non tracked",
+            SHOW_ICON_EVEN_IF_PROTECTED_EXCLUDE_NON_TRACKED_TOOLTIP = "Do not show the protected icon if the crafting is not tracked",
+
+            SETTINGS_HEADER_TOOLTIPS = GetString(SI_CUSTOMERSERVICESUBMITFEEDBACKSUBCATEGORIES1306),
+            SHOW_TYPE_IN_TOOLTIP = "Show type in tooltip",
+            SHOW_TYPE_IN_TOOLTIP_TOOLTIP = "Show the armor/weapon type in the tooltip text",
+            SHOW_ARMORWEIGHT_IN_TOOLTIP = "Show armor weight in tooltip",
+            SHOW_ARMORWEIGHT_IN_TOOLTIP_TOOLTIP = "Show the armor weight (light, medium, heavy) in the tooltip text",
+            SETTINGS_HEADER_VANILLAUI = "Vanilla UI",
         },
         TOOLTIPS = {
-            knownBy = " \'%s\' known by:\n",
-            ornate = "Ornate",
-            intricate = "Intricate",
-            duplicate = "Duplicate trait%s",
-            canResearch = "Unknown trait%s",
-            alreadyResearched = "Trait%s",
-            notScannedWithNeededCharYet = "ERROR: Research character [%s] was not logged in yet!",
-        }
+            knownBy = " \'%s\', known by:\n",
+            protected = "-|cFF0000PROTECTED|r-",
+            ornate = GetString(SI_ITEMTRAITTYPE10),
+            intricate = GetString(SI_ITEMTRAITTYPE9),
+            duplicate = "[Researcher: %s]\nDuplicate%s",
+            canResearch = "[Researcher: %s]\nUnknown%s",
+            alreadyResearched = "[Researcher: %s]\n"..GetString(SI_TRADINGHOUSEFEATURECATEGORY3).."%s",
+            notScannedWithNeededCharYet = "|cFF0000ERROR|r: Researcher [\'%s\'] was not logged in yet!",
+            notTrackedCharName = "|cFFFFFF-Not tracked-|r",
+        },
+        armorLight = GetString(SI_VISUALARMORTYPE1),
+        armorMedium = GetString(SI_VISUALARMORTYPE2),
+        armorHeavy = GetString(SI_VISUALARMORTYPE3),
+
+        weaponAxe = GetString(SI_WEAPONTYPE1),
+        weaponHammer = GetString(SI_WEAPONTYPE2),
+        weaponSword = GetString(SI_WEAPONTYPE3),
+        weapon2hdSword = "2hd " .. GetString(SI_WEAPONTYPE4),
+        weapon2hdAxe = "2hd " .. GetString(SI_WEAPONTYPE5),
+        weapon2hdHammer = "2hd " .. GetString(SI_WEAPONTYPE6),
+        weaponBow = GetString(SI_WEAPONTYPE8),
+        weaponHealingStaff = GetString(SI_WEAPONTYPE9),
+        weaponDagger = GetString(SI_WEAPONTYPE11),
+        weaponFireStaff = GetString(SI_WEAPONTYPE12),
+        weaponFrostStaff = GetString(SI_WEAPONTYPE13),
+        weaponShield = GetString(SI_WEAPONTYPE14),
+        weaponLightningStaff = GetString(SI_WEAPONTYPE15),
+
+        equipHead = GetString(SI_EQUIPTYPE1),
+        equipNeck = GetString(SI_EQUIPTYPE2),
+        equipChest = GetString(SI_EQUIPTYPE3),
+        equipShoulders = GetString(SI_EQUIPTYPE4),
+        equipWaist = GetString(SI_EQUIPTYPE8),
+        equipLegs = GetString(SI_EQUIPTYPE9),
+        equipFeet = GetString(SI_EQUIPTYPE10),
+        equipRing = GetString(SI_EQUIPTYPE12),
+        equipHand = GetString(SI_EQUIPTYPE13),
     },
     ["de"] = {
         SETTINGS = {
@@ -179,20 +227,41 @@ RA_Strings = {
             SKIP_ZOS_MARKED_TOOLTIP     = "Schließt durch ZOs markierte (Schloß Symbol) Gegenstände von den Research Assistant Scan und Markierungen aus.",
             SKIP_FCOIS_MARKED           = "FCOItemSaver markierte ausschließen",
             SKIP_FCOIS_MARKED_TOOLTIP   = "Schließt durch FCOItemSaver markierte Gegenstände von den Research Assistant Scan und Markierungen aus.\nAußname: Mit dem Analyse Symbol markierte werden berücksichtigt!",
+            SKIP_SETS                   = "Set Gegenstände ausschließen",
+            SKIP_SETS_TOOLTIP           = "Set Gegenstände mit keiner ResearchAssistant Markierung versehen.",
+            SKIP_SETS_ONLY_MAX_LEVEL    = "Sets: Nur maximum Level",
+            SKIP_SETS_ONLY_MAX_LEVEL_TOOLTIP = "Set Gegenstände werden nur dann nicht zur Analyse markiert, wenn diese das maximale Level & CPs besitzen. Niedrigere Level werden markiert.",
 
             ERROR_CONFIGURE_ADDON = "Bitte konfiguriere das AddOn, wähle einen Analyse Charakter in den Einstellungen!",
             ERROR_LOGIN_ALL_CHARS = "Logge alle Charaktere ein, um ihre Analyse Daten einzulesen.",
             ALLOW_NO_CHARACTER_CHOSEN_FOR_RESEARCH      = "Keine Warnung ohne Analyse Char. gewählt",
             ALLOW_NO_CHARACTER_CHOSEN_FOR_RESEARCH_TT   = "Zeige keine Warnung beim Einloggen an, wenn nicht wenigstens ein Analyse Charakter für ein Handwerk ausgewählt wurde.",
+
+            HIDE_VANILLA_UI_RESEARCHABLE_TEXTURE = "Verstecke ZOs analysierbar Symbol",
+            HIDE_VANILLA_UI_RESEARCHABLE_TEXTURE_TOOLTIP = "Verstecke das ZOs Vanilla UI analysierbar Symbol in den Inventar Zeilen",
+
+            SHOW_ICON_EVEN_IF_PROTECTED = "Analyse Symbol trotz Schutz anzeigen",
+            SHOW_ICON_EVEN_IF_PROTECTED_TOOLTIP = "Das Analyse Symbol wird in der Inventarzeile immer angezeigt, auch wenn der Gegenstand geschützt wird. Dadurch kann man z.B. den Tooltip auch weiterhin sehen. Der Gegenstand wird jedoch innerhalb von Research Assistant als \'geschützt\' vermerkt und damit bei Analysen nicht berücksichtigt.\n\nDieses Symbol respektiert die anderen Einstellungen wie z.B. \'Analysierte Gegenstände\': D.h. wenn diese Einstellung deaktiviert ist und die Eigenschaft am Gegenstand bereits analysiert wurde, dann wird auch kein Symbol angezeigt!",
+            SHOW_ICON_EVEN_IF_PROTECTED_EXCLUDE_NON_TRACKED = "Ausnahme: Nicht überwacht",
+            SHOW_ICON_EVEN_IF_PROTECTED_EXCLUDE_NON_TRACKED_TOOLTIP = "Zeige kein Analyse Symbol wenn das Handwerk nicht überwacht wird",
+
+            SETTINGS_HEADER_TOOLTIPS = GetString(SI_CUSTOMERSERVICESUBMITFEEDBACKSUBCATEGORIES1306),
+            SHOW_TYPE_IN_TOOLTIP = "Zeige Typ im Tooltip",
+            SHOW_TYPE_IN_TOOLTIP_TOOLTIP = "Zeige den Rüstungs-/Waffen-Typ im Tooltip Text an",
+            SHOW_ARMORWEIGHT_IN_TOOLTIP = "Zeige Rüstungs-Art im Tooltip",
+            SHOW_ARMORWEIGHT_IN_TOOLTIP_TOOLTIP = "Zeige die Rüstungs-Art (Leight, Mittel, Schwer) im Tooltip",
+            SETTINGS_HEADER_VANILLAUI = "Vanilla UI",
         },
         TOOLTIPS = {
-            knownBy = " \'%s\' analysiert:\n",
-            ornate = "Verkaufspreis",
-            intricate = "Inspiration",
-            duplicate = "Doppelte Eigenschaft%s",
-            canResearch = "Unbekannte Eigenschaft%s",
-            alreadyResearched = "Eigenschaft%s",
-            notScannedWithNeededCharYet = "FEHLER: Analyse Charakter [%s] wurde noch nicht eingeloggt!",
+            knownBy = " \'%s\', bekannt bei:\n",
+            protected = "-|cFF0000BESCHÜTZT|r-",
+            ornate = GetString(SI_ITEMTRAITTYPE10),
+            intricate = GetString(SI_ITEMTRAITTYPE9),
+            duplicate = "[Analysierer: %s]\nDoppelt%s",
+            canResearch = "[Analysierer: %s]\nUnbekannt%s",
+            alreadyResearched = "[Analysierer: %s]\n"..GetString(SI_TRADINGHOUSEFEATURECATEGORY3).."%s",
+            notScannedWithNeededCharYet = "|cFF0000FEHLER|r: Analysierer [\'%s\'] wurde noch nicht eingeloggt!",
+            notTrackedCharName = "|cFFFFFF-Nicht überwacht-|r",
         }
     },
     ["fr"] = {
@@ -280,13 +349,16 @@ RA_Strings = {
             ERROR_LOGIN_ALL_CHARS = "Connectez-vous à tous vos personnages pour lire leurs données de recherche.",
         },
         TOOLTIPS = {
-            knownBy = " \'%s\' known by:\n",
-            ornate = "Orn\195\169",
-            intricate = "Complexe",
-            duplicate = "En double trait%s", --"Vous poss\195\169dez d\195\169j\195\160 un objet de moins bonne qualit\195\169 pour effectuer cette recherche !",
-            canResearch = "En trait ne connaissez%s", --"Vous ne connaissez pas encore ce trait !",
-            alreadyResearched = "En trait%s", --"Vous connaissez d\195\169j\195\160 ce trait !"
-            notScannedWithNeededCharYet = "ERREUR: le personnage de recherche [%s] n'était pas encore connecté!",
+            knownBy = " \'%s\', connu par:\n",
+            protected = "-|cFF0000PROTÉGÉ|r-",
+            ornate = GetString(SI_ITEMTRAITTYPE10),
+            intricate = GetString(SI_ITEMTRAITTYPE9),
+            duplicate = "[Chercheur: %s]\nEn double%s",
+            canResearch = "[Chercheur: %s]\nInconnu%s",
+            alreadyResearched = "[Chercheur: %s]\n"..GetString(SI_TRADINGHOUSEFEATURECATEGORY3).."%s",
+            notScannedWithNeededCharYet = "|cFF0000ERROR|r: Chercheur [\'%s\'] n'était pas encore connecté!",
+            notTracked = "Non suivi%s",
+            notTrackedCharName = "|cFFFFFF-Non suivi-|r",
         }
     },
     ["es"] = {
@@ -365,13 +437,16 @@ RA_Strings = {
             ERROR_LOGIN_ALL_CHARS = "Inicia sesión con todos tus personajes para leer sus datos de investigación.",
         },
         TOOLTIPS = {
-            knownBy = " \'%s\' known by:\n",
+            knownBy = " \'%s\', conocido por:\n",
+            protected = "-|cFF0000PROTEGIDO|r-",
             ornate = "Ornamentado",
             intricate = "Intrincado",
-            duplicate = "Rasgo duplicado%s",
-            canResearch = "Rasgo desconocido%s",
-            alreadyResearched = "Rasgo conocido%s",
-            notScannedWithNeededCharYet = "ERROR: ¡El personaje de investigación [%s] aún no había iniciado sesión!",
+            duplicate = "[Investigador: %s]\nDuplicado%s",
+            canResearch = "[Investigador: %s]\nDesconocido%s",
+            alreadyResearched = "[Investigador: %s]\nRasgo%s",
+            notScannedWithNeededCharYet = "|cFF0000ERROR|r: ¡El investigador [\'%s\'] aún no había iniciado sesión!",
+            notTracked = "No rastreado%s",
+            notTrackedCharName = "|cFFFFFF-No rastreado-|r",
         }
     },
     ["jp"] = {
@@ -459,13 +534,135 @@ RA_Strings = {
             ERROR_LOGIN_ALL_CHARS = "Login all your characters to read their research data.",
         },
         TOOLTIPS = {
-            knownBy = " \'%s\' known by:\n",
-            ornate = "Ornate",
-            intricate = "Intricate",
-            duplicate = "Duplicate trait%s",
-            canResearch = "Unknown trait%s",
-            alreadyResearched = "Trait%s",
-            notScannedWithNeededCharYet = "ERROR: Research character [%s] was not logged in yet!",
+            knownBy = " \'%s\',すでに知られている:\n",
+            protected = "-|cFF0000保護|r-",
+            ornate = GetString(SI_ITEMTRAITTYPE10),
+            intricate = GetString(SI_ITEMTRAITTYPE9),
+            duplicate = "[研究者: %s]\n複製%s",
+            canResearch = "[研究者: %s]\n未知の%s",
+            alreadyResearched = "[研究者: %s]\n"..GetString(SI_TRADINGHOUSEFEATURECATEGORY3).."%s",
+            notScannedWithNeededCharYet = "|cFF0000ERROR|r: 研究者 [\'%s\'] はまだログインしていません!",
+            notTracked = "追跡されていない%s",
+            notTrackedCharName = "|cFFFFFF-追跡されていない-|r",
         }
     },
+    ["ru"] = {
+        SETTINGS = {
+            GENERAL_HEADER = "General Options",
+            COLORS_HEADER = "Color Options",
+            HIDDEN_HEADER = "Hide Icon Options",
+            CHARACTER_HEADER = "Tracked Character Options",
+
+            ICON_LABEL = "Research icon",
+            ICON_TOOLTIP = "Choose which icon to display as your research assistant.",
+
+            ICON_SIZE = "Icon size",
+            ICON_SIZE_TOOLTIP = "Choose the size of the research icon",
+
+            ICON_OFFSET = "Icon position",
+            ICON_OFFSET_TOOLTIP = "Choose the position of the research icon on the X-axis of inventories",
+            SEPARATE_LW_LABEL = "Separate leatherworking from tailoring?",
+            SEPARATE_LW_TOOLTIP = "Do you want to track medium armor and light armor research for separate characters?",
+
+            SEPARATE_SMITH_LABEL = "Separate weaponsmithing from blacksmithing?",
+            SEPARATE_SMITH_TOOLTIP = "Do you want to track weaponsmithing and armorsmithing research for separate characters?",
+
+            RESEARCHABLE_LABEL = "Researchable trait color",
+            RESEARCHABLE_TOOLTIP = "What color should the research assistant icon be if the trait is researchable?",
+
+            DUPLICATE_LABEL = "Duplicate researchable trait color",
+            DUPLICATE_TOOLTIP = "What color should the research assistant icon be if the item is researchable but there is a better candidate for research?",
+
+            RESEARCHED_LABEL = "Already researched color",
+            RESEARCHED_TOOLTIP = "What color should the research assistant icon be if the item is already researched?",
+
+            ORNATE_LABEL = "Ornate item color",
+            ORNATE_TOOLTIP = "What color should the icon be for an ornate item?",
+
+            INTRICATE_LABEL = "Intricate item color",
+            INTRICATE_TOOLTIP = "What color should the icon be for an intricate item?",
+
+            SHOW_RESEARCHED_LABEL = "Show researched icon?",
+            SHOW_RESEARCHED_TOOLTIP = "Should the icon show up for traits that you know?",
+
+            SHOW_TRAITLESS_LABEL = "Show researched icon on traitless?",
+            SHOW_TRAITLESS_TOOLTIP = "Should the icon show up for traitless equipment?",
+
+            SHOW_ORNATE_LABEL = "Always show Ornate?",
+            SHOW_ORNATE_TOOLTIP = "Should Ornate be shown for untracked skills?",
+
+            SHOW_INTRICATE_LABEL = "Always show Intricate?",
+            SHOW_INTRICATE_TOOLTIP = "Should Intricate be shown for untracked skills?",
+
+            SHOW_TOOLTIPS_LABEL = "Show icon tooltips?",
+            SHOW_TOOLTIPS_TOOLTIP = "Should tooltips tell you what they are? (recommended OFF)",
+
+            SHOW_IN_GRID_LABEL = "Show in Grid View?",
+            SHOW_IN_GRID_TOOLTIP = "Should the research assistant icon show up with Inventory Grid View toggled on? (Ignore this if you don't use Inventory Grid View)",
+
+            WS_CHAR_LABEL = "Weaponsmithing Character",
+            WS_CHAR_TOOLTIP = "Which character is your weaponsmithing character?\n\'-\' means: None",
+
+            BS_CHAR_LABEL = "Blacksmithing Character",
+            BS_CHAR_TOOLTIP = "Which character is your blacksmithing character?\n\'-\' means: None",
+
+            LW_CHAR_LABEL = "Leatherworking Character",
+            LW_CHAR_TOOLTIP = "Which character is your leatherworking character?\n\'-\' means: None",
+
+            CL_CHAR_LABEL = "Clothier Character",
+            CL_CHAR_TOOLTIP = "Which character is your clothier character?\n\'-\' means: None",
+
+            WW_CHAR_LABEL = "Woodworking Character",
+            WW_CHAR_TOOLTIP = "Which character is your woodworking character?\n\'-\' means: None",
+
+            JC_CHAR_LABEL = "Jewelry crafting Character",
+            JC_CHAR_TOOLTIP = "Which character is your jewelry crafting character?\n\'-\' means: None",
+
+            USE_ACCOUNTWIDE_RESEARCH_CHARS      = "Account-wide same research characters",
+            USE_ACCOUNTWIDE_RESEARCH_CHARS_TT   = "Attention: Change of this option will reload the UI directly!\n\nWith this option enabled all your characters of the current acocunt will use the same research characters for each crafting type (default setting).\nWith this option disabled you can specify different research characters for each crafting type at each of your characters.",
+            ALLOW_NO_CHARACTER_CHOSEN_FOR_RESEARCH      = "No warning w/o research character selected",
+            ALLOW_NO_CHARACTER_CHOSEN_FOR_RESEARCH_TT   = "Do not sbow a warning dialog if you have chosen no character for research of any crafting type.",
+            USE_CURRENT_LOGGED_IN_CHAR_FOR_RESEARCH     = "Use logged in char for all researches",
+            USE_CURRENT_LOGGED_IN_CHAR_FOR_RESEARCH_TT  = "Use the currently logged in character for all researches and crafting types.\n\nOnly works if the 'account-wide same research characters' setting is disabled!",
+
+            PROTECTION                  = "Protection",
+            SKIP_ZOS_MARKED             = "Skip ZOs marked",
+            SKIP_ZOS_MARKED_TOOLTIP     = "Skip items at the researchable scans and Research Assistant markers if the item is marked with the ZOs lock icon.",
+            SKIP_FCOIS_MARKED           = "Skip FCOItemSaver marked",
+            SKIP_FCOIS_MARKED_TOOLTIP   = "Skip items at the researchable scans and Research Assistant markers if the item is marked with the FCOIS icons.\nExclusion: The research marker icon of FCOIS is allowed!",
+            SKIP_SETS                   = "Skip set items",
+            SKIP_SETS_TOOLTIP           = "Skip items which belong to a set and do not mark them with any ResearchAssistant",
+            SKIP_SETS_ONLY_MAX_LEVEL    = "Skip sets: Max level only",
+            SKIP_SETS_ONLY_MAX_LEVEL_TOOLTIP = "Skip the set items with the maximum level and CPs only, and mark lower levels for research.",
+
+            ERROR_CONFIGURE_ADDON = "Please configure the addon, choose a research character in the settings!",
+            ERROR_LOGIN_ALL_CHARS = "Login all your characters to read their research data.",
+
+            HIDE_VANILLA_UI_RESEARCHABLE_TEXTURE = "Hide ZOs vanilla UI researchable texture",
+            HIDE_VANILLA_UI_RESEARCHABLE_TEXTURE_TOOLTIP = "Hide the ZOs vanilla UI researchable texture at the inventory rows",
+
+            SHOW_ICON_EVEN_IF_PROTECTED = "Show research icon if protected",
+            SHOW_ICON_EVEN_IF_PROTECTED_TOOLTIP = "Always show the research icon, even though the item is protected. This way you are able to see the icon and it's tooltips. Research Assistants does not count these protected items as researchable!\n\nThis icon will respect the other settings like e.g. \'Show researched icon?\': If this is disabled and the item's trait was researched already the research assistant icon wont show!",
+            SHOW_ICON_EVEN_IF_PROTECTED_EXCLUDE_NON_TRACKED = "Exclude non tracked",
+            SHOW_ICON_EVEN_IF_PROTECTED_EXCLUDE_NON_TRACKED_TOOLTIP = "Do not show the protected icon if the crafting is not tracked",
+
+            SETTINGS_HEADER_TOOLTIPS = GetString(SI_CUSTOMERSERVICESUBMITFEEDBACKSUBCATEGORIES1306),
+            SHOW_TYPE_IN_TOOLTIP = "Show type in tooltip",
+            SHOW_TYPE_IN_TOOLTIP_TOOLTIP = "Show the armor/weapon type in the tooltip text",
+            SHOW_ARMORWEIGHT_IN_TOOLTIP = "Show armor weight in tooltip",
+            SHOW_ARMORWEIGHT_IN_TOOLTIP_TOOLTIP = "Show the armor weight (light, medium, heavy) in the tooltip text",
+            SETTINGS_HEADER_VANILLAUI = "Vanilla UI",
+        },
+        TOOLTIPS = {
+            knownBy = " \'%s\', известен:\n",
+            protected = "-|cFF0000Защищен|r-",
+            ornate = GetString(SI_ITEMTRAITTYPE10),
+            intricate = GetString(SI_ITEMTRAITTYPE9),
+            duplicate = "[Изучающий: %s]\nДублирующая%s",
+            canResearch = "[Изучающий: %s]\nНеизвестная%s",
+            alreadyResearched = "[Изучающий: %s]\nОсобенноость%s",
+            notScannedWithNeededCharYet = "|cFF0000Ошибка|r: Изучающий [\'%s\'] еще не логинился!",
+            notTrackedCharName = "|cFFFFFF-Не отслеживается-|r",
+        }
+    }
 }
