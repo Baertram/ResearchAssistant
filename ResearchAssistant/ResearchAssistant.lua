@@ -15,7 +15,7 @@ RA.unknownStr = unknownStr
 --Addon variables
 local portalWebsite = ""
 RA.name		= "ResearchAssistant"
-RA.version 	= "0.9.5.1"
+RA.version 	= "0.9.5.4"
 RA.author   = "ingeniousclown,katkat42,Randactyl,Baertram"
 RA.website	= "https://www.esoui.com/downloads/info111-ResearchAssistant.html"
 RA.donation = "https://www.esoui.com/portal.php?id=136&a=faq&faqid=131"
@@ -284,10 +284,13 @@ local function DisplayIndicator(indicatorControl, indicatorType)
 end
 
 local function buildItemTraitIconText(text, traitId)
+	if not text then return "" end
 	local itemTraitIconText = text
-	if traitId ~= ITEM_TRAIT_TYPE_NONE then
+	if traitId and traitId ~= ITEM_TRAIT_TYPE_NONE then
+		local traitTexture = traitTextures[traitId]
+		if not traitTexture then return "" end
 		--itemTraitIconText = zo_iconTextFormat(traitTextures[traitId], 20, 20, itemTraitIconText)
-		itemTraitIconText = zo_strformat(text .. " <<1>>", zo_iconFormat(traitTextures[traitId], 20, 20))
+		itemTraitIconText = zo_strformat(text .. " <<1>>", zo_iconFormat(traitTexture, 20, 20))
 	end
 	return itemTraitIconText
 end
@@ -517,7 +520,7 @@ local function getTooltipText(showTooltips, bagId, slotIndex, itemLink, stackSiz
 	end
 
 
-d(">" .. itemLink .. "-equipType: " ..tostring(equipType) ..", weaponType: " ..tostring(weaponType) .. ", armorType: " ..tostring(armorType) .. ", typeText: " ..tostring(typeText) .. ", armorWeightText: " ..tostring(armorWeightText))
+--d(">" .. itemLink .. "-equipType: " ..tostring(equipType) ..", weaponType: " ..tostring(weaponType) .. ", armorType: " ..tostring(armorType) .. ", typeText: " ..tostring(typeText) .. ", armorWeightText: " ..tostring(armorWeightText))
 
 	--rafting of the current item is not tracked?
 	if craftingNotTracked == true then
