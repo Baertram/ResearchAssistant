@@ -23,6 +23,7 @@ RA.feedback = "https://www.esoui.com/portal.php?id=136&a=bugreport"
 
 local libErrorText = "[ResearchAssistant]Needed library \'%s\' was not loaded. This addon won't work without this library!"
 
+local tos = tostring
 local strfor = string.format
 
 local DECONSTRUCTION	= ZO_SmithingTopLevelDeconstructionPanelInventoryBackpack
@@ -363,7 +364,7 @@ function RA.IsItemResearchableWithSettingsCharacter(bagId, slotIndex)
 	local thisItemScore = RAScanner:CreateItemPreferenceValue(itemLink, bagId, slotIndex)
 	local stackSize = GetSlotStackSize(bagId, slotIndex) or 0
 
-	--d(GetItemName(bagId, slotIndex)..": "..tostring(bestTraitPreferenceScore).." best "..tostring(thisItemScore) .. " trait "..tostring(traitKey))
+	--d(GetItemName(bagId, slotIndex)..": "..tos(bestTraitPreferenceScore).." best "..tos(thisItemScore) .. " trait "..tos(traitKey))
 
 	--if we don't know it yet
 	if bestTraitPreferenceScore ~= true then
@@ -455,7 +456,7 @@ function RA.IsItemResearchableOrDuplicateWithSettingsCharacter(bagId, slotIndex)
 	local thisItemScore = RAScanner:CreateItemPreferenceValue(itemLink, bagId, slotIndex)
 	local stackSize = GetSlotStackSize(bagId, slotIndex) or 0
 
-	--d(GetItemName(bagId, slotIndex)..": "..tostring(bestTraitPreferenceScore).." best "..tostring(thisItemScore) .. " trait "..tostring(traitKey))
+	--d(GetItemName(bagId, slotIndex)..": "..tos(bestTraitPreferenceScore).." best "..tos(thisItemScore) .. " trait "..tos(traitKey))
 
 	--if we don't know it yet
 	if bestTraitPreferenceScore ~= true then
@@ -480,7 +481,7 @@ end
 local function getWhoKnowsAndTraitTextAndTexture(p_itemLink, p_traitKey)
 	local r_traitName
 	local r_whoKnows = RASettings:GetCharsWhoKnowTrait(p_traitKey)
---d(">getWhoKnowsAndTraitTextAndTexture: " .. p_itemLink .. ", whoKnows: " ..tostring(r_whoKnows))
+--d(">getWhoKnowsAndTraitTextAndTexture: " .. p_itemLink .. ", whoKnows: " ..tos(r_whoKnows))
 	local traitId = GetItemLinkTraitType(p_itemLink)
 	if traitId then
 		r_traitName = traitTypes[traitId]
@@ -499,30 +500,36 @@ local function getTooltipText(showTooltips, bagId, slotIndex, itemLink, stackSiz
 	local equipType
 	local typeText = ""
 	local showTooltipsType = RASettings:ShowTooltipsType()
+--d(">showTooltipsType: " ..tos(showTooltipsType))
 	if showTooltipsType == true then
 		weaponType = GetItemLinkWeaponType(itemLink)
+--d(">weaponType: " ..tos(weaponType))
 		if weaponType == WEAPONTYPE_NONE then
 			equipType = GetItemLinkEquipType(itemLink)
 			typeText = equipmentTypeToName[equipType]
 		else
 			typeText = weaponTypeToName[weaponType]
 		end
+--d(">typeText: " ..tos(typeText))
 		if typeText == nil then typeText = "" end
 	end
 	local armorWeightText = ""
 	local showTooltipsArmorWeight = RASettings:ShowTooltipsArmorWeight()
+--d(">showTooltipsArmorWeight: " ..tos(showTooltipsArmorWeight))
 	if showTooltipsArmorWeight == true then
 		if weaponType == nil or weaponType == WEAPONTYPE_NONE then
 			armorType = GetItemLinkArmorType(itemLink)
+--d(">armorType: " ..tos(armorType))
 			if armorType ~= ARMORTYPE_NONE then
-				armorWeightText = armorTypeToName[armorWeightText]
+				armorWeightText = armorTypeToName[armorType]
 			end
+--d(">armorWeightText: " ..tos(armorWeightText))
+			if armorWeightText == nil then armorWeightText = "" end
 		end
-		if armorWeightText == nil then armorWeightText = "" end
 	end
 
 
---d(">" .. itemLink .. "-equipType: " ..tostring(equipType) ..", weaponType: " ..tostring(weaponType) .. ", armorType: " ..tostring(armorType) .. ", typeText: " ..tostring(typeText) .. ", armorWeightText: " ..tostring(armorWeightText))
+--d(">" .. itemLink .. "-equipType: " ..tos(equipType) ..", weaponType: " ..tos(weaponType) .. ", armorType: " ..tos(armorType) .. ", typeText: " ..tos(typeText) .. ", armorWeightText: " ..tos(armorWeightText))
 
 	--rafting of the current item is not tracked?
 	if craftingNotTracked == true then
@@ -573,6 +580,7 @@ local function getTooltipText(showTooltips, bagId, slotIndex, itemLink, stackSiz
 	if typeText ~= "" then
 		preTooltipText = typeText
 	end
+--d(">preTooltipText: " ..tos(preTooltipText))
 	if armorWeightText ~= "" then
 		if preTooltipText ~= "" then
 			preTooltipText = preTooltipText .. " - " .. armorWeightText
@@ -580,9 +588,11 @@ local function getTooltipText(showTooltips, bagId, slotIndex, itemLink, stackSiz
 			preTooltipText = armorWeightText
 		end
 	end
+--d(">preTooltipText2: " ..tos(preTooltipText))
 	if preTooltipText ~= "" then
 		preTooltipText = preTooltipText .. "\n"
 	end
+--d(">tooltipText: " ..preTooltipText .. tooltipText)
 	return preTooltipText .. tooltipText
 end
 
@@ -681,7 +691,7 @@ local function AddResearchIndicatorToSlot(control, linkFunction)
 	local alwaysShowResearchIcon = RASettings:GetAlwaysShowResearchIcon()
 	local alwaysShowResearchIconExcludeNonTracked = RASettings:GetAlwaysShowResearchIconExcludeNonTracked()
 	local isProtected = RAScanner:IsItemProtectedAgainstResearch(bagId, slotIndex, itemLink)
---d(">isProtected: " ..tostring(isProtected))
+--d(">isProtected: " ..tos(isProtected))
 	if isProtected == true then
 		if not alwaysShowResearchIcon then
 			indicatorControl:SetHidden(true)
@@ -759,7 +769,7 @@ local function AddResearchIndicatorToSlot(control, linkFunction)
 		HandleTooltips(indicatorControl, nil)
 	end
 
-	--d(">" .. strfor("traitKey: %s, isResearchable: %s, reason: %s, score: %s, stackSize: %s, char: %s, whoKnows: %s", tostring(traitKey), tostring(isResearchable), tostring(reason), tostring(bestTraitPreferenceScore), tostring(stackSize), tostring(researchCharOfCraftingTypeNameDecorated), tostring(whoKnows)))
+	--d(">" .. strfor("traitKey: %s, isResearchable: %s, reason: %s, score: %s, stackSize: %s, char: %s, whoKnows: %s", tos(traitKey), tos(isResearchable), tos(reason), tos(bestTraitPreferenceScore), tos(stackSize), tos(researchCharOfCraftingTypeNameDecorated), tos(whoKnows)))
 
 	--pretty colors time!
 	--if we don't know it, color the icon something fun
@@ -998,7 +1008,7 @@ local function ResearchAssistant_Loaded(eventCode, addOnName)
 
 	--EVENT_PLAYER_COMBAT_STATE callback function
 	local function RA_CombatState(_, inCombat)
-		--d("[RA]Combat event, inCombat: " ..tostring(inCombat))
+		--d("[RA]Combat event, inCombat: " ..tos(inCombat))
 		--Scan of bags was tried within combat but suppressed? Try after combat again
 		if inCombat == false then
 			if wasInCombatAsWantedToScan == true then
@@ -1084,13 +1094,13 @@ local function ResearchAssistant_Loaded(eventCode, addOnName)
 				local function doDebugTask(taskName)
 					if not taskName or taskName == "" then return end
 					if taskName == "ps" then
-						RAScanner:Log("Preference value of " ..itemLink..": " ..tostring(RAScanner:CreateItemPreferenceValue(itemLink, bagId, slotIndex)))
+						RAScanner:Log("Preference value of " ..itemLink..": " ..tos(RAScanner:CreateItemPreferenceValue(itemLink, bagId, slotIndex)))
 					elseif taskName == "ir" then
 						local traitKey, isResearchable, reason = RAScanner:CheckIsItemResearchable(itemLink)
-						RAScanner:Log("Is rearchable " ..itemLink..": " ..tostring(isResearchable) .. ", traitKey: " ..tostring(traitKey) .. ", reason: " ..tostring(reason))
+						RAScanner:Log("Is rearchable " ..itemLink..": " ..tos(isResearchable) .. ", traitKey: " ..tos(traitKey) .. ", reason: " ..tos(reason))
 					elseif taskName == "ip" then
 						local isProtected = RAScanner:IsItemProtectedAgainstResearch(bagId, slotIndex, itemLink)
-						RAScanner:Log("Is protected " ..itemLink..": " ..tostring(isProtected) .. ", settings ZOs/FCOIS/noSets: " ..tostring(RASettings.sv.respectItemProtectionByZOs).."/"..tostring(RASettings.sv.respectItemProtectionByFCOIS).."/"..tostring(RASettings.sv.skipSets))
+						RAScanner:Log("Is protected " ..itemLink..": " ..tos(isProtected) .. ", settings ZOs/FCOIS/noSets: " ..tos(RASettings.sv.respectItemProtectionByZOs).."/"..tos(RASettings.sv.respectItemProtectionByFCOIS).."/"..tos(RASettings.sv.skipSets))
 					end
 				end
 				local entries = {
