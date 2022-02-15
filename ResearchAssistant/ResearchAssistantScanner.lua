@@ -152,52 +152,58 @@ end
 --Is the item protected against research by any means?
 --e.g. item is locked by ZOs lock functionality, or by other addons like
 --FCOItemSaver
+local isResearchLocked, isJewelryResearchLocked
+local jewerlyEquipTypes = {
+	[EQUIP_TYPE_NECK] = true,
+	[EQUIP_TYPE_RING] = true,
+}
 function ResearchAssistantScanner:IsItemProtectedAgainstResearch(bagId, slotIndex, itemLink)
 	if not bagId or not slotIndex then return false end
 	--Setting to exclude protected items is enabled?
 	local settings = self.settingsPtr.sv
-	local respectZOs = settings.respectItemProtectionByZOs
-	local respectFCOIS = settings.respectItemProtectionByFCOIS
-	local skipSets = settings.skipSets
-	local skipSetsMaxLevelOnly = settings.skipSetsOnlyMaxLevel
-	local isLocked = false
-	if skipSets == true then
+	local respectZOs = 				settings.respectItemProtectionByZOs
+	local respectFCOIS = 			settings.respectItemProtectionByFCOIS
+	local skipSets = 				settings.skipSets
+	local skipSetsMaxLevelOnly = 	settings.skipSetsOnlyMaxLevel
+	local isProtected          = false
+	--FCOItemSaver or ZOs locked items
+	if respectZOs == true or respectFCOIS == true then
+		if FCOIS ~= nil and respectFCOIS == true then
+			isResearchLocked = isResearchLocked or FCOIS.IsResearchLocked
+			isJewelryResearchLocked = isJewelryResearchLocked or FCOIS.IsJewelryResearchLocked
+			itemLink = itemLink or GetItemLink(bagId, slotIndex)
+			local equipType = GetItemLinkEquipType(itemLink)
+			if jewerlyEquipTypes[equipType] then
+				isProtected = isJewelryResearchLocked(bagId, slotIndex)
+			else
+				isProtected = isResearchLocked(bagId, slotIndex)
+			end
+		end
+		if not isProtected and respectZOs == true then
+			isProtected = IsItemPlayerLocked(bagId, slotIndex)
+		end
+	end
+	--Set and set item level skip
+	if not isProtected and skipSets == true then
 		itemLink = itemLink or GetItemLink(bagId, slotIndex)
 		local isSet = GetItemLinkSetInfo(itemLink, false)
 		if isSet == true then
 			if skipSetsMaxLevelOnly == true then
 				local itemCP = GetItemLinkRequiredChampionPoints(itemLink)
 				if itemCP ~= nil and itemCP > 0 then
-					return itemCP >= maxCPs
+					isProtected = (itemCP >= maxCPs and true) or false
 				else
 					local itemLevel = GetItemLinkRequiredLevel(itemLink)
 					if itemLevel ~= nil then
-						return itemLevel >= maxLevel
+						isProtected = (itemLevel >= maxLevel and true) or false
 					end
 				end
 			else
-				return true
+				isProtected = true
 			end
 		end
 	end
-	if respectZOs == true or respectFCOIS == true then
-		if respectZOs == true then
-			isLocked = IsItemPlayerLocked(bagId, slotIndex)
-		end
-		if respectFCOIS == true and FCOIS ~= nil then
-			if itemLink == nil or itemLink == "" then
-				itemLink = GetItemLink(bagId, slotIndex)
-			end
-			local equipType = GetItemLinkEquipType(itemLink)
-			if equipType == EQUIP_TYPE_NECK or equipType == EQUIP_TYPE_RING then
-				isLocked = FCOIS.IsJewelryResearchLocked(bagId, slotIndex)
-			else
-				isLocked = FCOIS.IsResearchLocked(bagId, slotIndex)
-			end
-		end
-		return isLocked
-	end
-	return false
+	return isProtected
 end
 
 function ResearchAssistantScanner:ScanBag(bagId)

@@ -15,13 +15,15 @@ RA.unknownStr = unknownStr
 --Addon variables
 local portalWebsite = ""
 RA.name		= "ResearchAssistant"
-RA.version 	= "0.9.5.4"
+RA.version 	= "0.9.5.5"
 RA.author   = "ingeniousclown,katkat42,Randactyl,Baertram"
 RA.website	= "https://www.esoui.com/downloads/info111-ResearchAssistant.html"
 RA.donation = "https://www.esoui.com/portal.php?id=136&a=faq&faqid=131"
 RA.feedback = "https://www.esoui.com/portal.php?id=136&a=bugreport"
 
 local libErrorText = "[ResearchAssistant]Needed library \'%s\' was not loaded. This addon won't work without this library!"
+
+local strfor = string.format
 
 local DECONSTRUCTION	= ZO_SmithingTopLevelDeconstructionPanelInventoryBackpack
 
@@ -505,7 +507,7 @@ local function getTooltipText(showTooltips, bagId, slotIndex, itemLink, stackSiz
 		else
 			typeText = weaponTypeToName[weaponType]
 		end
-		typeText = typeText or ""
+		if typeText == nil then typeText = "" end
 	end
 	local armorWeightText = ""
 	local showTooltipsArmorWeight = RASettings:ShowTooltipsArmorWeight()
@@ -516,7 +518,7 @@ local function getTooltipText(showTooltips, bagId, slotIndex, itemLink, stackSiz
 				armorWeightText = armorTypeToName[armorWeightText]
 			end
 		end
-		armorWeightText = armorWeightText or ""
+		if armorWeightText == nil then armorWeightText = "" end
 	end
 
 
@@ -525,9 +527,9 @@ local function getTooltipText(showTooltips, bagId, slotIndex, itemLink, stackSiz
 	--rafting of the current item is not tracked?
 	if craftingNotTracked == true then
 		if showTooltips == true and whoKnows ~= "" then
-			tooltipText = string.format(TOOLTIPS.alreadyResearched, TOOLTIPS.notTrackedCharName, (traitName ~= nil and string.format(TOOLTIPS.knownBy, traitName)) or "") .. whoKnows .. protectedStr
+			tooltipText = strfor(TOOLTIPS.alreadyResearched, TOOLTIPS.notTrackedCharName, (traitName ~= nil and strfor(TOOLTIPS.knownBy, traitName)) or "") .. whoKnows .. protectedStr
 		else
-			tooltipText = string.format(TOOLTIPS.alreadyResearched, TOOLTIPS.notTrackedCharName, ((traitName ~= nil and " \'" .. traitName .. "\'") or "")) .. protectedStr
+			tooltipText = strfor(TOOLTIPS.alreadyResearched, TOOLTIPS.notTrackedCharName, ((traitName ~= nil and " \'" .. traitName .. "\'") or "")) .. protectedStr
 		end
 	else
 		--We do not know the item?
@@ -535,9 +537,9 @@ local function getTooltipText(showTooltips, bagId, slotIndex, itemLink, stackSiz
 			--Not scanned data at the current character
 			if bestTraitPreferenceScore == RASettings.CONST_CHARACTER_NOT_SCANNED_YET then
 				if showTooltips == true and whoKnows ~= "" then
-					tooltipText = string.format(TOOLTIPS.notScannedWithNeededCharYet, researchCharOfCraftingTypeNameDecorated) .. "\n\n" .. string.format(TOOLTIPS.alreadyResearched, researchCharOfCraftingTypeNameDecorated, (traitName ~= nil and string.format(TOOLTIPS.knownBy, traitName)) or "") .. whoKnows .. protectedStr
+					tooltipText = strfor(TOOLTIPS.notScannedWithNeededCharYet, researchCharOfCraftingTypeNameDecorated) .. "\n\n" .. strfor(TOOLTIPS.alreadyResearched, researchCharOfCraftingTypeNameDecorated, (traitName ~= nil and strfor(TOOLTIPS.knownBy, traitName)) or "") .. whoKnows .. protectedStr
 				else
-					tooltipText = string.format(TOOLTIPS.notScannedWithNeededCharYet, researchCharOfCraftingTypeNameDecorated) .. protectedStr
+					tooltipText = strfor(TOOLTIPS.notScannedWithNeededCharYet, researchCharOfCraftingTypeNameDecorated) .. protectedStr
 				end
 			else
 				--preference value for the current item
@@ -545,25 +547,25 @@ local function getTooltipText(showTooltips, bagId, slotIndex, itemLink, stackSiz
 				--Duplicate item
 				if (thisItemScore > bestTraitPreferenceScore or stackSize > 1) then
 					if showTooltips == true and whoKnows ~= "" then
-						tooltipText = string.format(TOOLTIPS.duplicate, researchCharOfCraftingTypeNameDecorated, (traitName ~= nil and string.format(TOOLTIPS.knownBy, traitName)) or "") .. whoKnows .. protectedStr
+						tooltipText = strfor(TOOLTIPS.duplicate, researchCharOfCraftingTypeNameDecorated, (traitName ~= nil and strfor(TOOLTIPS.knownBy, traitName)) or "") .. whoKnows .. protectedStr
 					else
-						tooltipText = string.format(TOOLTIPS.duplicate, researchCharOfCraftingTypeNameDecorated, (traitName ~= nil and " \'" .. traitName .. "\'") or "") .. protectedStr
+						tooltipText = strfor(TOOLTIPS.duplicate, researchCharOfCraftingTypeNameDecorated, (traitName ~= nil and " \'" .. traitName .. "\'") or "") .. protectedStr
 					end
 				else
 					--Unknown item
 					if showTooltips == true and whoKnows ~= "" then
-						tooltipText = string.format(TOOLTIPS.canResearch, researchCharOfCraftingTypeNameDecorated, (traitName ~= nil and string.format(TOOLTIPS.knownBy, traitName)) or "") .. whoKnows .. protectedStr
+						tooltipText = strfor(TOOLTIPS.canResearch, researchCharOfCraftingTypeNameDecorated, (traitName ~= nil and strfor(TOOLTIPS.knownBy, traitName)) or "") .. whoKnows .. protectedStr
 					else
-						tooltipText = string.format(TOOLTIPS.canResearch, researchCharOfCraftingTypeNameDecorated, (traitName ~= nil and " \'" .. traitName .. "\'") or "") .. protectedStr
+						tooltipText = strfor(TOOLTIPS.canResearch, researchCharOfCraftingTypeNameDecorated, (traitName ~= nil and " \'" .. traitName .. "\'") or "") .. protectedStr
 					end
 				end
 			end
 		else
 			--Known item
 			if showTooltips == true and whoKnows ~= "" then
-				tooltipText = string.format(TOOLTIPS.alreadyResearched, researchCharOfCraftingTypeNameDecorated, (traitName ~= nil and string.format(TOOLTIPS.knownBy, traitName)) or "") .. whoKnows .. protectedStr
+				tooltipText = strfor(TOOLTIPS.alreadyResearched, researchCharOfCraftingTypeNameDecorated, (traitName ~= nil and strfor(TOOLTIPS.knownBy, traitName)) or "") .. whoKnows .. protectedStr
 			else
-				tooltipText = string.format(TOOLTIPS.alreadyResearched, researchCharOfCraftingTypeNameDecorated, (traitName ~= nil and " \'" .. traitName .. "\'") or "") .. protectedStr
+				tooltipText = strfor(TOOLTIPS.alreadyResearched, researchCharOfCraftingTypeNameDecorated, (traitName ~= nil and " \'" .. traitName .. "\'") or "") .. protectedStr
 			end
 		end
 	end
@@ -572,8 +574,11 @@ local function getTooltipText(showTooltips, bagId, slotIndex, itemLink, stackSiz
 		preTooltipText = typeText
 	end
 	if armorWeightText ~= "" then
-		armorWeightText = ((preTooltipText ~= "" and " - ") or "") .. " (" .. armorWeightText .. ")"
-		preTooltipText = preTooltipText .. armorWeightText
+		if preTooltipText ~= "" then
+			preTooltipText = preTooltipText .. " - " .. armorWeightText
+		else
+			preTooltipText = armorWeightText
+		end
 	end
 	if preTooltipText ~= "" then
 		preTooltipText = preTooltipText .. "\n"
@@ -754,7 +759,7 @@ local function AddResearchIndicatorToSlot(control, linkFunction)
 		HandleTooltips(indicatorControl, nil)
 	end
 
-	--d(">" .. string.format("traitKey: %s, isResearchable: %s, reason: %s, score: %s, stackSize: %s, char: %s, whoKnows: %s", tostring(traitKey), tostring(isResearchable), tostring(reason), tostring(bestTraitPreferenceScore), tostring(stackSize), tostring(researchCharOfCraftingTypeNameDecorated), tostring(whoKnows)))
+	--d(">" .. strfor("traitKey: %s, isResearchable: %s, reason: %s, score: %s, stackSize: %s, char: %s, whoKnows: %s", tostring(traitKey), tostring(isResearchable), tostring(reason), tostring(bestTraitPreferenceScore), tostring(stackSize), tostring(researchCharOfCraftingTypeNameDecorated), tostring(whoKnows)))
 
 	--pretty colors time!
 	--if we don't know it, color the icon something fun
@@ -843,8 +848,8 @@ end
 local function RA_Event_Player_Activated(event, isA)
 	--Only fire once after login!
 	EVENT_MANAGER:UnregisterForEvent("RA_PLAYER_ACTIVATED", EVENT_PLAYER_ACTIVATED)
-	if RA.libResearch == nil then d(string.format(libErrorText, "LibResearch")) return end
-	if RA.lam == nil then d(string.format(libErrorText, "LibAddonMenu-2.0")) return end
+	if RA.libResearch == nil then d(strfor(libErrorText, "LibResearch")) return end
+	if RA.lam == nil then d(strfor(libErrorText, "LibAddonMenu-2.0")) return end
 
 	local noCraftingCharWasChosenYetAtAll = false
 	if RA.settings and RA.settings.sv then
@@ -914,10 +919,10 @@ local function ResearchAssistant_Loaded(eventCode, addOnName)
 	EVENT_MANAGER:RegisterForEvent("RA_PLAYER_ACTIVATED", EVENT_PLAYER_ACTIVATED, RA_Event_Player_Activated)
 
 	local libResearch = LibResearch
-	if libResearch == nil then d(string.format(libErrorText, "LibResearch")) return end
+	if libResearch == nil then d(strfor(libErrorText, "LibResearch")) return end
 	RA.libResearch = libResearch
 	local LAM = LibAddonMenu2
-	if LAM == nil then d(string.format(libErrorText, "LibAddonMenu-2.0")) return end
+	if LAM == nil then d(strfor(libErrorText, "LibAddonMenu-2.0")) return end
 	RA.lam = LAM
 	if LibDebugLogger then
 		RA.logger = LibDebugLogger(RA.name)
