@@ -15,7 +15,7 @@ RA.unknownStr = unknownStr
 --Addon variables
 local portalWebsite = ""
 RA.name		= "ResearchAssistant"
-RA.version 	= "0.9.5.5"
+RA.version 	= "0.9.5.6"
 RA.author   = "ingeniousclown,katkat42,Randactyl,Baertram"
 RA.website	= "https://www.esoui.com/downloads/info111-ResearchAssistant.html"
 RA.donation = "https://www.esoui.com/portal.php?id=136&a=faq&faqid=131"
@@ -595,6 +595,7 @@ local function getTooltipText(showTooltips, bagId, slotIndex, itemLink, stackSiz
 --d(">tooltipText: " ..preTooltipText .. tooltipText)
 	return preTooltipText .. tooltipText
 end
+
 
 --[[----------------------------------------------------------------------------
 	puts an additional point of data into control.dataEntry.data called
