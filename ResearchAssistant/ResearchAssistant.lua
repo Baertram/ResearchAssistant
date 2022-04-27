@@ -27,6 +27,7 @@ local tos = tostring
 local strfor = string.format
 
 local DECONSTRUCTION	= ZO_SmithingTopLevelDeconstructionPanelInventoryBackpack
+local UNIVERSAL_DECON   = ZO_UniversalDeconstructionTopLevel_KeyboardPanelInventoryBackpack
 
 local ORNATE_TEXTURE = [[/esoui/art/tradinghouse/tradinghouse_sell_tabicon_disabled.dds]]
 local ornateTextureSizeMax = 28
@@ -1004,6 +1005,11 @@ local function ResearchAssistant_Loaded(eventCode, addOnName)
 
 	--deconstruction hook
 	SecurePostHook(DECONSTRUCTION.dataTypes[1], "setupCallback", function(rowControl, slot)
+		AddResearchIndicatorToSlot(rowControl, GetItemLink)
+	end)
+
+	--universal deconstruction hook
+	SecurePostHook(UNIVERSAL_DECON.dataTypes[1], "setupCallback", function(rowControl, slot)
 		AddResearchIndicatorToSlot(rowControl, GetItemLink)
 	end)
 
