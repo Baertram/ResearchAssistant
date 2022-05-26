@@ -1,10 +1,3 @@
---TODOs
---2021-07-21
--- Tooltips at inventory does not update if proteciton is removed or crafting char is changed in settings
--- Protected icon and data.dataEntry.researchAssistant does not change if protection is removed or crafting char is changed in settings
--- more tests!!!
-
-if ResearchAssistant == nil then ResearchAssistant = {} end
 local RA = ResearchAssistant
 
 RA.currentlyLoggedInCharId = RA.currentlyLoggedInCharId or GetCurrentCharacterId()
@@ -13,7 +6,6 @@ local unknownStr = "n/a"
 RA.unknownStr = unknownStr
 
 --Addon variables
-local portalWebsite = ""
 RA.name		= "ResearchAssistant"
 RA.version 	= "0.9.5.6"
 RA.author   = "ingeniousclown,katkat42,Randactyl,Baertram"
@@ -122,7 +114,7 @@ RA.traitTextures = traitTextures
 local RASettings = nil
 local RAScanner = nil
 
-local RAlang = 'en'
+local RAlang = RA.lang
 local STRINGS = RA_Strings
 local TOOLTIPS
 
@@ -413,7 +405,7 @@ function RA.IsItemResearchableOrDuplicateWithSettingsCharacter(bagId, slotIndex)
 		end
 
 		-- if the item has no trait
-		if reason == libResearch_Reason_TRAITLESS  then
+		if reason == libResearch_Reason_TRAITLESS then
 			return isNoDuplicateResearchableWithSettingsChar
 		end
 
@@ -865,7 +857,7 @@ local function RA_Event_Player_Activated(event, isA)
 
 	local noCraftingCharWasChosenYetAtAll = false
 	if RA.settings and RA.settings.sv then
-		local STRINGSettings = STRINGS[RASettings:GetLanguage()].SETTINGS
+		local STRINGSettings = STRINGS[RAlang].SETTINGS
 		local settings = RA.settings.sv
 		local CONST_OFF_VALUE = RA.settings.CONST_OFF_VALUE
 		--if not settings.allowNoCharsForResearch then
@@ -948,9 +940,6 @@ local function ResearchAssistant_Loaded(eventCode, addOnName)
 	RASettings = RASettings or RA.GetOrCreateRASettings()
 	RAScanner = RAScanner or RA.GetOrCreateRAScanner()
 	RAScanner:SetDebug(RASettings:IsDebug())
-
-	--Get the language of the client
-	RAlang = RASettings:GetLanguage()
 
 	local stringsOfClientLang = STRINGS[RAlang]
 	local stringsOfFallbackLang = STRINGS["en"]

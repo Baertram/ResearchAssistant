@@ -1,4 +1,3 @@
-if ResearchAssistant == nil then ResearchAssistant = {} end
 local RA = ResearchAssistant
 
 local maxLevel = GetMaxLevel()
@@ -21,9 +20,12 @@ for bagHouseBank = BAG_HOUSE_BANK_ONE, maxHouseBankBag, 1 do
 	houseBankBags[bagHouseBank] = true
 end
 
+
 --LibResearch
 local libResearch
 
+
+------------------------------------------------------------------------------------------------------------------------
 --Class ResearchAssistantScanner
 ResearchAssistantScanner = ZO_Object:Subclass()
 
@@ -39,7 +41,7 @@ function ResearchAssistantScanner:Initialize(settings)
 	self.houseBankScanEnabled = false
 	self.debug = false
 
-	libResearch = ResearchAssistant.libResearch or LibResearch
+	libResearch = RA.libResearch or LibResearch
 
 	self:RescanBags()
 end
@@ -120,16 +122,10 @@ function ResearchAssistantScanner:CreateItemPreferenceValue(itemLink, bagId, slo
 	isSet = isSet or false
 	local set = (isSet == true and 1) or 0
 
-	local bagToWhere = {
-		[BAG_BANK] 				= 1,
-		[BAG_SUBSCRIBER_BANK] 	= 1,
-		[BAG_BACKPACK] 			= 2,
-		[BAG_GUILDBANK] 		= 3,
-	}
-	for bagHouseBank = BAG_HOUSE_BANK_ONE, maxHouseBankBag, 1 do
-		bagToWhere[bagHouseBank] = 4
-	end
-	local where = bagToWhere[bagId] or 1
+	--Get the value of the bagId -> According to the settings order /priority of the bags
+	if bagId == BAG_SUBSCRIBER_BANK then bagId = BAG_BANK end
+	local where = RA.bagToPreferencePriority[bagId]
+	where = where or 1 --fallback value "normal bank"
 
 	self:Log(string.format("Quality: %s, Level: %s, IsSet: %s, Bag: %s, slotIndex: %s", tostring(quality), tostring(level), tostring(isSet), tostring(where), tostring(slotIndex)))
 
@@ -142,11 +138,13 @@ function ResearchAssistantScanner:CreateItemPreferenceValue(itemLink, bagId, slo
 	--set item (no set=0, set=1)
 	--
 	--Where is the item located:
+	-->Users can change the order in the settings!
+	-->Default order is_
 	--bank is lowest number, will be orange if you have a dupe in your inventory
 	--bag is middle number, will be yellow if you have a dupe in the inventory
 	--gbank is 2nd highest number, will be yellow if you have a dupe in the inventory
 	--housebank is highest number, will be yellow if you have a dupe in the inventory
-	return quality * 10000000 + set * 1000000 + level * 10000 + where * 1000 + (slotIndex or 0)
+	return (quality * 10000000) + (set * 1000000) + (level * 10000) + (where * 1000) + ((slotIndex ~= nil and slotIndex) or 0)
 end
 
 --Is the item protected against research by any means?
@@ -240,7 +238,7 @@ function ResearchAssistantScanner:ScanBag(bagId)
 				--is this item researchable?
 				if isResearchable and not isProtectedForReal then
 					-- if so, is this item preferable to the one we already have on record?
-					if prefValue < (traits[traitKey] or RA_CON_MAX_PREFERENCE_VALUE) then
+					if prefValue < ((traits[traitKey] ~= nil and traits[traitKey]) or RA_CON_MAX_PREFERENCE_VALUE) then
 						traits[traitKey] = prefValue
 					end
 				else

@@ -1,3 +1,27 @@
+--Global variable
+ResearchAssistant = {}
+local RA = ResearchAssistant
+------------------------------------------------------------------------------------------------------------------------
+
+function RA.GetLanguage()
+    local lang = GetCVar("language.2")
+    local supportedLanguages = {
+        ["de"] = "de",
+        ["en"] = "en",
+        ["es"] = "es",
+        ["fr"] = "fr",
+        ["jp"] = "jp",
+        ["ru"] = "ru",
+    }
+    --return english if not supported
+    local langSupported = supportedLanguages[lang] or "en"
+    return langSupported
+end
+--Get the language of the client
+RA.lang = RA.GetLanguage()
+
+------------------------------------------------------------------------------------------------------------------------
+--The string constants
 RA_Strings = {
     ["en"] = {
         SETTINGS = {
@@ -105,6 +129,10 @@ RA_Strings = {
             SHOW_ARMORWEIGHT_IN_TOOLTIP = "Show armor weight in tooltip",
             SHOW_ARMORWEIGHT_IN_TOOLTIP_TOOLTIP = "Show the armor weight (light, medium, heavy) in the tooltip text",
             SETTINGS_HEADER_VANILLAUI = "Vanilla UI",
+
+            BAG_PRIORITY_HEADER =   "Priority",
+            BAG_PRIORITY =          "Bag priority - \'Research preferred from...\'",
+            BAG_PRIORITY_TT =       "The priority/order of the bags that will be used for the research.\nPlease reload the UI after changing this order!\n\nThe bag at the top of the orderlist will be \'considered as the most priorized one\', the bag below will be the next one, and so on.",
         },
         TOOLTIPS = {
             knownBy = " \'%s\', known by:\n",
@@ -116,6 +144,22 @@ RA_Strings = {
             alreadyResearched = "[Researcher: %s]\n"..GetString(SI_TRADINGHOUSEFEATURECATEGORY3).."%s",
             notScannedWithNeededCharYet = "|cFF0000ERROR|r: Researcher [\'%s\'] was not logged in yet!",
             notTrackedCharName = "|cFFFFFF-Not tracked-|r",
+        },
+        BAGS = {
+            [BAG_BANK] 				= "Bank",
+            [BAG_SUBSCRIBER_BANK] 	= "ESO+ bank",
+            [BAG_BACKPACK] 			= "Player inventory",
+            [BAG_GUILDBANK] 		= "Guild Bank",
+            [BAG_HOUSE_BANK_ONE]    = "House bank 1",
+            [BAG_HOUSE_BANK_TWO]    = "House bank 2",
+            [BAG_HOUSE_BANK_THREE]  = "House bank 3",
+            [BAG_HOUSE_BANK_FOUR]   = "House bank 4",
+            [BAG_HOUSE_BANK_FIVE]   = "House bank 5",
+            [BAG_HOUSE_BANK_SIX]    = "House bank 6",
+            [BAG_HOUSE_BANK_SEVEN]  = "House bank 7",
+            [BAG_HOUSE_BANK_EIGHT]  = "House bank 8",
+            [BAG_HOUSE_BANK_NINE]   = "House bank 9",
+            [BAG_HOUSE_BANK_TEN]    = "House bank 10",
         },
         armorLight = GetString(SI_VISUALARMORTYPE1),
         armorMedium = GetString(SI_VISUALARMORTYPE2),
@@ -251,6 +295,10 @@ RA_Strings = {
             SHOW_ARMORWEIGHT_IN_TOOLTIP = "Zeige Rüstungs-Art im Tooltip",
             SHOW_ARMORWEIGHT_IN_TOOLTIP_TOOLTIP = "Zeige die Rüstungs-Art (Leight, Mittel, Schwer) im Tooltip",
             SETTINGS_HEADER_VANILLAUI = "Vanilla UI",
+
+            BAG_PRIORITY_HEADER =   "Priorität",
+            BAG_PRIORITY =          "Inventar Priorität - \'Analysiere bevorzugt aus...\'",
+            BAG_PRIORITY_TT =       "Die Priorität/Reihenfolge der Inventare welche für die Analyse bevorzugt werden.\nBitte die Benutzeroberfläche neu laden nach dem Verändern der Reihenfolger!\n\nDas Inventar an der obersten Stelle der Sortierliste wird \'als bevorzugtes Inventar betrachtet\', das Inventar darunter als 2. bevorzugtes, usw.",
         },
         TOOLTIPS = {
             knownBy = " \'%s\', bekannt bei:\n",
@@ -262,7 +310,23 @@ RA_Strings = {
             alreadyResearched = "[Analysierer: %s]\n"..GetString(SI_TRADINGHOUSEFEATURECATEGORY3).."%s",
             notScannedWithNeededCharYet = "|cFF0000FEHLER|r: Analysierer [\'%s\'] wurde noch nicht eingeloggt!",
             notTrackedCharName = "|cFFFFFF-Nicht überwacht-|r",
-        }
+        },
+        BAGS = {
+            [BAG_BANK] 				= "Bank",
+            [BAG_SUBSCRIBER_BANK] 	= "ESO+ Bank",
+            [BAG_BACKPACK] 			= "Spieler Inventar",
+            [BAG_GUILDBANK] 		= "Gilden Bank",
+            [BAG_HOUSE_BANK_ONE]    = "Haus Bank 1",
+            [BAG_HOUSE_BANK_TWO]    = "Haus Bank 2",
+            [BAG_HOUSE_BANK_THREE]  = "Haus Bank 3",
+            [BAG_HOUSE_BANK_FOUR]   = "Haus Bank 4",
+            [BAG_HOUSE_BANK_FIVE]   = "Haus Bank 5",
+            [BAG_HOUSE_BANK_SIX]    = "Haus Bank 6",
+            [BAG_HOUSE_BANK_SEVEN]  = "Haus Bank 7",
+            [BAG_HOUSE_BANK_EIGHT]  = "Haus Bank 8",
+            [BAG_HOUSE_BANK_NINE]   = "Haus Bank 9",
+            [BAG_HOUSE_BANK_TEN]    = "Haus Bank 10",
+        },
     },
     ["fr"] = {
         SETTINGS = {
@@ -347,6 +411,10 @@ RA_Strings = {
 
             ERROR_CONFIGURE_ADDON = "Veuillez configurer l'addon, choisissez un personnage de recherche dans les paramètres!",
             ERROR_LOGIN_ALL_CHARS = "Connectez-vous à tous vos personnages pour lire leurs données de recherche.",
+
+            BAG_PRIORITY_HEADER =   "Priorité",
+            BAG_PRIORITY =          "Priorité sac - \'Recherche préférée de...\'",
+            BAG_PRIORITY_TT =       "La priorité/ordre des sacs qui seront utilisés pour la recherche.\nVeuillez recharger l'interface utilisateur après avoir modifié la command!\n\nLe sac en haut de la liste de commande sera \'considéré comme le sac prioritaire\', le sac en dessous sera le suivant, et ainsi de suite.",
         },
         TOOLTIPS = {
             knownBy = " \'%s\', connu par:\n",

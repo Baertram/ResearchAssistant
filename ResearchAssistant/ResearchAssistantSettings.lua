@@ -1,9 +1,56 @@
-if ResearchAssistant == nil then ResearchAssistant = {} end
 local RA = ResearchAssistant
 
 local _
-
 local currentlyLoggedInCharId = RA.currentlyLoggedInCharId or GetCurrentCharacterId()
+
+local offValue
+
+local langToUse = RA.lang
+local strBase = RA_Strings[langToUse]
+local strBags = strBase.BAGS
+
+--Bag preference values for the function ResearchAssistantScanner:CreateItemPreferenceValue
+--The bagId will relate to a value 1 -> n and will be multiplied by 1000 to build the total item's score.
+--The lower the score -> the earlier this item will be taken into research (e.g. bank will be taken first)
+local maxHouseBankBag = BAG_HOUSE_BANK_TEN
+--Tables for the orderlistbox widget entries
+local bagToPreferenceOrderListBoxEntries = {}
+local bagToPreferenceOrderListBoxEntriesDefaults = {}
+local bagToPreferencePriorityDefaults    = {
+    [1] = BAG_BANK,
+    [2] = BAG_SUBSCRIBER_BANK,
+	[3] = BAG_BACKPACK,
+	[4] = BAG_GUILDBANK,
+    --house banks will be added here, each houseBankBagId = 1 new row with increased index + 1
+}
+--Used for the function ResearchAssistantScanner:CreateItemPreferenceValue
+-->Updated at settings init from SV data and at setFunc of the LAM widget OrderListBox
+local bagToPreferencePriority            = {
+	[BAG_BANK] 				= 1,
+	[BAG_SUBSCRIBER_BANK] 	= 2,
+	[BAG_BACKPACK] 			= 3,
+	[BAG_GUILDBANK] 		= 4,
+    --house banks will be added here, each houseBankBagId = 1 new row with index=houseBankBagId and increased value + 1
+}
+local cnt = #bagToPreferencePriorityDefaults
+for bagHouseBank = BAG_HOUSE_BANK_ONE, maxHouseBankBag, 1 do
+    cnt                                   = cnt + 1
+	bagToPreferencePriority[bagHouseBank] = cnt
+
+    bagToPreferencePriorityDefaults[cnt] = bagHouseBank
+end
+RA.bagToPreferencePriority = bagToPreferencePriority
+--Default entries for the oderListBox widget
+for idx, bagId in ipairs(bagToPreferencePriorityDefaults) do
+    local bagText = strBags[bagId] or "n/a"
+    bagToPreferenceOrderListBoxEntriesDefaults[idx] = {
+        uniqueKey = idx,
+        value =     bagId,
+        text =      bagText,
+        tooltip =   bagText,
+    }
+end
+
 
 local CAN_RESEARCH_TEXTURES = {
     ["Classic"] = {
@@ -95,9 +142,8 @@ local function getCharactersOfAccount(keyIsCharName, decorate)
     return charactersOfAccount
 end
 
-------------------------------
---OBJECT FUNCTIONS
-------------------------------
+
+------------------------------------------------------------------------------------------------------------------------
 ResearchAssistantSettings = ZO_Object:Subclass()
 
 function ResearchAssistantSettings:New()
@@ -111,6 +157,7 @@ function ResearchAssistantSettings:Initialize()
     self.CONST_CHARACTER_NOT_SCANNED_YET = -100
     self.CONST_OFF = "-"
     self.CONST_OFF_VALUE = 0
+    offValue = self.CONST_OFF_VALUE
 
     local defaults = {
         debug = false,
@@ -159,6 +206,10 @@ function ResearchAssistantSettings:Initialize()
         acquiredTraits = {},
 
         hideVanillaUIResearchableTexture = false,
+
+        --The priority of bags for the function ResearchAssistantScanner:CreateItemPreferenceValue
+        -->The lower the value, the earlier the research will be taking items from that bag
+        bagToPreferencePrioritySorted = bagToPreferencePriorityDefaults,
     }
     --Old non-server dependent character name settings
     --local settings = ZO_SavedVars:NewAccountWide("ResearchAssistant_Settings", 2, nil, defaults)
@@ -174,7 +225,7 @@ function ResearchAssistantSettings:Initialize()
     if settings.useCrossCharacter then settings.useCrossCharacter = nil end
     if settings.showInGrid then settings.showInGrid = nil end
 
-    if (not settings.showResearched) and settings.showTraitless == true then
+    if not settings.showResearched and settings.showTraitless == true then
         settings.showTraitless = false
     end
 
@@ -182,25 +233,25 @@ function ResearchAssistantSettings:Initialize()
 
     --Use the same research characters for each of your characters
     if settings.useAccountWideResearchChars == true then
-        --Use the value 0 (self.CONST_OFF_VALUE) as key for the account wide same chars
-        settings.blacksmithCharacter[self.CONST_OFF_VALUE]       = settings.blacksmithCharacter[self.CONST_OFF_VALUE]         or self.CONST_OFF_VALUE
-        settings.weaponsmithCharacter[self.CONST_OFF_VALUE]      = settings.weaponsmithCharacter[self.CONST_OFF_VALUE]        or self.CONST_OFF_VALUE
-        settings.woodworkingCharacter[self.CONST_OFF_VALUE]      = settings.woodworkingCharacter[self.CONST_OFF_VALUE]        or self.CONST_OFF_VALUE
-        settings.clothierCharacter[self.CONST_OFF_VALUE]         = settings.clothierCharacter[self.CONST_OFF_VALUE]           or self.CONST_OFF_VALUE
-        settings.leatherworkerCharacter[self.CONST_OFF_VALUE]    = settings.leatherworkerCharacter[self.CONST_OFF_VALUE]      or self.CONST_OFF_VALUE
-        settings.jewelryCraftingCharacter[self.CONST_OFF_VALUE]  = settings.jewelryCraftingCharacter[self.CONST_OFF_VALUE]    or self.CONST_OFF_VALUE
+        --Use the value 0 (offValue) as key for the account wide same chars
+        settings.blacksmithCharacter[offValue]       = settings.blacksmithCharacter[offValue]         or offValue
+        settings.weaponsmithCharacter[offValue]      = settings.weaponsmithCharacter[offValue]        or offValue
+        settings.woodworkingCharacter[offValue]      = settings.woodworkingCharacter[offValue]        or offValue
+        settings.clothierCharacter[offValue]         = settings.clothierCharacter[offValue]           or offValue
+        settings.leatherworkerCharacter[offValue]    = settings.leatherworkerCharacter[offValue]      or offValue
+        settings.jewelryCraftingCharacter[offValue]  = settings.jewelryCraftingCharacter[offValue]    or offValue
     else
         --Use different research characters for each of your characters
         -->Makes no sense imo but was the standard setting in older ResearchAssistant.
         -->Would only make sense if you level a small toon and whant it to research stuff. But even than changing it globally for
         -->all chars would be fine in order to collect the items for this small toon on all of your chars
         --Preset each selected research char with "none" for new added characters of the account
-        settings.blacksmithCharacter[currentlyLoggedInCharId]       = settings.blacksmithCharacter[currentlyLoggedInCharId]         or self.CONST_OFF_VALUE
-        settings.weaponsmithCharacter[currentlyLoggedInCharId]      = settings.weaponsmithCharacter[currentlyLoggedInCharId]        or self.CONST_OFF_VALUE
-        settings.woodworkingCharacter[currentlyLoggedInCharId]      = settings.woodworkingCharacter[currentlyLoggedInCharId]        or self.CONST_OFF_VALUE
-        settings.clothierCharacter[currentlyLoggedInCharId]         = settings.clothierCharacter[currentlyLoggedInCharId]           or self.CONST_OFF_VALUE
-        settings.leatherworkerCharacter[currentlyLoggedInCharId]    = settings.leatherworkerCharacter[currentlyLoggedInCharId]      or self.CONST_OFF_VALUE
-        settings.jewelryCraftingCharacter[currentlyLoggedInCharId]  = settings.jewelryCraftingCharacter[currentlyLoggedInCharId]    or self.CONST_OFF_VALUE
+        settings.blacksmithCharacter[currentlyLoggedInCharId]       = settings.blacksmithCharacter[currentlyLoggedInCharId]         or offValue
+        settings.weaponsmithCharacter[currentlyLoggedInCharId]      = settings.weaponsmithCharacter[currentlyLoggedInCharId]        or offValue
+        settings.woodworkingCharacter[currentlyLoggedInCharId]      = settings.woodworkingCharacter[currentlyLoggedInCharId]        or offValue
+        settings.clothierCharacter[currentlyLoggedInCharId]         = settings.clothierCharacter[currentlyLoggedInCharId]           or offValue
+        settings.leatherworkerCharacter[currentlyLoggedInCharId]    = settings.leatherworkerCharacter[currentlyLoggedInCharId]      or offValue
+        settings.jewelryCraftingCharacter[currentlyLoggedInCharId]  = settings.jewelryCraftingCharacter[currentlyLoggedInCharId]    or offValue
     end
 
     --Build a list of characters of the current acount
@@ -213,7 +264,7 @@ function ResearchAssistantSettings:Initialize()
     --Build the known characters table for the LAM dropdown controls
     self.lamCharIdTable = {}
     table.insert(self.lamCharNamesTable, 1, self.CONST_OFF)
-    table.insert(self.lamCharIdTable, 1, self.CONST_OFF_VALUE)
+    table.insert(self.lamCharIdTable, 1, offValue)
     for l_charId, l_charName in pairs(self.charId2Name) do
         table.insert(self.lamCharNamesTable, l_charName)
         table.insert(self.lamCharIdTable, l_charId)
@@ -221,9 +272,53 @@ function ResearchAssistantSettings:Initialize()
 
     --Pass the SavedVariables to the settings object
     self.sv = settings
+
+    --Prepare the preference values for the bagIds from SavedVariables
+    -->Set the "visible" values of the orderlistbox entries -> add text for the bagIds
+    bagToPreferenceOrderListBoxEntries = {}
+--[[
+        [1] = {
+            value = "Value of the entry", -- or number or boolean or function returning the value of this entry
+            uniqueKey = 1, --number of the unique key of this list entry. This will not change if the order changes. Will be used to identify the entry uniquely
+            text  = "Text of this entry", -- or string id or function returning a string (optional)
+            tooltip = "Tooltip text shown at this entry", -- or string id or function returning a string (optional)
+        },
+]]
+    self:UpdateBagOrderListBoxValues()
+--[[
+    ResearchAssistant._debugData = {
+        svBagToPreferencePrioritySorted =  self.sv.bagToPreferencePrioritySorted,
+        bagToPreferencePriority = bagToPreferencePriority,
+        bagToPreferencePriorityDefaults = bagToPreferencePriorityDefaults,
+        bagToPreferenceOrderListBoxEntries = bagToPreferenceOrderListBoxEntries,
+        bagToPreferenceOrderListBoxEntriesDefaults = bagToPreferenceOrderListBoxEntriesDefaults,
+    }
+]]
+
+
     --Create the LAM settings menu
     self:CreateOptionsMenu()
 end
+
+function ResearchAssistantSettings:UpdateBagOrderListBoxValues(orderListBoxEntries)
+    if self.sv == nil or self.sv.bagToPreferencePrioritySorted == nil then return end
+
+    bagToPreferencePriority = {}
+    bagToPreferenceOrderListBoxEntries = {}
+    for idx, bagId in ipairs(self.sv.bagToPreferencePrioritySorted) do
+        bagToPreferencePriority[bagId] = idx
+        local bagText = strBags[bagId]
+        bagText = bagText or "n/a"
+        bagToPreferenceOrderListBoxEntries[idx] = {
+            uniqueKey = idx,
+            value =     bagId,
+            text =      bagText,
+            tooltip =   bagText,
+        }
+    end
+    RA.bagToPreferencePriority = bagToPreferencePriority
+end
+
 
 function ResearchAssistantSettings:GetCanResearchColor()
     local r, g, b, a = HexToRGBA(self.sv.canResearchColor)
@@ -285,7 +380,8 @@ end
 
 function ResearchAssistantSettings:GetResearchCharIdDependingOnSettings()
     if self.sv.useAccountWideResearchChars == true then
-        return self.CONST_OFF_VALUE
+        offValue = offValue or self.CONST_OFF_VALUE
+        return offValue
     else
         return currentlyLoggedInCharId
     end
@@ -310,8 +406,9 @@ end
 function ResearchAssistantSettings:GetCharsWhoKnowTrait(traitKey)
     local knownCharIds = {}
     local knowers = ""
+    offValue = offValue or self.CONST_OFF_VALUE
     for curCharId, traitList in pairs(self.sv.acquiredTraits) do
-        if curCharId ~= self.CONST_OFF_VALUE then
+        if curCharId ~= offValue then
             if traitList and traitList[traitKey] == true then
                 local curCharName = self.charId2Name[curCharId]
                 table.insert(knownCharIds, curCharName)
@@ -334,6 +431,7 @@ end
 function ResearchAssistantSettings:GetTrackedCharForSkill(craftingSkillType, itemType, getCrafterName)
     getCrafterName = getCrafterName or false
     local crafter
+    offValue = offValue or self.CONST_OFF_VALUE
     if(craftingSkillType == CRAFTING_TYPE_BLACKSMITHING and itemType > 7) then
         crafter = self.sv.blacksmithCharacter[self:GetResearchCharIdDependingOnSettings()]
     elseif(craftingSkillType == CRAFTING_TYPE_BLACKSMITHING and itemType <= 7) then
@@ -347,10 +445,10 @@ function ResearchAssistantSettings:GetTrackedCharForSkill(craftingSkillType, ite
     elseif(craftingSkillType == CRAFTING_TYPE_JEWELRYCRAFTING) then
         crafter = self.sv.jewelryCraftingCharacter[self:GetResearchCharIdDependingOnSettings()]
     else
-        crafter = self.CONST_OFF_VALUE
+        crafter = offValue
     end
     --Shall we return the name instead of the unique id?
-    if getCrafterName == true and (crafter ~= nil and crafter ~= "" and crafter ~= self.CONST_OFF_VALUE) then
+    if getCrafterName == true and (crafter ~= nil and crafter ~= "" and crafter ~= offValue) then
         local charNameDecorated = self.charId2Name[crafter]
         if charNameDecorated and charNameDecorated ~= "" then return charNameDecorated end
     end
@@ -359,7 +457,8 @@ end
 
 function ResearchAssistantSettings:GetCraftingCharacterTraits(craftingSkillType, itemType)
     local crafter = self:GetTrackedCharForSkill(craftingSkillType, itemType)
-    if crafter == self.CONST_OFF_VALUE then
+    offValue = offValue or self.CONST_OFF_VALUE
+    if crafter == offValue then
       return
     else
         if self.sv.acquiredTraits and self.sv.acquiredTraits[crafter] then
@@ -374,7 +473,8 @@ end
 function ResearchAssistantSettings:IsMultiCharSkillOff(craftingSkillType, itemType)
     local retVar = false
     local charIdForCraftSkill = self:GetTrackedCharForSkill(craftingSkillType, itemType, false)
-    if charIdForCraftSkill == self.CONST_OFF_VALUE then
+    offValue = offValue or self.CONST_OFF_VALUE
+    if charIdForCraftSkill == offValue then
         retVar = true
     end
     return retVar
@@ -432,7 +532,8 @@ end
 
 function ResearchAssistantSettings:CreateOptionsMenu()
     local LAM = RA.lam
-    local str = RA_Strings[self:GetLanguage()].SETTINGS
+
+    local str = strBase.SETTINGS
 
     local panel = {
         type            = "panel",
@@ -618,6 +719,34 @@ function ResearchAssistantSettings:CreateOptionsMenu()
             self.sv.jewelryCraftingCharacter[self:GetResearchCharIdDependingOnSettings()] = value
             ResearchAssistant_InvUpdate()
         end,
+    })
+    table.insert(optionsData, {
+        type = "header",
+        name = str.BAG_PRIORITY_HEADER,
+    })
+    table.insert(optionsData, {
+        type = "orderlistbox",
+        name = str.BAG_PRIORITY,
+        tooltip = str.BAG_PRIORITY_TT,
+        listEntries = bagToPreferenceOrderListBoxEntries,
+        getFunc = function() return bagToPreferenceOrderListBoxEntries end,
+        setFunc = function(orderedListEntries)
+            self.sv.bagToPreferencePrioritySorted = {}
+            for idx, entryData in ipairs(orderedListEntries) do
+                local bagId = entryData.value
+                self.sv.bagToPreferencePrioritySorted[idx] = bagId
+                --Update bagToPreferencePriority for the function ResearchAssistantScanner:CreateItemPreferenceValue
+                bagToPreferencePriority[bagId] = idx
+            end
+            self:UpdateBagOrderListBoxValues()
+        end,
+        width="full",
+        isExtraWide = true,
+        minHeight = 150,
+        maxHeight = 200,
+        default = bagToPreferenceOrderListBoxEntriesDefaults,
+        reference = "RESEARCHASSISTANT_LAM_ORDERLISTBOX_BAG_PRIORITY",
+        requiresReload = true,
     })
     table.insert(optionsData, {
         type = "header",
@@ -926,19 +1055,4 @@ function ResearchAssistantSettings:CreateOptionsMenu()
         icon:SetDimensions(self.sv.textureSize, self.sv.textureSize)
         icon:SetAnchor(CENTER, RA_Icon_Dropdown, CENTER, 36, 0)
     end)
-end
-
-function ResearchAssistantSettings:GetLanguage()
-    local lang = GetCVar("language.2")
-    local supportedLanguages = {
-        ["de"] = "de",
-        ["en"] = "en",
-        ["es"] = "es",
-        ["fr"] = "fr",
-        ["jp"] = "jp",
-        ["ru"] = "ru",
-    }
-    --return english if not supported
-    local langSupported = supportedLanguages[lang] or "en"
-    return langSupported
 end
