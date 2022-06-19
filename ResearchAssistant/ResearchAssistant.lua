@@ -7,7 +7,7 @@ RA.unknownStr = unknownStr
 
 --Addon variables
 RA.name		= "ResearchAssistant"
-RA.version 	= "0.9.5.6"
+RA.version 	= "0.9.5.7"
 RA.author   = "ingeniousclown,katkat42,Randactyl,Baertram"
 RA.website	= "https://www.esoui.com/downloads/info111-ResearchAssistant.html"
 RA.donation = "https://www.esoui.com/portal.php?id=136&a=faq&faqid=131"
