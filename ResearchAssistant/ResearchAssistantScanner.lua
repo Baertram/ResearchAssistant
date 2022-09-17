@@ -262,20 +262,28 @@ function ResearchAssistantScanner:ScanBag(bagId)
 	return traits
 end
 
+
 function ResearchAssistantScanner:JoinCachedOwnedTraits(traits)
 	if not traits then return end
 	for traitKey, value in pairs(traits) do
 		local valType = type(value)
-		local valIsNumber = (valType == "number") or false
+		local valIsNumber = (valType == "number" and true) or false
+
 		local ownedTraitsOfKey = self.ownedTraits[traitKey]
-		local compareValue = ((valIsNumber and ownedTraitsOfKey ~= nil) and ownedTraitsOfKey) or RA_CON_MAX_PREFERENCE_VALUE
+		local compareValue = ((valIsNumber == true and ownedTraitsOfKey ~= nil) and ownedTraitsOfKey) or RA_CON_MAX_PREFERENCE_VALUE
+		local compareValueIsNumber = (compareValue ~= nil and type(compareValue) == "number" and true) or false
+
 		--Value boolean true: Known
-		--Value number: Preference number
-		if value ~= nil and (value == true or (value < compareValue))  then
+		--Value number n: Preference "compare" number for that item
+		if value ~= nil and (
+				value == true
+				or (valIsNumber == true and compareValueIsNumber == true and value < compareValue)
+		)  then
 			self.ownedTraits[traitKey] = value
 		end
 	end
 end
+
 
 function ResearchAssistantScanner:ScanKnownTraits()
 	for researchLineIndex = 1, GetNumSmithingResearchLines(BLACKSMITH) do
