@@ -232,7 +232,7 @@ function ResearchAssistantScanner:ScanBag(bagId)
 				local prefValue = (isProtectedForReal == false and self:CreateItemPreferenceValue(itemLink, bagId, i)) or -1
 				if self.debug == true then
 					if bagId == BAG_BACKPACK and reason ~= libResearch_Reason_WRONG_ITEMTYPE then
-						d(">>"..tostring(i).." "..GetItemLinkName(itemLink)..": trait "..tostring(traitKey).." can? "..tostring(isResearchable).." why? "..tostring(reason).." pref: "..prefValue)
+						d(">>"..tostring(i).." "..itemLink..": trait "..tostring(traitKey).." can? "..tostring(isResearchable).." why? "..tostring(reason).." pref: "..prefValue)
 					end
 				end
 				--is this item researchable?

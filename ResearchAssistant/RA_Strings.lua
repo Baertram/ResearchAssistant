@@ -2,17 +2,18 @@
 ResearchAssistant = {}
 local RA = ResearchAssistant
 ------------------------------------------------------------------------------------------------------------------------
+local supportedLanguages = {
+    ["de"] = "de",
+    ["en"] = "en",
+    ["es"] = "es",
+    ["fr"] = "fr",
+    ["jp"] = "jp",
+    ["ru"] = "ru",
+    ["zh"] = "zh",
+}
 
 function RA.GetLanguage()
     local lang = GetCVar("language.2")
-    local supportedLanguages = {
-        ["de"] = "de",
-        ["en"] = "en",
-        ["es"] = "es",
-        ["fr"] = "fr",
-        ["jp"] = "jp",
-        ["ru"] = "ru",
-    }
     --return english if not supported
     local langSupported = supportedLanguages[lang] or "en"
     return langSupported
@@ -445,6 +446,7 @@ RA_Strings = {
             notTrackedCharName = "|cFFFFFF-Non suivi-|r",
         }
     },
+    --Spanish
     ["es"] = {
         SETTINGS = {
             GENERAL_HEADER = "Opciones generales",
@@ -583,8 +585,9 @@ RA_Strings = {
             notScannedWithNeededCharYet = "|cFF0000ERROR|r: ¡El investigador [\'%s\'] aún no había iniciado sesión!",
             notTracked = "No rastreado%s",
             notTrackedCharName = "|cFFFFFF-No rastreado-|r",
-        }
+        },
     },
+    --Japanese
     ["jp"] = {
         SETTINGS = {
             GENERAL_HEADER = "General Options",
@@ -698,6 +701,7 @@ RA_Strings = {
             notTrackedCharName = "|cFFFFFF-追跡されていない-|r",
         }
     },
+    --Russian
     ["ru"] = {
         SETTINGS = {
             GENERAL_HEADER = "General Options",
@@ -832,5 +836,180 @@ RA_Strings = {
             notScannedWithNeededCharYet = "|cFF0000Ошибка|r: Изучающий [\'%s\'] еще не логинился!",
             notTrackedCharName = "|cFFFFFF-Не отслеживается-|r",
         }
-    }
+    },
+    --Chinese
+    ["zh"] = {
+        SETTINGS = {
+            GENERAL_HEADER = "一般选项",
+            COLORS_HEADER = "颜色选项",
+            HIDDEN_HEADER = "隐藏图标选项",
+            CHARACTER_HEADER = "追踪角色选项",
+
+            ICON_LABEL = "图标类型",
+            ICON_TOOLTIP = "选择研究助手所显示的图标样式类型",
+
+            ICON_SIZE = "图标尺寸",
+            ICON_SIZE_TOOLTIP = "选择研究图标的大小",
+
+            ICON_OFFSET = "图标位置",
+            ICON_OFFSET_TOOLTIP = "选择研究图标在物品栏装备列表X轴上的位置",
+            SEPARATE_LW_LABEL = "是否从制衣研究中区分出皮革研究？",
+            SEPARATE_LW_TOOLTIP = "您是否想分别区分出轻型护甲研究和中型护甲研究的角色？",
+
+            SEPARATE_SMITH_LABEL = "是否从锻造研究中区分出武器研究？",
+            SEPARATE_SMITH_TOOLTIP = "您是否想分别区分出锻甲研究和武器研究的角色？",
+
+            RESEARCHABLE_LABEL = "可研究特质颜色",
+            RESEARCHABLE_TOOLTIP = "如果当前装备特质是可研究的，图标是什么颜色？",
+
+            DUPLICATE_LABEL = "重复的可研究特质颜色",
+            DUPLICATE_TOOLTIP = "如果当前装备特质是可研究的，并且比同类型装备特质效果更好，图标是什么颜色？",
+
+            RESEARCHED_LABEL = "已完成研究特质颜色",
+            RESEARCHED_TOOLTIP = "如果当前装备特质已经研究过，图标是什么颜色？",
+
+            ORNATE_LABEL = "华丽物品颜色",
+            ORNATE_TOOLTIP = "华丽物品的图标是什么颜色？",
+
+            INTRICATE_LABEL = "精巧物品颜色",
+            INTRICATE_TOOLTIP = "精巧物品的图标是什么颜色？",
+
+            SHOW_RESEARCHED_LABEL = "是否显示已研究特质图标？",
+            SHOW_RESEARCHED_TOOLTIP = "图标是否显示您已经研究的特质？",
+
+            SHOW_TRAITLESS_LABEL = "是否显示无特质物品的研究助手图标？",
+            SHOW_TRAITLESS_TOOLTIP = "是否显示无特质物品的研究助手图标？",
+
+            SHOW_ORNATE_LABEL = "是否总是显示华丽物品的研究助手图标？",
+            SHOW_ORNATE_TOOLTIP = "是否总是显示华丽物品的研究助手图标？",
+
+            SHOW_INTRICATE_LABEL = "是否总是显示精巧物品的研究助手图标？",
+            SHOW_INTRICATE_TOOLTIP = "是否总是显示精巧物品的研究助手图标？",
+
+            SHOW_TOOLTIPS_LABEL = "是否显示图标提示框？",
+            SHOW_TOOLTIPS_TOOLTIP = "当鼠标移至研究助手图标上时是否显示提示框？（建议关闭）",
+
+            SHOW_IN_GRID_LABEL = "是否在物品栏网格视图中显示？",
+            SHOW_IN_GRID_TOOLTIP = "研究助手图标是否应该在打开物品栏网格视图时显示？(如果您未使用Inventory Grid View插件，请忽略此选项)",
+
+            WS_CHAR_LABEL = "武器匠角色",
+            WS_CHAR_TOOLTIP = "哪个角色是您的武器研究角色？\n\'-\' 意思是: 未选择角色",
+
+            BS_CHAR_LABEL = "锻造角色",
+            BS_CHAR_TOOLTIP = "哪个角色是您的锻造研究角色？\n\'-\' 意思是: 未选择角色",
+
+            LW_CHAR_LABEL = "皮革匠角色",
+            LW_CHAR_TOOLTIP = "哪个角色是您的皮革研究角色？\n\'-\' 意思是: 未选择角色",
+
+            CL_CHAR_LABEL = "制衣匠角色",
+            CL_CHAR_TOOLTIP = "哪个角色是您的制衣研究角色？\n\'-\' 意思是: 未选择角色",
+
+            WW_CHAR_LABEL = "木工角色",
+            WW_CHAR_TOOLTIP = "哪个角色是您的木工研究角色？\n\'-\' 意思是: 未选择角色",
+
+            JC_CHAR_LABEL = "珠宝匠角色",
+            JC_CHAR_TOOLTIP = "哪个角色是您的珠宝研究角色？\n\'-\' 意思是: 未选择角色",
+
+            USE_ACCOUNTWIDE_RESEARCH_CHARS      = "玩家账户范围内所有角色使用同一个研究角色",
+            USE_ACCOUNTWIDE_RESEARCH_CHARS_TT   = "注意：更改此选项将直接重新加载用户界面！\n\n启用此选项后，您当前账户的所有角色将对每种制作类型使用相同的研究角色（默认设置）\n禁用此选项后，您可以在每个角色上为每种制作类型指定不同的研究角色。",
+            ALLOW_NO_CHARACTER_CHOSEN_FOR_RESEARCH      = "未选择研究角色则不显示警告",
+            ALLOW_NO_CHARACTER_CHOSEN_FOR_RESEARCH_TT   = "如果您没有选择用于任何制作类型的研究的角色，请不要打开警告对话框。",
+            USE_CURRENT_LOGGED_IN_CHAR_FOR_RESEARCH     = "使玩家当前登录角色用于所有研究",
+            USE_CURRENT_LOGGED_IN_CHAR_FOR_RESEARCH_TT  = "对所有研究和制作类型使用当前玩家登录的角色。\n\n仅在禁用“玩家账户范围内所有角色使用同一个研究角色”选项时才有效！",
+
+            PROTECTION                  = "受保护",
+            SKIP_ZOS_MARKED             = "跳过锁定标记",
+            SKIP_ZOS_MARKED_TOOLTIP     = "如果物品标有锁定图标，则在可研究物品扫描和研究助手标记处跳过该物品。",
+            SKIP_FCOIS_MARKED           = "跳过FCO Item Saver插件的标记",
+            SKIP_FCOIS_MARKED_TOOLTIP   = "如果物品标有FCOIS插件的图标，则跳过可研究物品扫描和研究助手标记处的物品。\n排除：FCOIS的研究标记图标是被允许的！",
+            SKIP_SETS                   = "跳过集合物品",
+            SKIP_SETS_TOOLTIP           = "跳过属于一个集合的物品，不要用任何研究助手标记它们",
+            SKIP_SETS_ONLY_MAX_LEVEL    = "跳过集合：仅限最高等级",
+            SKIP_SETS_ONLY_MAX_LEVEL_TOOLTIP = "跳过仅具有最高等级和CP的集合物品，并标记相对较低等级物品以供研究。",
+
+            ERROR_CONFIGURE_ADDON = "请首先配置本插件选项，在设置中选择一个研究角色！",
+            ERROR_LOGIN_ALL_CHARS = "登录您账户的所有角色以读取他们的研究数据。",
+
+            HIDE_VANILLA_UI_RESEARCHABLE_TEXTURE = "隐藏游戏默认可研究特质的图标",
+            HIDE_VANILLA_UI_RESEARCHABLE_TEXTURE_TOOLTIP = "隐藏玩家物品栏装备列表中，游戏默认自带可研究特质的放大镜图标",
+
+            SHOW_ICON_EVEN_IF_PROTECTED = "如果物品受保护是否显示研究图标？",
+            SHOW_ICON_EVEN_IF_PROTECTED_TOOLTIP = "始终显示研究助手图标，即使物品受到保护。这样您就可以看到图标和它的提示框。研究助手不再将这些受保护的物品视为可研究的物品！\n\n此图标将遵守其他选项，例如\'是否显示已研究特质图标？\': 如果禁用此选项并且已经研究了物品的特质，则不会显示研究助手图标！",
+            SHOW_ICON_EVEN_IF_PROTECTED_EXCLUDE_NON_TRACKED = "排除未追踪",
+            SHOW_ICON_EVEN_IF_PROTECTED_EXCLUDE_NON_TRACKED_TOOLTIP = "如果未追踪制作，则不显示受保护的图标",
+
+            SETTINGS_HEADER_TOOLTIPS = GetString(SI_CUSTOMERSERVICESUBMITFEEDBACKSUBCATEGORIES1306),
+            SHOW_TYPE_IN_TOOLTIP = "在提示框中显示装备种类",
+            SHOW_TYPE_IN_TOOLTIP_TOOLTIP = "在提示框中显示武器/护甲种类",
+            SHOW_ARMORWEIGHT_IN_TOOLTIP = "在提示框中显示装备重量",
+            SHOW_ARMORWEIGHT_IN_TOOLTIP_TOOLTIP = "在提示框中显示装备重量（轻型，中型，重型）",
+            SETTINGS_HEADER_VANILLAUI = "默认UI",
+
+            BAG_PRIORITY_HEADER =   "优先级",
+            BAG_PRIORITY =          "背包优先级 - \'研究首选自...\'",
+            BAG_PRIORITY_TT =       "用于研究的背包的优先级/顺序。\n更改此顺序后请重新加载UI！\n\n顺序列表顶部的背包将被视为\'最首要的一个\', 之后的背包将是下一个，依此类推。",
+        },
+        TOOLTIPS = {
+            knownBy = " \'%s\', 研究自:\n",
+            protected = "-|cFF0000受保护的|r-",
+            ornate = GetString(SI_ITEMTRAITTYPE10),
+            intricate = GetString(SI_ITEMTRAITTYPE9),
+            duplicate = "[研究者: %s]\n重复的可研究特质%s",
+            canResearch = "[研究者: %s]\n未研究%s",
+            alreadyResearched = "[研究者: %s]\n"..GetString(SI_TRADINGHOUSEFEATURECATEGORY3).."%s",
+            notScannedWithNeededCharYet = "|cFF0000错误|r: 研究者 [\'%s\'] 还没有登录！",
+            notTrackedCharName = "|cFFFFFF-未追踪到-|r",
+        },
+        BAGS = {
+            [BAG_BANK] 				= "银行",
+            [BAG_SUBSCRIBER_BANK] 	= "ESO PLUS银行",
+            [BAG_BACKPACK] 			= "玩家物品栏",
+            [BAG_GUILDBANK] 		= "公会银行",
+            [BAG_HOUSE_BANK_ONE]    = "住宅保险箱 1",
+            [BAG_HOUSE_BANK_TWO]    = "住宅保险箱 2",
+            [BAG_HOUSE_BANK_THREE]  = "住宅保险箱 3",
+            [BAG_HOUSE_BANK_FOUR]   = "住宅保险箱 4",
+            [BAG_HOUSE_BANK_FIVE]   = "住宅保险箱 5",
+            [BAG_HOUSE_BANK_SIX]    = "住宅保险箱 6",
+            [BAG_HOUSE_BANK_SEVEN]  = "住宅保险箱 7",
+            [BAG_HOUSE_BANK_EIGHT]  = "住宅保险箱 8",
+            [BAG_HOUSE_BANK_NINE]   = "住宅保险箱 9",
+            [BAG_HOUSE_BANK_TEN]    = "住宅保险箱 10",
+        },
+        armorLight = GetString(SI_VISUALARMORTYPE1),
+        armorMedium = GetString(SI_VISUALARMORTYPE2),
+        armorHeavy = GetString(SI_VISUALARMORTYPE3),
+
+        weaponAxe = GetString(SI_WEAPONTYPE1),
+        weaponHammer = GetString(SI_WEAPONTYPE2),
+        weaponSword = GetString(SI_WEAPONTYPE3),
+        weapon2hdSword = "双手 " .. GetString(SI_WEAPONTYPE4),
+        weapon2hdAxe = "双手 " .. GetString(SI_WEAPONTYPE5),
+        weapon2hdHammer = "双手 " .. GetString(SI_WEAPONTYPE6),
+        weaponBow = GetString(SI_WEAPONTYPE8),
+        weaponHealingStaff = GetString(SI_WEAPONTYPE9),
+        weaponDagger = GetString(SI_WEAPONTYPE11),
+        weaponFireStaff = GetString(SI_WEAPONTYPE12),
+        weaponFrostStaff = GetString(SI_WEAPONTYPE13),
+        weaponShield = GetString(SI_WEAPONTYPE14),
+        weaponLightningStaff = GetString(SI_WEAPONTYPE15),
+
+        equipHead = GetString(SI_EQUIPTYPE1),
+        equipNeck = GetString(SI_EQUIPTYPE2),
+        equipChest = GetString(SI_EQUIPTYPE3),
+        equipShoulders = GetString(SI_EQUIPTYPE4),
+        equipWaist = GetString(SI_EQUIPTYPE8),
+        equipLegs = GetString(SI_EQUIPTYPE9),
+        equipFeet = GetString(SI_EQUIPTYPE10),
+        equipRing = GetString(SI_EQUIPTYPE12),
+        equipHand = GetString(SI_EQUIPTYPE13),
+    },
 }
+
+--Use metatable trick to provide EN translations for missing other languages
+local enStrings = RA_Strings["en"]
+for lang, _ in pairs(supportedLanguages) do
+    if lang ~= "en" and RA_Strings[lang] ~= nil then
+        setmetatable(RA_Strings[lang], { __index = enStrings })
+    end
+end
