@@ -517,8 +517,44 @@ RA_Strings = {
             JC_CHAR_LABEL = "Elaboración de joyas",
             JC_CHAR_TOOLTIP = "Elige tu personaje fabricante de joyería.\n\'-\' significa: Ninguno",
 
+            USE_ACCOUNTWIDE_RESEARCH_CHARS      = "Mismos personajes de investigación en toda la cuenta",
+            USE_ACCOUNTWIDE_RESEARCH_CHARS_TT   = "Atención: Cambiar este ajuste recargará la interfaz automáticamente!\n\nCon esta opción activada todos los personajes de esta cuenta tendrán los mismos personajes seleccionados para cada tipo de artesanía (opción por defecto).\nCon esta opción desactivada puedes especificar para cada personaje un conjunto de personajes diferentes para cada tipo de artesanía.",
+            ALLOW_NO_CHARACTER_CHOSEN_FOR_RESEARCH      = "Desactivar aviso de artesanía sin personaje asignado",
+            ALLOW_NO_CHARACTER_CHOSEN_FOR_RESEARCH_TT   = "No mostrar una ventana de aviso si no tienes seleccionado ningún personaje para algún tipo de artesanía.",
+            USE_CURRENT_LOGGED_IN_CHAR_FOR_RESEARCH     = "Utilizar personaje actual para toda investigación.",
+            USE_CURRENT_LOGGED_IN_CHAR_FOR_RESEARCH_TT  = "Utilizar el personaje con el que está conectado para la investigación de todas las artesanías.\n\nSolo funciona si la opción 'Mismos personajes de investigación en toda la cuenta' está desactivada.",
+
+            PROTECTION                  = "Protección",
+            SKIP_ZOS_MARKED             = "Excluir marcados por ZO",
+            SKIP_ZOS_MARKED_TOOLTIP     = "Exlcuir objetos del escaneo de investigables y de los marcadores del asistente de investigación si el objeto está marcado con un icono de bloqueo ZO.",
+            SKIP_FCOIS_MARKED           = "Excluir marcados por FCOItemSaver",
+            SKIP_FCOIS_MARKED_TOOLTIP   = "Exlcuir objetos del escaneo de investigables y de los marcadores del asistente de investigación si el objeto está marcado con iconos FCOIS.\nExcepción: Si el icono de investigación de FCOIS está habilitado!",
+            SKIP_SETS                   = "Excluir conjuntos",
+            SKIP_SETS_TOOLTIP           = "Excluir objetos que forman parte de un conjunto y no marcarlos con ningún asistente de investigación",
+            SKIP_SETS_ONLY_MAX_LEVEL    = "Excluir conjuntos: solo nivel máximo",
+            SKIP_SETS_ONLY_MAX_LEVEL_TOOLTIP = "Excluir objetos que forman parte de un conjunto solo si son de nivel máximo y puntos de campeón, y marcar los de nivel inferior para investigación.",
+
             ERROR_CONFIGURE_ADDON = "¡Configura el AddOn, elige un personaje de investigación en la configuración!",
             ERROR_LOGIN_ALL_CHARS = "Inicia sesión con todos tus personajes para leer sus datos de investigación.",
+
+            HIDE_VANILLA_UI_RESEARCHABLE_TEXTURE = "Esconder textura de interfaz vanilla de ZO.",
+            HIDE_VANILLA_UI_RESEARCHABLE_TEXTURE_TOOLTIP = "No mostrar la textura de la interfaz por defecto de ZO en las líneas del inventario.",
+
+            SHOW_ICON_EVEN_IF_PROTECTED = "Mostrar icono en objetos protegidos",
+            SHOW_ICON_EVEN_IF_PROTECTED_TOOLTIP = "Mostrar siempre el icono de investigación, incluso en objetos que estén marcados como protegidos. De esta manera puedes ver el icono y su descripción emergente. Los asistentes de investigación no tienen en cuenta estos objetos como investigables!\n\nEste icono respetará otros ajustes como \'Mostrar investigados\': Si está opción está desactivada y el rasgo del objeto ya ha sido investigado, el icono del asistente no se mostrará!",
+            SHOW_ICON_EVEN_IF_PROTECTED_EXCLUDE_NON_TRACKED = "Excluir no rastreados",
+            SHOW_ICON_EVEN_IF_PROTECTED_EXCLUDE_NON_TRACKED_TOOLTIP = "No mostrar el icono de protegido si no se rastrea la fabricación.",
+
+            SETTINGS_HEADER_TOOLTIPS = GetString(SI_CUSTOMERSERVICESUBMITFEEDBACKSUBCATEGORIES1306),
+            SHOW_TYPE_IN_TOOLTIP = "Mostrar tipo en la descripción emergente",
+            SHOW_TYPE_IN_TOOLTIP_TOOLTIP = "Mostrar el tipo de arma/armadura en el texto de la descripción emergente",
+            SHOW_ARMORWEIGHT_IN_TOOLTIP = "Mostrar peso de la armadura en la descripción emergente",
+            SHOW_ARMORWEIGHT_IN_TOOLTIP_TOOLTIP = "Mostrar el peso de la armadura (ligera, media, pesada) en el texto de la descripción emergente",
+            SETTINGS_HEADER_VANILLAUI = "Interfaz Vanilla",
+
+            BAG_PRIORITY_HEADER =   "Prioridad",
+            BAG_PRIORITY =          "Prioridad de bolsa - \'Se prefiere investigación de...\'",
+            BAG_PRIORITY_TT =       "El orden o prioridad de las bolsas que se utilizarán para investigación.\nPorfavor recargue la interfaz después de cambiar este orden!\n\nLa bolsa de arriba de la lista será considerada \'la más priorizada\', la segunda será la siguiente, y así en adelante.",
         },
         BAGS = {
             [BAG_BANK] 				= "Banco",
