@@ -2,7 +2,7 @@
 ## Author: ingeniousclown, katkat42, Randactyl, Baertram
 ## Version: 0.9.6.1
 ## AddOnVersion: 0961
-## APIVersion: 101039 101040
+## APIVersion: 101046
 ## SavedVariables: ResearchAssistant_Settings_Server
 ## DependsOn: LibResearch>=042 LibAddonMenu-2.0>=34 LibAddonMenuOrderListBox>=008
 ## OptionalDependsOn: LibCustomMenu>=721 LibDebugLogger>=255 GridList
