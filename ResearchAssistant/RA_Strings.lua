@@ -337,7 +337,7 @@ RA_Strings = {
             CHARACTER_HEADER = "L\'artisanat des personnages",
 
             ICON_LABEL = "Style des icones",
-            ICON_TOOLTIP = "Choisir l\'apparence de l\'icone de l\'Assistant de Recherche.",
+            ICON_TOOLTIP = "Choisir l\'apparence de l\'icone de ResearchAssistant.",
 
             ICON_SIZE = "Taille de l'icône",
             ICON_SIZE_TOOLTIP = "Choisissez la taille de l'icône de recherche",
@@ -347,38 +347,38 @@ RA_Strings = {
             RESEARCHABLE_LABEL = "Couleur pour la recherche",
             RESEARCHABLE_TOOLTIP = "Choisir la couleur de l\'icone qui s\'affiche lorsque le trait n\'est pas encore connu.",
 
-            SEPARATE_LW_LABEL = "S\195\169parer artisan du cuir et couturier",
-            SEPARATE_LW_TOOLTIP = "Voulez-vous scanner les recherches d'armures moyennes et d'armures l\195\169g\195\168res pour des personnages diff\195\169rents?",
+            SEPARATE_LW_LABEL = "Séparer artisan du cuir et couturier",
+            SEPARATE_LW_TOOLTIP = "Voulez-vous attribuer les recherches d'armures moyennes et d'armures légères à des personnages différents?",
 
-            SEPARATE_SMITH_LABEL = "S\195\169parer armes et armures lourdes",
-            SEPARATE_SMITH_TOOLTIP = "Voulez-vous scanner les recherches d'armes et d'armures lourdes pour des personnages diff\195\169rents?",
+            SEPARATE_SMITH_LABEL = "Séparer armes et armures lourdes",
+            SEPARATE_SMITH_TOOLTIP = "Voulez-vous attribuer les recherches d'armes et d'armures lourdes à des personnages différents?",
 
             DUPLICATE_LABEL = "Couleur pour les doublons",
-            DUPLICATE_TOOLTIP = "Choisir la couleur de l\'icone qui s\'affiche lorsque le trait n\'est pas encore connu mais que vous poss\195\169dez un meilleur candidat \195\160 la recherche (vous poss\195\169dez un autre objet, de moins bonne qualit\195\169, avec le m\195\170me trait).",
+            DUPLICATE_TOOLTIP = "Choisir la couleur de l\'icone qui s\'affiche lorsque le trait n\'est pas encore connu mais que vous possédez un meilleur candidat à la recherche (vous possédez un autre objet, de moins bonne qualité, avec le m\195\170me trait).",
 
             RESEARCHED_LABEL = "Couleur des traits connus",
-            RESEARCHED_TOOLTIP = "Choisir la couleur de l\'icone qui s\'affiche lorsque le trait est d\195\169j\195\160 connu.",
+            RESEARCHED_TOOLTIP = "Choisir la couleur de l\'icone qui s\'affiche lorsque le trait est déjà connu.",
 
-            ORNATE_LABEL = "Couleur du trait Orn\195\169",
-            ORNATE_TOOLTIP = "Choisir la couleur de l\'icone qui s\'affiche pour les objets poss\195\169dant le trait \"Orn\195\169\".",
+            ORNATE_LABEL = "Couleur du trait Orné",
+            ORNATE_TOOLTIP = "Choisir la couleur de l\'icone qui s\'affiche pour les objets possédant le trait \"Orné\".",
 
             INTRICATE_LABEL = "Couleur du trait Complexe",
-            INTRICATE_TOOLTIP = "Choisir la couleur de l\'icone qui s\'affiche pour les objets poss\195\169dant le trait \"Complexe\".",
+            INTRICATE_TOOLTIP = "Choisir la couleur de l\'icone qui s\'affiche pour les objets possédant le trait \"Complexe\".",
 
-            SHOW_RESEARCHED_LABEL = "Afficher si d\195\169j\195\160 connu",
-            SHOW_RESEARCHED_TOOLTIP = "Afficher l\'icone de l\'Assistant de Recherche si le trait est d\195\169j\195\160 connu.",
+            SHOW_RESEARCHED_LABEL = "Afficher si déjà connu",
+            SHOW_RESEARCHED_TOOLTIP = "Afficher l\'icone de ResearchAssistant si le trait est déjà connu.",
 
-            SHOW_TRAITLESS_LABEL = "Icone sur les items sans traits",
-            SHOW_TRAITLESS_TOOLTIP = "Afficher un icone sur les équipements sans traits?",
+            SHOW_TRAITLESS_LABEL = "Afficher sur les objets sans trait",
+            SHOW_TRAITLESS_TOOLTIP = "Affiche une icone même sur les équipements sans trait",
 
-            SHOW_ORNATE_LABEL = "Toujours afficher le trait Orn\195\169",
-            SHOW_ORNATE_TOOLTIP = "Afficher l\'icone de recherche pour les objets poss\195\169dant le trait \"Orn\195\169\".",
+            SHOW_ORNATE_LABEL = "Afficher le trait Orné",
+            SHOW_ORNATE_TOOLTIP = "Afficher l\'icone de recherche pour les objets possédant le trait \"Orné\".",
 
-            SHOW_INTRICATE_LABEL = "Toujours afficher le trait Complexe",
-            SHOW_INTRICATE_TOOLTIP = "Afficher l\'icone de recherche pour les objets poss\195\169dant le trait \"Complexe\".",
+            SHOW_INTRICATE_LABEL = "Afficher le trait Complexe",
+            SHOW_INTRICATE_TOOLTIP = "Afficher l\'icone de recherche pour les objets possédant le trait \"Complexe\".",
 
             SHOW_TOOLTIPS_LABEL = "Afficher l\'infobulle des icones",
-            SHOW_TOOLTIPS_TOOLTIP = "Afficher une bulle d\'aide lorsque vous passez le curseur de la souris sur les icones de l\'Assistant de Recherche.",
+            SHOW_TOOLTIPS_TOOLTIP = "Afficher une bulle d\'aide lorsque vous passez le curseur de la souris sur les icones de ResearchAssistant.",
 
             SHOW_IN_GRID_LABEL = "Afficher avec Grid View?",
             SHOW_IN_GRID_TOOLTIP = "Afficher avec Inventory Grid View Add-on?",
@@ -401,17 +401,40 @@ RA_Strings = {
             JC_CHAR_LABEL = "Fabrication de bijoux",
             JC_CHAR_TOOLTIP = "Quel personnage est bijoutier?\n\'-\' signifie: Aucun",
 
-            USE_ACCOUNTWIDE_RESEARCH_CHARS      = "Account-wide same research characters",
-            USE_ACCOUNTWIDE_RESEARCH_CHARS_TT   = "Attention: Change of this option will reload the UI directly!\n\nWith this option enabled all your characters of the current acocunt will use the same research characters for each crafting type (default setting).\nWith this option disabled you can specify different research characters for each crafting type at each of your characters.",
+            USE_ACCOUNTWIDE_RESEARCH_CHARS      = "Paramètres de personnages liés au compte",
+            USE_ACCOUNTWIDE_RESEARCH_CHARS_TT   = "Attention: Changer ce paramètre va recharger l\'UI immédiadement!\n\nLorsque cette option est activée, les paramètres de métiers des personnages seront appliqués à tout le compte, pour tous les métiers (paramètre par défaut).\nLorsque cette option est désactivée, vous pouvez définir des paramètres de métiers des personnages différents pour chaque personnage de votre compte.",
+            ALLOW_NO_CHARACTER_CHOSEN_FOR_RESEARCH      = "No warning w/o research character selected",
+            ALLOW_NO_CHARACTER_CHOSEN_FOR_RESEARCH_TT   = "Do not sbow a warning dialog if you have chosen no character for research of any crafting type.",
+            USE_CURRENT_LOGGED_IN_CHAR_FOR_RESEARCH     = "Personnage actuellement connecté recherche tout",
+            USE_CURRENT_LOGGED_IN_CHAR_FOR_RESEARCH_TT  = "Utilise le personnage actuellement connecté pour toutes les recherches.\n\nFonctionne seulement quand 'Paramètres de personnages liés au compte' est désactivé!",
 
             PROTECTION                  = "Protection",
-            SKIP_ZOS_MARKED             = "Skip ZOs marked",
-            SKIP_ZOS_MARKED_TOOLTIP     = "Skip items at the researchable scans and Research Assistant markers if the item is marked with the ZOs lock icon.",
-            SKIP_FCOIS_MARKED           = "Skip FCOItemSaver marked",
-            SKIP_FCOIS_MARKED_TOOLTIP   = "Skip items at the researchable scans and Research Assistant markers if the item is marked with the FCOIS icons.\nExclusion: The research marker icon of FCOIS is allowed!",
+            SKIP_ZOS_MARKED             = "Ignorer les objets verrouilés",
+            SKIP_ZOS_MARKED_TOOLTIP     = "Ignore les objets marqués par l'icone du cadenas.\n\nVous pouvez verrouiler un objet depuis votre inventaire: clic droit > Verrouiller.",
+            SKIP_FCOIS_MARKED           = "Ignorer les objets FCOIS",
+            SKIP_FCOIS_MARKED_TOOLTIP   = "Ignore les objets marqués par une icone FCOIS.\n\nFCO Item Saver est un autre addon pour ESO.",
+            SKIP_SETS                   = "Ignorer objets de set",
+            SKIP_SETS_TOOLTIP           = "Les objets de set ne seront pas marqués par ResearchAssistant",
+            SKIP_SETS_ONLY_MAX_LEVEL    = "Ignorer objets de set: lvl max",
+            SKIP_SETS_ONLY_MAX_LEVEL_TOOLTIP = "Ignore seulement les objets de set de niveau maximum et nécessitant des CP. Les objets de niveau inférieur seront marqués.",
 
             ERROR_CONFIGURE_ADDON = "Veuillez configurer l'addon, choisissez un personnage de recherche dans les paramètres!",
             ERROR_LOGIN_ALL_CHARS = "Connectez-vous à tous vos personnages pour lire leurs données de recherche.",
+
+            HIDE_VANILLA_UI_RESEARCHABLE_TEXTURE = "Masquer l'icone de recherche",
+            HIDE_VANILLA_UI_RESEARCHABLE_TEXTURE_TOOLTIP = "Masque l'icone de recherche de l'interface originale.\n\nCela évite de faire doublon avec l'icone ResearchAssistant",
+
+            SHOW_ICON_EVEN_IF_PROTECTED = "Afficher si verrouillé",
+            SHOW_ICON_EVEN_IF_PROTECTED_TOOLTIP = "Affiche l'icone de ResearchAssistant, même si l'objet est verrouillé. Vous verrez une icone de cadenas et l'infobulle.\nResearchAssistant ne compte pas les objets verrouillés comme recherchables!\n\nCette icone respecte les autres paramètres d'icones, tel que \'Afficher si déjà connu\'.",
+            SHOW_ICON_EVEN_IF_PROTECTED_EXCLUDE_NON_TRACKED = "Exclure verrouillé non suivi",
+            SHOW_ICON_EVEN_IF_PROTECTED_EXCLUDE_NON_TRACKED_TOOLTIP = "Ne montre pas l'icone \'Verrouillé\' si le métier n'est pas suivi",
+
+            SETTINGS_HEADER_TOOLTIPS = GetString(SI_CUSTOMERSERVICESUBMITFEEDBACKSUBCATEGORIES1306),
+            SHOW_TYPE_IN_TOOLTIP = "Afficher le type dans l'infobulle",
+            SHOW_TYPE_IN_TOOLTIP_TOOLTIP = "Montre le type de l'objet dans l'infobulle",
+            SHOW_ARMORWEIGHT_IN_TOOLTIP = "Montrer le poids dans l'infobulle",
+            SHOW_ARMORWEIGHT_IN_TOOLTIP_TOOLTIP = "Montre le poids (léger, moyen, lourd) de l'armure dans l'infobulle",
+            SETTINGS_HEADER_VANILLAUI = "Interface d'origine",
 
             BAG_PRIORITY_HEADER =   "Priorité",
             BAG_PRIORITY =          "Priorité sac - \'Recherche préférée de...\'",
@@ -419,7 +442,7 @@ RA_Strings = {
         },
         BAGS = {
             [BAG_BANK] 				= "Banque",
-            [BAG_SUBSCRIBER_BANK] 	= "ESO+ Banque",
+            [BAG_SUBSCRIBER_BANK] 	= "Banque ESO+",
             [BAG_BACKPACK] 			= "Inventaire",
             [BAG_GUILDBANK] 		= "Banque de guilde",
             [BAG_HOUSE_BANK_ONE]    = "Banque maison 1",
