@@ -1,11 +1,11 @@
 ## Title: Research Assistant
 ## Author: ingeniousclown, katkat42, Randactyl, Baertram
-## Version: 0.9.6.2
-## AddOnVersion: 0962
-## APIVersion: 101046 101047
+## Version: 0.9.6.3
+## AddOnVersion: 0963
+## APIVersion: 101048 101049
 ## SavedVariables: ResearchAssistant_Settings_Server
-## DependsOn: LibResearch>=042 LibAddonMenu-2.0>=40 LibAddonMenuOrderListBox>=013
-## OptionalDependsOn: LibCustomMenu>=721 LibDebugLogger>=255 GridList
+## DependsOn: LibResearch>=042 LibAddonMenu-2.0>=41 LibAddonMenuOrderListBox>=013
+## OptionalDependsOn: LibCustomMenu LibDebugLogger GridList
 
 RA_Strings.lua
 ResearchAssistantSettings.lua

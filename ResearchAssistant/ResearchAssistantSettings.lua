@@ -926,10 +926,10 @@ function ResearchAssistantSettings:CreateOptionsMenu()
         tooltip = str.RESEARCHABLE_TOOLTIP,
         getFunc = function()
             local r, g, b, a = HexToRGBA(self.sv.canResearchColor)
-            return r, g, b
+            return r, g, b, a
         end,
-        setFunc = function(r, g, b)
-            self.sv.canResearchColor = RGBAToHex(r, g, b, 1)
+        setFunc = function(r, g, b, a)
+            self.sv.canResearchColor = RGBAToHex(r, g, b, a)
             ResearchAssistant_InvUpdate()
         end,
     })
@@ -939,10 +939,10 @@ function ResearchAssistantSettings:CreateOptionsMenu()
         tooltip = str.DUPLICATE_TOOLTIP,
         getFunc = function()
             local r, g, b, a = HexToRGBA(self.sv.duplicateUnresearchedColor)
-            return r, g, b
+            return r, g, b, a
         end,
-        setFunc = function(r, g, b)
-            self.sv.duplicateUnresearchedColor = RGBAToHex(r, g, b, 1)
+        setFunc = function(r, g, b, a)
+            self.sv.duplicateUnresearchedColor = RGBAToHex(r, g, b, a)
             ResearchAssistant_InvUpdate()
         end,
     })
@@ -952,10 +952,10 @@ function ResearchAssistantSettings:CreateOptionsMenu()
         tooltip = str.RESEARCHED_TOOLTIP,
         getFunc = function()
             local r, g, b, a = HexToRGBA(self.sv.alreadyResearchedColor)
-            return r, g, b
+            return r, g, b, a
         end,
-        setFunc = function(r, g, b)
-            self.sv.alreadyResearchedColor = RGBAToHex(r, g, b, 1)
+        setFunc = function(r, g, b, a)
+            self.sv.alreadyResearchedColor = RGBAToHex(r, g, b, a)
             ResearchAssistant_InvUpdate()
         end,
     })
@@ -967,8 +967,8 @@ function ResearchAssistantSettings:CreateOptionsMenu()
             local r, g, b, a = HexToRGBA(self.sv.ornateColor)
             return r, g, b
         end,
-        setFunc = function(r, g, b)
-            self.sv.ornateColor = RGBAToHex(r, g, b, 1)
+        setFunc = function(r, g, b, a)
+            self.sv.ornateColor = RGBAToHex(r, g, b, a)
             ResearchAssistant_InvUpdate()
         end,
     })
@@ -978,10 +978,10 @@ function ResearchAssistantSettings:CreateOptionsMenu()
         tooltip = str.INTRICATE_TOOLTIP,
         getFunc = function()
             local r, g, b, a = HexToRGBA(self.sv.intricateColor)
-            return r, g, b
+            return r, g, b, a
         end,
-        setFunc = function(r, g, b)
-            self.sv.intricateColor = RGBAToHex(r, g, b, 1)
+        setFunc = function(r, g, b, a)
+            self.sv.intricateColor = RGBAToHex(r, g, b, a)
             ResearchAssistant_InvUpdate()
         end,
     })
